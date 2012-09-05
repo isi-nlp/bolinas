@@ -1,0 +1,4 @@
+(root :root:like (l :arg0:boy b :arg1:girl g))
+(root :root:want (w :arg0:boy b :arg1:like (l :arg0:girl g :arg1:boy b)))
+(root :root:want (w :arg0:boy b :arg1:like (l :arg0:boy b :arg1:boy b))
+(root :root:want (w :arg0:boy b :arg1:like (l :arg0:boy b :arg1:girl g)))

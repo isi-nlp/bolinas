@@ -1,0 +1,4 @@
+(ROOT (S (NP (DT the) (NN boy)) (VP (VBZ likes) (NP (DT the) (NN girl)))))
+(ROOT (S (NP (DT the) (NN boy)) (VP (VBZ wants) (NP (DT the) (NN girl) (S (VP (TO to) (VP (VB like) (NP (PRP him)))))))))
+(ROOT (S (NP (DT the) (NN boy)) (VP (VBZ wants) (S (VP (TO to) (VP (VB like) (NP (PRP himself))))))))
+(ROOT (S (NP (DT the) (NN boy)) (VP (VBZ wants) (S (VP (TO to) (VP (VB like) (NP (DT the) (NN girl))))))))
