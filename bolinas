@@ -1,0 +1,23 @@
+#!/usr/bin/env python2
+
+import sys
+from parser import Parser
+from aligner import Aligner
+from extractor_synsem import ExtractorSynSem
+from extractor_cansem import ExtractorCanSem
+
+SUBMODULES = {
+  'parse': Parser,
+  'align': Aligner,
+  'extract-synsem': ExtractorSynSem,
+  'extract-cansem': ExtractorCanSem,
+}
+
+if __name__ == '__main__':
+  if len(sys.argv) < 2:
+    print >>sys.stderr, "Usage: bolinas <command> arg1 arg2 ..."
+    print >>sys.stderr
+    print >>sys.stderr, "where <command> is one of:"
+    print >>sys.stderr, '  ', '\n   '.join(SUBMODULES.keys())
+    print >>sys.stderr
+    print >>sys.stderr, 'See `bolinas help <command>` for more information.'
