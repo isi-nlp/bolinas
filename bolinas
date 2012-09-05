@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 
 import sys
-from parser import Parser
-from aligner import Aligner
-from extractor_synsem import ExtractorSynSem
-from extractor_cansem import ExtractorCanSem
+from parser.parser import Parser
+from aligner.aligner import Aligner
+from extractor_synsem.extractor_synsem import ExtractorSynSem
+from extractor_cansem.extractor_cansem import ExtractorCanSem
 
 SUBMODULES = {
   'parse': Parser,
@@ -13,11 +13,32 @@ SUBMODULES = {
   'extract-cansem': ExtractorCanSem,
 }
 
+def print_usage_message_and_exit():
+  print >>sys.stderr, "Usage: bolinas <command> arg1 arg2 ..."
+  print >>sys.stderr
+  print >>sys.stderr, "where <command> is one of:"
+  print >>sys.stderr, '  ', '\n   '.join(SUBMODULES.keys())
+  print >>sys.stderr
+  print >>sys.stderr, 'See `bolinas help <command>` for more information.'
+  sys.exit(1)
+
+def print_command_help_and_exit(command):
+  print >>sys.stderr, SUBMODULES[command].help()
+  sys.exit(2)
+
 if __name__ == '__main__':
+
   if len(sys.argv) < 2:
-    print >>sys.stderr, "Usage: bolinas <command> arg1 arg2 ..."
-    print >>sys.stderr
-    print >>sys.stderr, "where <command> is one of:"
-    print >>sys.stderr, '  ', '\n   '.join(SUBMODULES.keys())
-    print >>sys.stderr
-    print >>sys.stderr, 'See `bolinas help <command>` for more information.'
+    print_usage_message_and_exit()
+
+  command = sys.argv[1]
+
+  if command == 'help':
+    if len(sys.argv) < 3 or sys.argv[2] not in SUBMODULES:
+      print_usage_message_and_exit()
+    print_command_help_and_exit(sys.argv[2])
+
+  if command not in SUBMODULES:
+    print_usage_message_and_exit()
+
+  SUBMODULES[command]().main(sys.argv[2:])
