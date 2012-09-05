@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
 import sys
+
+from lib.exceptions import InvocationException
+
 from parser.parser import Parser
 from aligner.aligner import Aligner
 from extractor_synsem.extractor_synsem import ExtractorSynSem
@@ -41,4 +44,7 @@ if __name__ == '__main__':
   if command not in SUBMODULES:
     print_usage_message_and_exit()
 
-  SUBMODULES[command]().main(sys.argv[2:])
+  try:
+    SUBMODULES[command]().main(*sys.argv[2:])
+  except InvocationException:
+    print_command_help_and_exit(command)
