@@ -1,4 +1,4 @@
 root:root:like:l-2 l:arg0:boy:b-1 l:arg1:girl:g-4
-root:root:like:w-2 w:arg0:boy:b-1 w:arg1:like:l-6 l:arg0:girl:g-4 l:arg1:boy:b-7
-root:root:like:w-2 w:arg0:boy:b-1 w:arg1:like:l-4 l:arg1:boy:b-5
-root:root:like:w-2 w:arg0:boy:b-1 w:arg1:like:l-4 l:arg1:girl:g-6
+root:root:want:w-2 w:arg0:boy:b-1 w:arg1:like:l-6 l:arg0:girl:g-4 l:arg1:boy:b-7
+root:root:want:w-2 w:arg0:boy:b-1 w:arg1:like:l-4 l:arg1:boy:b-5
+root:root:want:w-2 w:arg0:boy:b-1 w:arg1:like:l-4 l:arg1:girl:g-6
