@@ -6,7 +6,7 @@ from collections import defaultdict as ddict
 import itertools
 from parser.rule import Rule
 
-DEFAULT_COMPOSITION_DEPTH=3
+DEFAULT_COMPOSITION_DEPTH = 3
 
 class ExtractorSynSem:
 
@@ -15,11 +15,18 @@ class ExtractorSynSem:
 
   @classmethod
   def help(self):
+    """
+    Returns SynSem help message.
+    """
     return 'Usage: bolinas extract-synsem <nl_file> <mr_file> ' + \
-        '<alignment_file> <destination> [composition_depth=%d]' % \
+        '<alignment_file> <destination> [composition_depth (default %d)]' % \
         DEFAULT_COMPOSITION_DEPTH
 
   def main(self, *args):
+    """
+    Extracts rules from the given training data, with an optional composition
+    depth specified.
+    """
     if len(args) < 4:
       raise InvocationException()
     nl_path, mr_path, align_path, destination_prefix = args[:4]
@@ -33,10 +40,11 @@ class ExtractorSynSem:
     self.extract_rules_corpus(nl_path, mr_path, align_path, destination_prefix,
         composition_depth)
 
-  ###
-
   def extract_rules_corpus(self, nl_path, amr_path, alignment_path,
       destination_prefix, composition_depth):
+    """
+    Extract all rules from the corpus specified by the *_path arguments.
+    """
 
     syn_f = open(nl_path)
     sem_f = open(amr_path)
@@ -45,6 +53,7 @@ class ExtractorSynSem:
     n_examples = count_lines(amr_path)
     announce_interval = n_examples / 10
 
+    # load input data into examples list
     examples = []
     for example_i in range(n_examples):
       syn_s = syn_f.readline().strip()
@@ -58,19 +67,21 @@ class ExtractorSynSem:
 
       examples.append((amr, tree, align))
 
+    # extract rules from data
     rules = []
     for example in examples:
       example_rules = extract_rules(example[0], example[1], example[2],
           composition_depth)
       rules += example_rules
 
+    # assign ML weights by counting
     grammar = collect_counts(rules)
-
     Rule.write_to_file(grammar, destination_prefix)
 
-###
-
 def count_lines(filename):
+  """
+  Counts the number of lines in the given file.
+  """
   n_lines = 0
   with open(filename) as f:
     for line in f:
@@ -78,6 +89,9 @@ def count_lines(filename):
   return n_lines
 
 def get_alignments(align_s, amr):
+  """
+  Converts alignments into an actual mapping into edges of the AMR object.
+  """
   alignments = ddict(list)
   align_s_parts = align_s.split()
   for part in align_s_parts:
@@ -96,6 +110,11 @@ def get_alignments(align_s, amr):
   return dict(alignments)
 
 def label_spans(tree, start=0):
+  """
+  Labels each constituent with its corresponding sentence span (so that we can
+  distinguish constituents over different parts of the sentence with identical
+  tree structure.
+  """
   end = start
   if isinstance(tree, Tree):
     for child in tree:
@@ -106,11 +125,16 @@ def label_spans(tree, start=0):
     return end + 1
 
 def minimal_aligned(constituents, tree_aligned):
+  """
+  Finds frontier constituents.
+  """
   minimal_constituents = []
   for key in constituents:
     start,end,height = key
+    # ignore unaligned constituents
     if len(tree_aligned[key]) == 0:
       continue
+    # ignore constituents which have children with identical alignments
     minimal = True
     for key2 in constituents:
       start2,end2,height2 = key2
@@ -123,7 +147,9 @@ def minimal_aligned(constituents, tree_aligned):
     minimal_constituents.append(key)
   return minimal_constituents
 
-# here be dragons
+# HERE BE DRAGONS
+# The following methods implement various searches through the AMR necessary to
+# produce the heuristic attachment of unaligned edges described in the paper.
 
 def amr_reachable_h(edges, amr, predicate, expander, seen=None):
   if seen == None:
@@ -173,6 +199,9 @@ def amr_reachable_nothru(edges, amr, predicate=lambda e: True):
   return seen
 
 def minimal_frontier(frontier):
+  """
+  Extracts the minimal frontier set from the given frontier set.
+  """
   min_frontier = []
   for f in frontier:
     fstart, fend = f[0].span
@@ -187,6 +216,9 @@ def minimal_frontier(frontier):
   return min_frontier
 
 def frontier_edges(amr, tree, alignments):
+  """
+  Extracts the frontier set.
+  """
   frontier = []
   constituents = {}
   if isinstance(tree, Tree):
@@ -228,9 +260,15 @@ def frontier_edges(amr, tree, alignments):
   return min_frontier_sorted
 
 def collapse_constituent(tree, constituent, label):
+  """
+  Shortcut: replaces a constituent with a single nonterminal label.
+  """
   return replace_constituent(tree, constituent, str(label))
 
 def replace_constituent(tree, constituent, new_constituent):
+  """
+  Replaces one constituent in this tree with another.
+  """
   # We injected span, so the standard __eq__ check doesn't look for it
   if tree == constituent and (not isinstance(tree, Tree) or tree.span ==
       constituent.span):
@@ -243,6 +281,9 @@ def replace_constituent(tree, constituent, new_constituent):
   return n_tree
 
 def collapse_alignments(alignments, amr_fragment, new_triple):
+  """
+  Adjusts alignments when replacing collapsing graph & tree fragments.
+  """
   new_alignments = {}
   new_triple_alignment = []
   for triple in alignments:
@@ -255,6 +296,10 @@ def collapse_alignments(alignments, amr_fragment, new_triple):
   return new_alignments
 
 def make_rule(frontier_pair, amr, tree, align, next_index):
+  """
+  Creates a new rule with the given parts, and collapses these parts in the
+  original graph and tree.
+  """
 
   constituent, amr_fragment = frontier_pair
   outside_edges = [e for e in amr.triples() if e not in amr_fragment.triples()]
@@ -289,6 +334,10 @@ def make_rule(frontier_pair, amr, tree, align, next_index):
   return rule, new_amr, new_tree, new_alignments, next_index+1
 
 def make_composed_rule(rule, cdict):
+  """
+  Creates a composed rule by replacing every nonterminal in this rule's RHS with
+  the graph and tree fragment specified in cdict.
+  """
   for label, crule in cdict.items():
     replacement_triple_l = [e for e in rule.amr.triples() if e[1] == label]
     assert len(replacement_triple_l) == 1
@@ -303,19 +352,32 @@ def make_composed_rule(rule, cdict):
   return rule
 
 def make_composed_rules(rules, max_depth):
+  """
+  Finds all possible composed rules, up to the specified max depth.
+  """
   composed_rules = []
 
+  # add all base rules
   for rule in rules:
     composed_rules.append(rule)
 
+  # incrementally compose rules up to the max depth
   for i in range(1, max_depth):
     composed_rules_this_depth = []
+    # consider each rule...
     for rule in rules:
       nt_labels = [e[1] for e in rule.amr.triples() if isinstance(e[1],
         NonterminalLabel)]
       if len(nt_labels) == 0:
         continue
 
+      # ...and try to replace its nonterminals with the fragments from other
+      # composed rules
+
+      # we cheat here by relying on the fact that nonterminal indices are
+      # never repeated in the induced derivation of a training example (so if a
+      # rule has original_index n, we are sure it can only replace the
+      # nonterminal with the same index)
       composition_candidates = {}
       for label in nt_labels:
         composition_candidates[label] = []
@@ -324,6 +386,9 @@ def make_composed_rules(rules, max_depth):
             continue
           composition_candidates[label].append(crule)
 
+      # we have a set of possible substitutions (of varying depth) for each
+      # nonterminal; now we consider every possible way of combining them (the
+      # Cartesian product of all the candidate lists)
       comp_cand_list = []
       label_list = []
       for label, comp_cand in composition_candidates.items():
@@ -332,6 +397,7 @@ def make_composed_rules(rules, max_depth):
       compositions = itertools.product(*comp_cand_list)
       compositions = list(compositions)
 
+      # now actually create the composed rules
       for composition in compositions:
         cdict = dict(zip(label_list, composition))
         composed_rule = make_composed_rule(rule, cdict)
@@ -342,6 +408,9 @@ def make_composed_rules(rules, max_depth):
   return composed_rules
 
 def extract_rules(amr, tree, align, composition_depth):
+  """
+  Extracts all possible rules from the given tree-string pair.
+  """
   rules = []
   frontier = frontier_edges(amr, tree, align)
   next_index = 0
@@ -355,6 +424,10 @@ def extract_rules(amr, tree, align, composition_depth):
   return composed_rules
 
 def collect_counts(rules):
+  """
+  Collects counts of the number of times each rule is used in the training data
+  for the "observed derivation" ML estimate of rule weights.
+  """
   rule_mapper = {}
   rule_counter = {}
   rule_normalizer = ddict(lambda:0.0)
