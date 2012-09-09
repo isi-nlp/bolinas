@@ -2,19 +2,22 @@
 
 import sys
 
-from lib.exceptions import InvocationException
+from lib.exceptions import InvocationException, InputFormatException
 
 from parser.parser import Parser
 from aligner.aligner import Aligner
 from extractor_synsem.extractor_synsem import ExtractorSynSem
-from extractor_cansem.extractor_cansem import ExtractorCanSem
+#from extractor_cansem.extractor_cansem import ExtractorCanSem
 
 SUBMODULES = {
   'parse': Parser,
   'align': Aligner,
   'extract-synsem': ExtractorSynSem,
-  'extract-cansem': ExtractorCanSem,
+#  'extract-cansem': ExtractorCanSem,
 }
+
+HELP_EXIT_CODE = 1
+ERROR_EXIT_CODE = 2
 
 def print_usage_message_and_exit():
   print >>sys.stderr, "Usage: bolinas <command> arg1 arg2 ..."
@@ -23,11 +26,11 @@ def print_usage_message_and_exit():
   print >>sys.stderr, '  ', '\n   '.join(SUBMODULES.keys())
   print >>sys.stderr
   print >>sys.stderr, 'See `bolinas help <command>` for more information.'
-  sys.exit(1)
+  sys.exit(HELP_EXIT_CODE)
 
 def print_command_help_and_exit(command):
   print >>sys.stderr, SUBMODULES[command].help()
-  sys.exit(2)
+  sys.exit(HELP_EXIT_CODE)
 
 if __name__ == '__main__':
 
@@ -47,4 +50,8 @@ if __name__ == '__main__':
   try:
     SUBMODULES[command]().main(*sys.argv[2:])
   except InvocationException:
+    print "BAD INVOCATION"
     print_command_help_and_exit(command)
+  except InputFormatException as ex:
+    print "BAD INPUT:", ex
+    sys.exit(ERROR_EXIT_CODE)
