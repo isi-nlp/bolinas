@@ -1,5 +1,8 @@
 class InvocationException(Exception):
   pass
 
-def BinarizationException(Exception):
+class InputFormatException(Exception):
+  pass
+
+class BinarizationException(Exception):
   pass
