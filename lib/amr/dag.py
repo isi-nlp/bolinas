@@ -239,7 +239,7 @@ class Dag(defaultdict):
         try:
             ast = _parser_singleton.parseString(s)
         except pyparsing.ParseException, e:
-            sys.stderr.write("Could not parse DAG: %s" % s)
+            #sys.stderr.write("Could not parse DAG: %s" % s)
             raise e 
         return ast_to_dag(ast)
 
