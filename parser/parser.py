@@ -5,18 +5,32 @@ from pyparsing import ParseException
 from lib import log
 import time
 from collections import defaultdict as ddict, deque
+import itertools
+import re
 
 from item import CfgItem, HergItem, CfgHergItem
 from rule import Rule
 
+# input corpus formats
 IFORMAT_STRING = 0
 IFORMAT_TREE = 1
 IFORMAT_GRAPH = 2
 
+# output chart formats
 OFORMAT_BOLINAS = 0
 OFORMAT_CARMEL = 1
 OFORMAT_TIBURON = 2
 OFORMAT_CDEC = 3
+
+# mappings from format names to constants
+OFORMATS = {
+  'bolinas': OFORMAT_BOLINAS,
+  'carmel': OFORMAT_CARMEL,
+  'tiburon': OFORMAT_TIBURON,
+  'cdec': OFORMAT_CDEC
+}
+
+# OUTPUT_METHODS (mappings from formats to printing functions) at bottom of file
 
 class Parser:
 
@@ -33,6 +47,7 @@ class Parser:
     Parses (or biparses) the given input, and writes the resulting charts into
     files specified by the given output prefix and format.
     """
+    # determine input format
     if len(args) == 4:
       grammar_path, i1_path, output_prefix, output_format = args
       i2_path = None
@@ -43,20 +58,33 @@ class Parser:
     i1_format = get_format(i1_path)
     i2_format = get_format(i2_path)
 
+    # determine output format
+    if output_format not in OFORMATS:
+      raise InputFormatException("output_format must be one of carmel, " + \
+          "tiburon, bolinas or cdec")
+    o_format = OFORMATS[output_format]
+
+    grammar = Rule.load_from_file(grammar_path)
+
+    # parse corpus
     # RTG parsing isn't supported yet
     if i2_path:
       if i1_format == IFORMAT_STRING and i2_format == IFORMAT_GRAPH:
-        charts = parse_corpus(grammar_path, i1_path, i2_path)
+        charts = parse_corpus(grammar, i1_path, i2_path)
       else:
         raise InputFormatException("If biparsing, must give [string, graph]" + \
             " as input.")
     else:
       if i1_format == IFORMAT_STRING:
-        charts = parse_corpus(grammar_path, string_input_path=i1_path)
+        charts = parse_corpus(grammar, string_input_path=i1_path)
       elif i1_format == IFORMAT_GRAPH:
-        charts = parse_corpus(grammar_path, graph_input_path=i1_path)
+        charts = parse_corpus(grammar, graph_input_path=i1_path)
       else:
-        raise InputFormatException("Must give one of string or graph as input.")
+        raise InputFormatException("Must give one of string or graph " + \
+            "as input.")
+
+    # write output
+    OUTPUT_METHODS[o_format](charts, grammar, output_prefix)
 
 def get_format(path):
   """
@@ -78,7 +106,7 @@ def get_format(path):
       pass
     return IFORMAT_STRING
 
-def parse_corpus(grammar_path, string_input_path=None, graph_input_path=None):
+def parse_corpus(grammar, string_input_path=None, graph_input_path=None):
   """
   Finds derivation forests for all the examples in the corpus specified by one
   or both of the input_paths.
@@ -94,7 +122,6 @@ def parse_corpus(grammar_path, string_input_path=None, graph_input_path=None):
   log.info('Parsing %s.' % ' and '.join(modes))
 
   # for more efficient filtering of rules, precompute a fast lookup of terminals
-  grammar = Rule.load_from_file(grammar_path)
   if parse_string and parse_graph:
     filter_cache = make_synch_filter_cache()
   elif parse_string:
@@ -119,7 +146,8 @@ def parse_corpus(grammar_path, string_input_path=None, graph_input_path=None):
   for i in range(max(len(strings), len(graphs))):
     string = strings[i] if parse_string else None
     graph = graphs[i] if parse_graph else None
-    chart = parse(grammar, string, graph, filter_cache)
+    raw_chart = parse(grammar, string, graph, filter_cache)
+    chart = cky_chart(raw_chart)
     charts.append(chart)
 
   return charts
@@ -296,3 +324,228 @@ def make_string_filter_cache():
 
 def make_graph_filter_cache():
   pass
+
+def cky_chart(chart):
+  stack = ['START']
+  visit_items = set()
+  while stack:
+    item  = stack.pop()
+    if item in visit_items:
+      continue
+    visit_items.add(item)
+    for production in chart[item]:
+      for citem in production:
+        stack.append(citem)
+
+  cky_chart = {}
+  for item in visit_items:
+    # we only care about complete steps, so only add closed items to the chart
+    if not (item == 'START' or item.closed):
+      continue
+    # this list will store the complete steps used to create this item
+    real_productions = []
+    # we will search down the list of completions
+    pitem_history = set()
+    pitem = item
+    while True:
+
+      # if this item has no children, there's nothing left to do with the
+      # production
+      if len(chart[pitem]) == 0:
+        break
+      elif pitem == 'START':
+        # add all START -> (real start symbol) productions on their own
+        real_productions.append(sum(chart[pitem], ()))
+        break
+
+      elif pitem.rule.symbol == 'PARTIAL':
+        assert len(chart[pitem]) == 1
+        prod = list(chart[pitem])[0]
+        for p in prod:
+          real_productions.append([p])
+        break
+
+      # sanity check: is the chain of derivations for this item shaped the way
+      # we expect?
+      lefts = set(x[0] for x in chart[pitem])
+      lengths = set(len(x) for x in chart[pitem])
+      # TODO might merge from identical rules grabbing different graph
+      # components. Do we lose information by only taking the first
+      # (lefts.pop(), below)?
+      # TODO when this is fixed, add failure check back into topo_sort
+      #assert len(lefts) == 1
+      assert len(lengths) == 1
+      split_len = lengths.pop()
+
+      # figure out all items that could have been used to complete this rule
+
+      if split_len != 1:
+        assert split_len == 2
+        production = [x[1] for x in chart[pitem]]
+        real_productions.append(production)
+
+      # move down the chain
+      pitem = lefts.pop()
+
+    # realize all possible splits represented by this chart item
+    all_productions = list(itertools.product(*real_productions))
+    if all_productions != [()]:
+      cky_chart[item] = all_productions
+
+  return cky_chart
+
+def output_bolinas(charts, grammar, prefix):
+  """
+  Prints given in native bolinas format.
+  """
+  raise InvocationException("Output format 'bolinas' is unsupported")
+
+def output_carmel(charts, grammar, prefix):
+  """
+  Prints given charts in carmel format, suitable for use with forest-em.
+  Will produce two files: prefix.carmel.norm (the RHS normalizer groups) and
+  prefix.carmel.charts (the charts).
+  """
+
+  # we need an explicit id for the start rule
+  # forest-em irritatingly expects rules to be 1-indexed rather than 0-indexed,
+  # so we have to increase all rule ids by 1
+  start_rule_id = max(grammar.keys()) + 2
+
+  # create the set of all normalization groups, and write them
+  normgroups = ddict(set)
+  normgroups['START'].add(start_rule_id)
+  for rule_id in grammar:
+    rule = grammar[rule_id]
+    normgroups[rule.symbol].add(rule.rule_id + 1)
+  with open('%s.carmel.norm' % prefix, 'w') as ofile:
+    print >>ofile, '(',
+    for group in normgroups.values():
+      print >>ofile, '(%s)' % (' '.join([str(rule) for rule in group])),
+    print >>ofile, ')'
+
+  # unlike the other formats, all carmel charts go in one file
+  with open('%s.carmel.charts' % prefix, 'w') as ofile:
+    for chart in charts:
+      # chart items we've already seen, and the labels assigned to them
+      seen = dict()
+      # python scoping weirdness requires us to store this variable with an
+      # extra layer of reference so that it can be reassigned by the inner
+      # method
+      next_id = [1]
+
+      def format_inner(item):
+        if item in seen:
+          return '#d' % seen[item]
+        my_id = next_id[0]
+        next_id[0] += 1
+        if item == 'START':
+          sym = start_rule_id
+        else:
+          # see note above on rule ids
+          sym = item.rule.rule_id + 1
+        if item in chart:
+          parts = []
+          for production in chart[item]:
+            prod_parts = []
+            for pitem in production:
+              prod_parts.append(format_inner(pitem))
+            parts.append('(%s %s)' % (sym, ' '.join(prod_parts)))
+          if len(parts) > 1:
+            return '#%d(OR %s)' % (my_id, ' '.join(parts))
+          else:
+            return '#%d%s' % (my_id, parts[0])
+        else:
+          return '#%d(%s)' % (my_id, sym)
+
+      print >>ofile, format_inner('START')
+
+def output_tiburon(charts, grammar, prefix):
+  """
+  Prints given charts in tiburon format, for finding n-best AMRs.
+  """
+
+  def start_stringifier(rhs_item):
+    return 'START -> %s # 1.0' % rhs_item.uniq_str()
+
+  def nt_stringifier(item, rhs):
+    nrhs = ' '.join([i for i in item.rule.string if i[0] == '#'])
+    # strip indices
+    nrhs = re.sub(r'\[\d+\]', '', nrhs)
+    for ritem in rhs:
+      # replace only one occurrence, in case we have a repeated NT symbol
+      nrhs = re.sub('#' + ritem.rule.symbol, ritem.uniq_str(), nrhs, count=1)
+    nrhs = '%s(%d(%s))' % (item.rule.symbol, item.rule.rule_id, nrhs)
+    return '%s -> %s # %f' % (item.uniq_str(), nrhs, item.rule.weight)
+
+  def t_stringifier(item):
+    return '%s -> %s(%d) # %f' % (item.uniq_str(), item.rule.symbol,
+        item.rule.rule_id, item.rule.weight)
+
+  for i, chart in zip(range(len(charts)), charts):
+    with open('%s%d.tiburon' % (prefix, i), 'w') as ofile:
+      rules = ['START'] + strings_for_items(chart, start_stringifier,
+          nt_stringifier, t_stringifier)
+      print >>ofile, '\n'.join(rules)
+
+def output_cdec(charts, grammar, prefix):
+  """
+  Prints given charts in cdec format, for finding n-best strings.
+  """
+
+  def start_stringifier(rhs_item):
+    return '[START] ||| [%s] ||| Rule=0.0' % rhs_item.uniq_str()
+
+  def nt_stringifier(item, rhs):
+    nrhs = ' '.join(item.rule.string)
+    # strip indices
+    nrhs = re.sub(r'\[\d+\]', '', nrhs)
+    for ritem in rhs:
+      # replace only one occurrence, in case we have a repeated NT symbol
+      nrhs = re.sub('#' + ritem.rule.symbol, '[%s]' % ritem.uniq_str(), nrhs)
+    return '[%s] ||| %s ||| Rule=%d' % (item.uniq_str(), nrhs,
+        math.log(item.rule.weight))
+
+  def t_stringifier(item):
+    return '[%s] ||| %s ||| Rule=%d' % (item.uniq_str, 
+        ' '.join(item.rule.string), math.log(item.rule.weight))
+
+  for i, chart in zip(range(len(charts)), charts):
+    with open('%s%d.cdec' % (prefix, i), 'w') as ofile:
+      rules = ['[S] ||| [START]'] + strings_for_items(chart, start_stringifier,
+          nt_stringifier, t_stringifier)
+      print >>ofile, '\n'.join(rules)
+
+def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
+  strings = []
+  stack = ['START']
+  visited = set()
+  while stack:
+    item = stack.pop()
+    if item in visited:
+      continue
+    visited.add(item)
+    if item in chart:
+      for rhs in chart[item]:
+        if item == 'START':
+          assert len(rhs) == 1
+          strings.append(start_stringifier(rhs[0]))
+          stack.append(rhs[0])
+        else:
+          strings.append(nt_stringifier(item, rhs))
+          for ritem in rhs:
+            assert ritem.rule.is_terminal or ritem in chart
+            stack.append(ritem)
+    else:
+      assert not any('#' in word for word in item.rule.string)
+      strings.append(t_stringifier(item))
+
+  return strings
+
+# here so the relevant methods are in namespace when we create this dictionary
+OUTPUT_METHODS = {
+  OFORMAT_BOLINAS: output_bolinas,
+  OFORMAT_CARMEL: output_carmel,
+  OFORMAT_TIBURON: output_tiburon,
+  OFORMAT_CDEC: output_cdec
+}
