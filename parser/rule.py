@@ -1,6 +1,7 @@
 from lib.amr.dag import Dag, NonterminalLabel
 from nltk.tree import Tree
-import lib.log
+from lib import log
+from lib import util
 import cPickle as pickle
 from collections import defaultdict as ddict
 from lib.exceptions import BinarizationException
@@ -75,11 +76,8 @@ class Rule:
 
     for rule in grammar.values():
       print >>lhs_file, '%d,%s,%f' % (rule.rule_id, rule.symbol, rule.weight)
-      print >>rhs_amr_file, '%d,%s' % (rule.rule_id, 
-          re.sub(r'\s+', ' ', str(rule.amr)))
-          #' '.join(str(rule.amr).split('\n')))
-      print >>rhs_ptb_file, '%d,%s' % (rule.rule_id, 
-          ' '.join(str(rule.parse).split('\n')))
+      print >>rhs_amr_file, '%d,%s' % (rule.rule_id, util.one_line(str(rule.amr)))
+      print >>rhs_ptb_file, '%d,%s' % (rule.rule_id, util.one_line(str(rule.parse)))
 
     pickle.dump(grammar, pickle_file)
     lhs_file.close()

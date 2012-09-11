@@ -275,7 +275,7 @@ def replace_constituent(tree, constituent, new_constituent):
     return new_constituent
   if not isinstance(tree, Tree):
     return tree
-  n_tree = Tree(tree.node, [collapse_constituent(subtree, constituent,
+  n_tree = Tree(tree.node, [replace_constituent(subtree, constituent,
     new_constituent) for subtree in tree])
   n_tree.span = tree.span
   return n_tree
@@ -405,7 +405,7 @@ def make_composed_rules(rules, max_depth):
 
     composed_rules += composed_rules_this_depth
 
-  return composed_rules
+  return [rule.canonicalize_amr() for rule in composed_rules]
 
 def extract_rules(amr, tree, align, composition_depth):
   """
@@ -437,10 +437,10 @@ def collect_counts(rules):
     rule_key = re.sub(r'\[\d+\]', '[D]', rule_key)
     if rule_key not in rule_mapper:
       rule_mapper[rule_key] = rule
-      rule_counter[rule_key] = 1.0
+      rule_counter[rule_key] = 1
     else:
-      rule_counter[rule_key] += 1.0
-    rule_normalizer[rule.symbol] += 1.0
+      rule_counter[rule_key] += 1
+    rule_normalizer[rule.symbol] += 1
 
   grammar = {}
   next_id = 0
@@ -448,7 +448,7 @@ def collect_counts(rules):
     rule = rule_mapper[key]
     count = rule_counter[key]
     norm = rule_normalizer[rule.symbol]
-    g_rule = Rule(next_id, rule.symbol, count/norm, rule.amr, rule.parse)
+    g_rule = Rule(next_id, rule.symbol, float(count)/norm, rule.amr, rule.parse)
     grammar[next_id] = g_rule
     next_id += 1
 

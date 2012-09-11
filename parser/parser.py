@@ -1,5 +1,3 @@
-from lib.exceptions import InvocationException, InputFormatException
-from lib.amr.dag import Dag
 from nltk import Tree
 from pyparsing import ParseException
 from lib import log
@@ -7,6 +5,10 @@ import time
 from collections import defaultdict as ddict, deque
 import itertools
 import re
+import math
+
+from lib.exceptions import InvocationException, InputFormatException
+from lib.amr.dag import Dag
 
 from item import CfgItem, HergItem, CfgHergItem
 from rule import Rule
@@ -240,7 +242,7 @@ def parse(grammar, string, graph, filter_cache):
     item = queue.popleft()
     pending.remove(item)
     visited.add(item)
-    #log.debug('handling', item)
+    log.debug('handling', item)
 
     if item.closed:
       # check if it's a complete derivation
@@ -303,6 +305,7 @@ def parse(grammar, string, graph, filter_cache):
               item.can_shift(edge)]
 
         for nitem in new_items:
+          log.debug('shift', nitem)
           chart[nitem].add((item,))
           if nitem not in pending and nitem not in visited:
             queue.append(nitem)
@@ -503,11 +506,11 @@ def output_cdec(charts, grammar, prefix):
     for ritem in rhs:
       # replace only one occurrence, in case we have a repeated NT symbol
       nrhs = re.sub('#' + ritem.rule.symbol, '[%s]' % ritem.uniq_str(), nrhs)
-    return '[%s] ||| %s ||| Rule=%d' % (item.uniq_str(), nrhs,
+    return '[%s] ||| %s ||| Rule=%f' % (item.uniq_str(), nrhs,
         math.log(item.rule.weight))
 
   def t_stringifier(item):
-    return '[%s] ||| %s ||| Rule=%d' % (item.uniq_str, 
+    return '[%s] ||| %s ||| Rule=%f' % (item.uniq_str(),
         ' '.join(item.rule.string), math.log(item.rule.weight))
 
   for i, chart in zip(range(len(charts)), charts):

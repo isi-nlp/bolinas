@@ -74,13 +74,10 @@ class HergItem():
     represent this item as a string, which we build from the rule id and list of
     nodes.
     """
-    nodes = set()
+    edges = set()
     for head, role, tail in self.shifted:
-      nodes.add(head)
-      for s in tail:
-        nodes.add(s)
-    return 'id_%d__size_%d__nodes_%s' % (self.rule.rule_id, self.size, \
-        '_'.join(sorted(list(nodes))))
+      edges.add('%s:%s' % (head, ':'.join(tail)))
+    return '%d__%s' % (self.rule.rule_id, ','.join(sorted(list(edges))))
 
   def __repr__(self):
     return 'HergItem(%d, %d)' % (self.rule.rule_id, self.size)
@@ -379,12 +376,10 @@ class CfgHergItem:
     Produces a unique string representation of this item (see note on uniq_str
     in HergItem above).
     """
-    nodes = set()
+    edges = set()
     for head, role, tail in self.herg_item.shifted:
-      nodes.add(head)
-      for s in tail:
-        nodes.add(s)
-    return '%d__%s__%d,%d' % (self.rule.rule_id, ','.join(sorted(list(nodes))),
+      edges.add('%s:%s' % (head, ':'.join(tail)))
+    return '%d__%s__%d,%d' % (self.rule.rule_id, ','.join(sorted(list(edges))),
         self.cfg_item.i, self.cfg_item.j)
 
   def __hash__(self):
