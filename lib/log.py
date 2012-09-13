@@ -3,7 +3,6 @@ from termcolor import colored
 
 def pe(parts, color=None):
   print >>sys.stderr, colored(' '.join([str(s) for s in parts]), color)
-  #print >>sys.stdout, ' '.join([str(s) for s in parts])
 
 def debug(*message):
   if debug in LOG:
@@ -25,5 +24,4 @@ def err(*message):
   if err in LOG:
     pe(message, 'red')
 
-LOG = {debug, info, err, warn, chatter}
-#LOG = {info, err, warn, chatter}
+LOG = {info, err, warn, chatter}
