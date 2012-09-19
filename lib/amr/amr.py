@@ -10,7 +10,7 @@ from dag import Dag
 from amr_parser import make_amr_parser, SpecialValue, StrLiteral
 
 from collections import defaultdict
-import pyparsing
+import lib.pyparsing
 import unittest
 import re
 import sys

@@ -2,7 +2,7 @@
 from amr import Amr
 from dag import Dag 
 
-import nltk.tree
+import tree
 import re
 import sys
 import string
