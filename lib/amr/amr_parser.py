@@ -5,9 +5,9 @@ Parse a feature-structure-style text encoding of an AMR.
 @since: 2012-06-18
 '''
 
-from pyparsing import Literal,Word,CharsNotIn, OneOrMore, ZeroOrMore,Forward,nums,alphas, Optional, ParserElement 
+import lib.pyparsing
+from lib.pyparsing import Literal,Word,CharsNotIn, OneOrMore, ZeroOrMore,Forward,nums,alphas, Optional, ParserElement 
 from collections import defaultdict
-import pyparsing
 import unittest
 import re
 import sys

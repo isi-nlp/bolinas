@@ -1,6 +1,6 @@
 from lib.exceptions import InvocationException
 from lib.amr.dag import Dag, NonterminalLabel
-from nltk import Tree
+from lib.tree import Tree
 import re
 from collections import defaultdict as ddict
 import itertools

@@ -1,5 +1,5 @@
-from nltk import Tree
-from pyparsing import ParseException
+from lib.tree import Tree
+from lib.pyparsing import ParseException
 from lib import log
 import time
 from collections import defaultdict as ddict, deque
