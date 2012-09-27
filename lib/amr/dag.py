@@ -9,7 +9,7 @@ Directed Acyclic Graphs.
 
 from collections import defaultdict
 from amr_parser import make_amr_parser, SpecialValue, StrLiteral, NonterminalLabel
-import lib.pyparsing
+from lib import pyparsing
 from operator import itemgetter
 import functools
 import unittest

@@ -10,7 +10,7 @@ from dag import Dag
 from amr_parser import make_amr_parser, SpecialValue, StrLiteral
 
 from collections import defaultdict
-import lib.pyparsing
+from lib import pyparsing
 import unittest
 import re
 import sys
@@ -472,10 +472,10 @@ def ast_to_amr(ast):
             for r, child in roles:
                 role = r
                 aligned = [] 
-                if "~" in r:
-                    role, alignments = r.rsplit("~",1)
-                    language,alignments = alignments.split(".",1)
-                    aligned = [int(x) for x in alignments.split(",")]
+                #if "~" in r:
+                #    role, alignments = r.rsplit("~",1)
+                #    language,alignments = alignments.split(".",1)
+                #    aligned = [int(x) for x in alignments.split(",")]
 
                 if type(child) == tuple and len(child) == 3:
                     childnode = child[0]                                           

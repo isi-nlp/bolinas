@@ -1,11 +1,11 @@
 from lib.amr.dag import Dag, NonterminalLabel
 from lib.tree import Tree
 from lib import log
+from lib.exceptions import InputFormatException, BinarizationException 
 #from lib import util
 import sys
 import cPickle as pickle
 from collections import defaultdict as ddict
-from lib.exceptions import BinarizationException
 import re
 
 class Rule:
@@ -42,7 +42,15 @@ class Rule:
       rhs_amr = rhs_amr_file.readline().strip()
       rhs_ptb = rhs_ptb_file.readline().strip()
 
-      rule_id, symbol, weight = lhs.split(',', 2)
+      parts = lhs.split(',',2)
+      if len(parts) == 3:
+        rule_id, symbol, weight = parts
+      elif len(parts) == 2:
+        rule_id, symbol = parts
+        weight = 1.0 # Default to 1.0
+      else: 
+        raise InputFormatException, "Invalid rule format: %s", lhs  
+
       rid2, amr_str = rhs_amr.split(',', 1)
       rid3, ptb_str = rhs_ptb.split(',', 1)
 

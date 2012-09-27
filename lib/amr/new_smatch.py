@@ -7,7 +7,7 @@ import math
 import sys
 import random
 import copy
-import lib.pyparsing
+from lib import pyparsing
 import timeit
 
 from optparse import OptionParser, OptionGroup
