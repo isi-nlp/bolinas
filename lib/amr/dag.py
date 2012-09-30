@@ -8,8 +8,8 @@ Directed Acyclic Graphs.
 #from rule import Rule
 
 from collections import defaultdict
-from amr_parser import make_amr_parser, SpecialValue, StrLiteral, NonterminalLabel
 from lib import pyparsing
+from amr_parser import *
 from operator import itemgetter
 import functools
 import unittest
@@ -204,6 +204,44 @@ class ListMap(defaultdict):
         return (t[0], ()) + t[2:]
 
 
+class NonterminalLabel(object):
+    """
+    There can be multiple nonterminal edges with the same symbol. Wrap the 
+    edge into an object so two edges do not compare equal.
+    Nonterminal edges carry a nonterminal symbol and an index that identifies
+    it uniquely in a rule.
+    """
+
+    label_matcher = re.compile("(?P<label>.*?)(\[(?P<index>.*)\])?$")
+
+    def __init__(self, label, index = None):            
+        if index is not None:
+            self.label = label
+            self.index = index  
+        else: 
+            match = NonterminalLabel.label_matcher.match(label)
+            self.index = match.group("index")
+            self.label = match.group("label")
+
+    def __eq__(self, other):
+        try: 
+            return self.label == other.label and self.index == other.index
+        except AttributeError:
+            return False     
+    
+    def __repr__(self):
+        return "NT(%s)" % str(self)
+
+    def __str__(self):
+        if self.index is not None:
+            return "#%s[%s]" % (str(self.label), str(self.index))
+        else: 
+            return "#%s" % str(self.label)
+
+    def __hash__(self):
+        return 83 * hash(self.label) + 17 * hash(self.index)
+
+
 
 class Dag(defaultdict):
     """
@@ -234,14 +272,24 @@ class Dag(defaultdict):
         """
         Initialize a new DAG from a Pennman style string.
         """
+        #if not cls._parser_singleton: # Initialize the AMR parser only once
+        #    _parser_singleton = make_amr_parser()           
+        #try:
+        #    ast = _parser_singleton.parseString(s)
+        #except pyparsing.ParseException, e:
+        #    sys.stderr.write("Could not parse AMR: %s" % s)
+        #    raise e 
+        #return ast_to_dag(ast)
+
         if not cls._parser_singleton: # Initialize the AMR parser only once
-            _parser_singleton = make_amr_parser()           
+            from graph_description_parser import GraphDescriptionParser, LexerError, ParserError
+            _parser_singleton = GraphDescriptionParser() 
         try:
-            ast = _parser_singleton.parseString(s)
-        except pyparsing.ParseException, e:
+            amr = _parser_singleton.parse_string(s, concepts = False)
+            return amr
+        except (ParserError, LexerError), e:
             #sys.stderr.write("Could not parse DAG: %s" % s)
             raise e 
-        return ast_to_dag(ast)
 
     @classmethod
     def from_triples(self, triples, roots=None, warn=sys.stderr):    
@@ -700,7 +748,7 @@ class Dag(defaultdict):
             x = self[c]
             for rel, test in self[c].items():
                 if parent in test: 
-                   if warn: warn.write("WARNING: (%s, %s, %s) would produce a cycle with (%s, %s, %s)\n" % (parent, relation, child, c, rel, test))
+                   if warn: warn.write("WARNING: (%s, %s, %s) produces a cycle with (%s, %s, %s)\n" % (parent, relation, child, c, rel, test))
                     #raise ValueError,"(%s, %s, %s) would produce a cycle with (%s, %s, %s)" % (parent, relation, child, c, rel, test)
         self[parent].append(relation, child)    
     
@@ -967,7 +1015,9 @@ class Dag(defaultdict):
     def __str__(self):
         return self.to_string(newline = True)
 
-   
+  
+
+
     ####Methods to provide representations suitable for David's HERG parser###
     #def to_david_repr(self):
     # 
@@ -1040,6 +1090,29 @@ class Dag(defaultdict):
 #
 #        d_gold = Dag.from_string("(A :bar C :new (B :back C), (D :fee E))")
 #        self.assertEqual(self.dag.collapse_fragment(d2, "new"), d_gold)
+
+# Special node objects
+class StrLiteral(str):
+    def __str__(self):
+        return '"%s"' % "".join(self)
+
+    def __repr__(self):
+            return "".join(self)
+
+class SpecialValue(str):
+        pass
+
+class Quantity(str):
+        pass
+
+class Literal(str):
+    def __str__(self):
+        return "'%s" % "".join(self)
+
+    def __repr__(self):
+            return "".join(self)
+
+
 
 
 if __name__ == '__main__':

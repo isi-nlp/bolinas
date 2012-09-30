@@ -6,9 +6,8 @@ Abstract Meaning Representation
 @since: 2012-06-18
 '''
 
-from dag import Dag
-from amr_parser import make_amr_parser, SpecialValue, StrLiteral
-
+from dag import Dag, SpecialValue, Literal, StrLiteral, Quantity
+#from amr_parser import make_amr_parser, SpecialValue, StrLiteral
 from collections import defaultdict
 from lib import pyparsing
 import unittest
@@ -47,6 +46,9 @@ def conv(s):
     else: 
         return s
 
+
+# Actual AMR class
+
 class Amr(Dag):
     """
     An abstract meaning representation.
@@ -82,14 +84,23 @@ class Amr(Dag):
         """
         Initialize a new abstract meaning representation from a Pennman style string.
         """
+        #if not cls._parser_singleton: # Initialize the AMR parser only once
+        #    _parser_singleton = make_amr_parser()           
+        #try:
+        #    ast = _parser_singleton.parseString(amr_string)
+        #except pyparsing.ParseException, e:
+        #    sys.stderr.write("Could not parse AMR: %s" % amr_string)
+        #    raise e 
+        #return ast_to_amr(ast)
         if not cls._parser_singleton: # Initialize the AMR parser only once
-            _parser_singleton = make_amr_parser()           
+            from graph_description_parser import GraphDescriptionParser, LexerError, ParserError 
+            _parser_singleton = GraphDescriptionParser() 
         try:
-            ast = _parser_singleton.parseString(amr_string)
-        except pyparsing.ParseException, e:
-            sys.stderr.write("Could not parse AMR: %s" % amr_string)
+            amr = _parser_singleton.parse_string(amr_string)
+            return amr
+        except (LexerError, ParserError), e:
+            sys.stderr.write("Could not parse graph description: %s" % amr_string)
             raise e 
-        return ast_to_amr(ast)
 
     @classmethod
     def from_concept_edge_labels(cls, amr):
@@ -293,7 +304,7 @@ class Amr(Dag):
             if type(node) is tuple or type(node) is list: 
                 return ",".join("@%s" % (n) if n in self.external_nodes else n for n in node)
             else: 
-                if type(node) is int or type(node) is float or isinstance(node, (SpecialValue, StrLiteral)):
+                if type(node) is int or type(node) is float or isinstance(node, (Literal, StrLiteral)):
                     return str(node)
                 else: 
                     if firsthit and node in self.node_to_concepts: 

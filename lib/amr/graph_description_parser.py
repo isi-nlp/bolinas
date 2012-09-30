@@ -2,8 +2,8 @@ from collections import defaultdict
 import unittest
 import re
 import sys
+from dag import Dag, SpecialValue, StrLiteral, Quantity, Literal, NonterminalLabel
 from amr import Amr
-from dag import Dag, NonterminalLabel 
 
 """
 A deterministic, linear time parser for Penman-style graph/meaning 
@@ -17,27 +17,6 @@ class LexerError(Exception):
     pass
 class ParserError(Exception):
     pass
-
-# Special node objects
-class StrLiteral(str):
-    def __str__(self):
-        return '"%s"' % "".join(self)
-
-    def __repr__(self):
-            return "".join(self)
-
-class SpecialValue(str):
-        pass
-
-class Quantity(str):
-        pass
-
-class Literal(str):
-    def __str__(self):
-        return "'%s" % "".join(self)
-
-    def __repr__(self):
-            return "".join(self)
 
 # Lexer
 class Lexer(object):
@@ -54,7 +33,7 @@ class Lexer(object):
         regular expression string. The order of tuples in the list matters.
         """
         self.tokenre = self.make_compiled_regex(rules)
-        self.whitespacere = re.compile('\s*', re.MULTILINE)
+        self.whitespacere = re.compile('[\s]*', re.MULTILINE)
 
     def make_compiled_regex(self, rules):
         regexstr =  '|'.join('(?P<%s>%s)' % (name, rule) for name, rule in rules)
@@ -67,6 +46,7 @@ class Lexer(object):
         This is a generator, so lexing is performed lazily. 
         """
         position = 0
+        s = s.strip()
         while position < len(s):
 
             # Skip white spaces
@@ -76,7 +56,7 @@ class Lexer(object):
     
             match = self.tokenre.match(s, position)
             if not match:
-                raise LexerError, "Could not tokenize %s", self.input[position:]
+                raise LexerError, "Could not tokenize '%s'" % re.escape(s[position:])
             position = match.end()
             token = match.group(match.lastgroup)
             type = match.lastgroup
@@ -121,7 +101,7 @@ class GraphDescriptionParser(object):
             (LexTypes.SLASH,'/'),
             (LexTypes.EDGELABEL,":[^\s]+"),
             (LexTypes.STRLITERAL,'"[^"]+"'),
-            (LexTypes.QUANTITY,"[0-9Ee^+\-\.,:]+"),
+            (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*"),
             (LexTypes.LITERAL,"'[^\s(),]+"),
             (LexTypes.IDENTIFIER,"[^\s(),]+")
         ] 
@@ -174,21 +154,20 @@ class GraphDescriptionParser(object):
                     stack.append((EDGE, token[1:]))
                     state = 5
                 elif type == LexTypes.RPAR:
-                   
                     forgetme, parentnodelabel, parentconcept = stack.pop()
                     assert forgetme == PNODE
-
                     if parentnodelabel[0] == '@': 
                         parentnodelabel = parentnodelabel[1:]
                         amr.external_nodes.append(parentnodelabel)
-                        foo =  amr[]
-                    if not stack: 
-                        amr.
-
-                    
+                    foo =  amr[parentnodelabel] # add only the node
+                    if stack:
+                        stack.append((CNODE, parentnodelabel, parentconcept))
+                        state = 6
+                    else:    
+                        amr.roots.append(parentnodelabel)
+                        state = 0
 
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-                    
 
             elif state == 3:
                 if type == LexTypes.IDENTIFIER:
@@ -202,6 +181,20 @@ class GraphDescriptionParser(object):
                 if type == LexTypes.EDGELABEL:
                     stack.append((EDGE, token[1:]))
                     state = 5
+                elif type == LexTypes.RPAR:
+                    forgetme, parentnodelabel, parentconcept = stack.pop()
+                    assert forgetme == PNODE
+                    if parentnodelabel[0] == '@': 
+                        parentnodelabel = parentnodelabel[1:]
+                        amr.external_nodes.append(parentnodelabel)
+                    foo = amr[parentnodelabel] # add only the node
+                    amr.node_to_concepts[parentnodelabel] = parentconcept    
+                    if stack: 
+                        stack.append((CNODE, parentnodelabel, parentconcept))
+                        state = 6
+                    else:    
+                        amr.roots.append(parentnodelabel)
+                        state = 0
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
 
             elif state == 5:
@@ -289,10 +282,14 @@ if __name__ == "__main__":
     #doctest.testmod()
 
 
-    in_file = open(sys.argv[1],'r')
+    import timeit
 
-    parser = GraphDescriptionParser()
+    s = """for line in lines: 
+             parser.parse_string(line)"""
+    t = timeit.Timer(stmt = s, setup = """from graph_description_parser import GraphDescriptionParser\nlines = open(sys.argv[1],'r').readlines()\nparser = GraphDescriptionParser()""")
+    print t.timeit(number = 1)
+    s2 = """for line in lines: 
+             Amr.from_string(line)"""
+    t2 = timeit.Timer(stmt = s2, setup = """from amr import Amr\nlines = open(sys.argv[1],'r').readlines()""")
+    print t2.timeit(number = 1)
 
-    for line in in_file:
-        print line
-        amr = parser.parse_string(line)
