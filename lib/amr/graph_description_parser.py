@@ -188,7 +188,8 @@ class GraphDescriptionParser(object):
                         parentnodelabel = parentnodelabel[1:]
                         amr.external_nodes.append(parentnodelabel)
                     foo = amr[parentnodelabel] # add only the node
-                    amr.node_to_concepts[parentnodelabel] = parentconcept    
+                    if concepts and (not parentnodelabel in amr.node_to_concepts or parentnodelabel is not None): 
+                        amr.node_to_concepts[parentnodelabel] = parentconcept    
                     if stack: 
                         stack.append((CNODE, parentnodelabel, parentconcept))
                         state = 6
@@ -233,7 +234,7 @@ class GraphDescriptionParser(object):
                         edges.append((edgelabel, children))
                    
                     forgetme, parentnodelabel, parentconcept = stack.pop()
-                    if parentconcept is not None and concepts:
+                    if concepts and (not parentnodelabel in amr.node_to_concepts or parentconcept is not None): 
                         amr.node_to_concepts[parentnodelabel] = parentconcept
                     if parentnodelabel[0] == '@': #parent is external node
                         parentnodelabel = parentnodelabel[1:]
@@ -242,7 +243,7 @@ class GraphDescriptionParser(object):
 
                         hypertarget =[] # build hyperedge destination
                         for node, concept in children:
-                            if concept is not None and concepts: 
+                            if concepts and (not node in amr.node_to_concepts or concept is not None):
                                 amr.node_to_concepts[node] = concept
                             hypertarget.append(node) 
                         hyperchild = tuple(hypertarget)    

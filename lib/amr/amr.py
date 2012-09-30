@@ -9,7 +9,7 @@ Abstract Meaning Representation
 from dag import Dag, SpecialValue, Literal, StrLiteral, Quantity
 #from amr_parser import make_amr_parser, SpecialValue, StrLiteral
 from collections import defaultdict
-from lib import pyparsing
+#from lib import pyparsing
 import unittest
 import re
 import sys

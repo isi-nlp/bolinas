@@ -8,7 +8,7 @@ Directed Acyclic Graphs.
 #from rule import Rule
 
 from collections import defaultdict
-from lib import pyparsing
+#from lib import pyparsing
 from amr_parser import *
 from operator import itemgetter
 import functools
