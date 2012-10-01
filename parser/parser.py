@@ -160,7 +160,7 @@ def successful_parse(string, graph, item, string_size, graph_size):
   object(s) being parsed.
   """
   # make sure the right start symbol is used
-  if 'root_ROOT' not in item.rule.symbol:
+  if 'root' not in item.rule.symbol.lower():
     return False
     
   # make sure the item spans the whole object
@@ -493,7 +493,7 @@ def output_tiburon(charts, grammar, prefix):
         with open('%s%d.tiburon' % (prefix, i), 'w') as ofile:
           rules = ['START'] + strings_for_items(chart, start_stringifier,
               nt_stringifier, t_stringifier)
-        print >>ofile, '\n'.join(rules)
+          print >>ofile, '\n'.join(rules)
 
 def output_cdec(charts, grammar, prefix):
   """

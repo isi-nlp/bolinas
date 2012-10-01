@@ -59,7 +59,8 @@ class Rule:
       except AssertionError,e:    
           raise InputFormatException, "Rule ID mismatch in grammar specification."
       rule_id = int(rule_id)
-      symbol = symbol[1:]
+      if symbol[0] == "#":
+          symbol = symbol[1:]
       weight = float(weight)
       try:
           amr = Dag.from_string(amr_str)
@@ -74,15 +75,13 @@ class Rule:
       rule = Rule(rule_id, symbol, weight, amr, ptb)
       output[rule_id] = rule
 
-    # Check for start symbol
-    found = False
+    found_root = False
     for rule_id in output: 
-        if output[rule_id].symbol == "ROOT_root":
-            found = True
+        if "root" in output[rule_id].symbol.lower():
+            found_root = True
             break
-    if not found: 
-        raise InputFormatException, "Grammar needs to contain rule with start symbol 'ROOT_root'." 
-        
+    if not found_root:
+        raise InputFormatException, "Need at least one rule with start symbol 'root' on LHS."
 
     lhs_file.close()
     rhs_amr_file.close()
