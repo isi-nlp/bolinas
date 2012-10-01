@@ -1,4 +1,5 @@
 from lib.amr.dag import Dag, NonterminalLabel
+from lib.amr.graph_description_parser import ParserError, LexerError
 from lib.tree import Tree
 from lib import log
 from lib.exceptions import InputFormatException, BinarizationException 
@@ -49,22 +50,39 @@ class Rule:
         rule_id, symbol = parts
         weight = 1.0 # Default to 1.0
       else: 
-        raise InputFormatException, "Invalid rule format: %s", lhs  
+        raise InputFormatException, "Invalid rule LHS: %s" % lhs  
 
       rid2, amr_str = rhs_amr.split(',', 1)
       rid3, ptb_str = rhs_ptb.split(',', 1)
-
-      assert rule_id == rid2 == rid3
+      try: 
+          assert rule_id == rid2 == rid3
+      except AssertionError,e:    
+          raise InputFormatException, "Rule ID mismatch in grammar specification."
       rule_id = int(rule_id)
       symbol = symbol[1:]
       weight = float(weight)
-
-      amr = Dag.from_string(amr_str)
-      ptb = Tree(ptb_str)
+      try:
+          amr = Dag.from_string(amr_str)
+      except (ParserError, LexerError), e:    
+          raise InputFormatException, "Invalid graph RHS: %s" % amr_str
+      try:
+          ptb = Tree(ptb_str)
+      except:
+          raise InputFormatException, "Invalid tree RHS: %s" % ptb_str 
 
       assert rule_id not in output
       rule = Rule(rule_id, symbol, weight, amr, ptb)
       output[rule_id] = rule
+
+    # Check for start symbol
+    found = False
+    for rule_id in output: 
+        if output[rule_id].symbol == "ROOT_root":
+            found = True
+            break
+    if not found: 
+        raise InputFormatException, "Grammar needs to contain rule with start symbol 'ROOT_root'." 
+        
 
     lhs_file.close()
     rhs_amr_file.close()
@@ -82,7 +100,7 @@ class Rule:
     lhs_file = open('%s.lhs' % prefix, 'w')
     rhs_amr_file = open('%s.rhs-amr' % prefix, 'w')
     rhs_ptb_file = open('%s.rhs-ptb' % prefix, 'w')
-
+    
     for rule in grammar.values():
       print >>lhs_file, '%d,%s,%f' % (rule.rule_id, rule.symbol, rule.weight)
       print >>rhs_amr_file, '%d,%s' % (rule.rule_id, rule.amr.to_string(newline = False))

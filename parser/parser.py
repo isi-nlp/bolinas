@@ -162,6 +162,7 @@ def successful_parse(string, graph, item, string_size, graph_size):
   # make sure the right start symbol is used
   if 'root_ROOT' not in item.rule.symbol:
     return False
+    
   # make sure the item spans the whole object
   if string and graph:
     whole_string = item.cfg_item.j - item.cfg_item.i == string_size
@@ -186,7 +187,7 @@ def parse(grammar, string, graph, filter_cache):
 
   # remember when we started
   start_time = time.clock()
-  log.info('parse')
+  log.info('parse...')
 
   # specify what kind of items we're working with
   if string and graph:
@@ -312,7 +313,9 @@ def parse(grammar, string, graph, filter_cache):
             pending.add(nitem)
 
   if success:
-    log.info('success!')
+    log.info('   success!')
+  else:
+    log.info('   failed!')
   etime = time.clock() - start_time
   log.chatter('done in ' + str(etime) + 's')
 
@@ -486,10 +489,11 @@ def output_tiburon(charts, grammar, prefix):
         item.rule.rule_id, item.rule.weight)
 
   for i, chart in zip(range(len(charts)), charts):
-    with open('%s%d.tiburon' % (prefix, i), 'w') as ofile:
-      rules = ['START'] + strings_for_items(chart, start_stringifier,
-          nt_stringifier, t_stringifier)
-      print >>ofile, '\n'.join(rules)
+    if chart:   
+        with open('%s%d.tiburon' % (prefix, i), 'w') as ofile:
+          rules = ['START'] + strings_for_items(chart, start_stringifier,
+              nt_stringifier, t_stringifier)
+        print >>ofile, '\n'.join(rules)
 
 def output_cdec(charts, grammar, prefix):
   """
