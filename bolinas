@@ -7,7 +7,7 @@ from lib.exceptions import InvocationException, InputFormatException
 from parser.parser import Parser
 from aligner.aligner import Aligner
 from extractor_synsem.extractor_synsem import ExtractorSynSem
-#from extractor_cansem.extractor_cansem import ExtractorCanSem
+from extractor_cansem.extractor_cansem import ExtractorCanSem
 from binarizer.binarizer import Binarizer
 
 SUBMODULES = {
@@ -15,7 +15,7 @@ SUBMODULES = {
   'binarize': Binarizer,
   'align': Aligner,
   'extract-synsem': ExtractorSynSem,
-#  'extract-cansem': ExtractorCanSem,
+  'extract-cansem': ExtractorCanSem,
 }
 
 HELP_EXIT_CODE = 1
