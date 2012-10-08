@@ -30,20 +30,19 @@ class ExtractorCanSem:
         parser.add_argument('nl_file', type=str, help="Natural Language File")
         parser.add_argument('mr_file', type=str, help="Meaning Representation File")
         parser.add_argument('alignment_file', type=str, help="Alignment File")
-        #parser.add_argument('--tib_sentenceK', type=int, help='-k value for Tiburon Tree->Str', default="50")
         parser.add_argument('--ghkmDir', nargs='?', default='/home/kmh/Files/Tools/stanford-ghkm-2010-03-08', help="GHKM directory")
         parser.add_argument('--tiburonLoc', nargs='?', default='/home/kmh/Files/Tools/newtib/tiburon', help="Tiburon executable file")
-        parser.add_argument('--suffix', nargs='?', default=False, help="Suffix for temporary and output files")
+        parser.add_argument('--prefix', nargs='?', default=False, help="Suffix for temporary and output files")
 
         args = parser.parse_args(args=args)
 
-        if args.suffix == False:
-            args.suffix = "test"
-        args.parse_path = "%s.ptb"%args.suffix
-        args.align_path = "%s.a"%args.suffix
-        args.text_path = "%s.f"%args.suffix
-        args.ghkm_path = "%s.ghkm"%args.suffix
-        args.tib_path = "%s.tib"%args.suffix
+        if args.prefix == False:
+            args.prefix = "test"
+        args.parse_path = "%s.ptb"%args.prefix
+        args.align_path = "%s.a"%args.prefix
+        args.text_path = "%s.f"%args.prefix
+        args.ghkm_path = "%s.ghkm"%args.prefix
+        args.tib_path = "%s.tib"%args.prefix
 
         # load input data into AnnotatedSet
 

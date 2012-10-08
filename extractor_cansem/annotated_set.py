@@ -13,7 +13,6 @@ def loadData(nl_path,mr_path,alignment_path):
 
     
     n_examples = count_lines(nl_path)
-    #announce_interval = n_examples / 10
 
     # load input data into examples list
     data = []
@@ -28,6 +27,26 @@ def loadData(nl_path,mr_path,alignment_path):
 
         # Stores a list of triples representing the MR aligned to natural language
         data[i]['mrt'] = applyAlign(loadMR(mr_s),al_s)
+
+    return data
+
+
+def loadMRFile(mr_path):
+    """
+    Loads input data (nl,mr,alignment)
+    """
+
+    mr_f = open(mr_path)
+    n_examples = count_lines(mr_path)
+
+    # load input data into examples list
+    data = []
+    for i in range(n_examples):
+        mr_s = mr_f.readline().strip()
+        data.append({})
+
+        # Stores a list of triples representing the MR aligned to natural language
+        data[i]['mrt'] = loadMR(mr_s)
 
     return data
 

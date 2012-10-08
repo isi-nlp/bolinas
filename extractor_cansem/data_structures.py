@@ -14,21 +14,9 @@ class Edge():
     def isTerminal(self):       return self.terminal
 
     def __str__(self):      return str(self.label)#return " ".join((self.label,self.lexical,str(self.count)))
-        #if self.count == 0: return str(self.label) + ':' + str(self.lexical)
-        #else:               return str(self.label) + '(' + str(self.count) + ')'
     def __repr__(self):     return " ".join((self.label,str(self.count)))
-
-    #def __repr__(self): return str(self.label) + str(self.count)
-
-    def __hash__(self):
-        #return 1000 * self.count + hash(str(self.label)) + hash(str(self.lexical))
-        return hash(str(self.label + str("___") + str(self.count)))
-        #+ hash(str(self.lexical))
-        #return hash(str(self.label)) + hash(self.count) + hash(str(self.lexical) + self.count)
-    
-    def __eq__(self,other):
-        return self.__hash__() == other.__hash__()
-        #return self.__hash__() + self.count.__hash__() == other.__hash__() + other.count.__hash__()
+    def __hash__(self):     return hash(str(self.label + str("___") + str(self.count)))
+    def __eq__(self,other): return self.__hash__() == other.__hash__()
 
     def __getitem__(self,i):  return (self.label,self.count)[i]
 

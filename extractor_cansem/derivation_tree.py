@@ -180,7 +180,8 @@ class DerivationTree(object):
                 alignments = ["%d-%d"%(magicCount,int(align)) for align in node.align]
                 #alignments = ["%d-%d"%(magicCount,int(align.split("-")[1])-1) for align in node.align]
                 magicCount += 1
-                return (tibFormat("%s"%node.label[1][1]),alignments,"child")
+                return (tibFormat("%s"%node.label[1][0]),alignments,"child")
+                #return (tibFormat("%s"%node.label[1][1]),alignments,"child")
             else:       
                
                 state = "q"
