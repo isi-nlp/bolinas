@@ -99,7 +99,7 @@ class GraphDescriptionParser(object):
             (LexTypes.RPAR,'\)'),
             (LexTypes.COMMA,','), 
             (LexTypes.SLASH,'/'),
-            (LexTypes.EDGELABEL,":[^\s]+"),
+            (LexTypes.EDGELABEL,":[^\s\)]+"),
             (LexTypes.STRLITERAL,'"[^"]+"'),
             (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*"),
             (LexTypes.LITERAL,"'[^\s(),]+"),
@@ -213,18 +213,19 @@ class GraphDescriptionParser(object):
                 elif type == LexTypes.IDENTIFIER: 
                     stack.append((CNODE, token, None)) # Push new source node with concept label
                     state = 6
-                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-
-            elif state == 6:
-                if type == LexTypes.RPAR: # Pop from stack and add edges
-
+                elif type == LexTypes.EDGELABEL:  # Unary edge
+                    stack.append((CNODE, None, None))
+                    stack.append((EDGE, token[1:]))
+                    state = 5
+                        
+                elif type == LexTypes.RPAR: # Unary edge
+                    stack.append((CNODE, None, None))             
                     edges = []
-                    
                     while stack[-1][0] != PNODE: # Pop all edges
                         children = []
                         while stack[-1][0] == CNODE: # Pop all external nodes for hyperedge
                             forgetme, childnodelabel, childconcept = stack.pop()
-                            if childnodelabel[0] == '@': #child is external node
+                            if childnodelabel is not None and childnodelabel[0] == '@': #child is external node
                                 childnodelabel = childnodelabel[1:]
                                 amr.external_nodes.append(childnodelabel)
                             children.append((childnodelabel, childconcept))
@@ -243,9 +244,58 @@ class GraphDescriptionParser(object):
 
                         hypertarget =[] # build hyperedge destination
                         for node, concept in children:
-                            if concepts and (not node in amr.node_to_concepts or concept is not None):
-                                amr.node_to_concepts[node] = concept
-                            hypertarget.append(node) 
+                            if node is not None:
+                                if concepts and (not node in amr.node_to_concepts or concept is not None):
+                                    amr.node_to_concepts[node] = concept
+                                hypertarget.append(node) 
+                        hyperchild = tuple(hypertarget)    
+                        
+                        if edgelabel[0] == '#': # this is a nonterminal Edge 
+                            edgelabel = NonterminalLabel(edgelabel[1:])
+
+                        amr._add_triple(parentnodelabel, edgelabel, hyperchild)
+
+                    if stack:
+                        state = 6
+                        stack.append((CNODE, parentnodelabel, parentconcept))
+                    else: 
+                        state = 0 
+                        amr.roots.append(parentnodelabel)
+                     
+                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
+
+            elif state == 6:
+                if type == LexTypes.RPAR: # Pop from stack and add edges
+
+                    edges = []
+                    
+                    while stack[-1][0] != PNODE: # Pop all edges
+                        children = []
+                        while stack[-1][0] == CNODE: # Pop all external nodes for hyperedge
+                            forgetme, childnodelabel, childconcept = stack.pop()
+                            if childnodelabel is not None and childnodelabel[0] == '@': #child is external node
+                                childnodelabel = childnodelabel[1:]
+                                amr.external_nodes.append(childnodelabel)
+                            children.append((childnodelabel, childconcept))
+
+                        assert stack[-1][0] == EDGE 
+                        forgetme, edgelabel = stack.pop()
+                        edges.append((edgelabel, children))
+                   
+                    forgetme, parentnodelabel, parentconcept = stack.pop()
+                    if concepts and (not parentnodelabel in amr.node_to_concepts or parentconcept is not None): 
+                        amr.node_to_concepts[parentnodelabel] = parentconcept
+                    if parentnodelabel[0] == '@': #parent is external node
+                        parentnodelabel = parentnodelabel[1:]
+                        amr.external_nodes.append(parentnodelabel)
+                    for edgelabel, children in edges: 
+
+                        hypertarget =[] # build hyperedge destination
+                        for node, concept in children:
+                            if node is not None: 
+                                if concepts and (not node in amr.node_to_concepts or concept is not None):
+                                    amr.node_to_concepts[node] = concept
+                                hypertarget.append(node) 
                         hyperchild = tuple(hypertarget)    
                         
                         if edgelabel[0] == '#': # this is a nonterminal Edge 
@@ -283,14 +333,19 @@ if __name__ == "__main__":
     #doctest.testmod()
 
 
-    import timeit
+    #import timeit
+    #
+    #s = """for line in lines: 
+    #         parser.parse_string(line)"""
+    #t = timeit.Timer(stmt = s, setup = """from graph_description_parser import GraphDescriptionParser\nlines = open(sys.argv[1],'r').readlines()\nparser = GraphDescriptionParser()""")
+    #print t.timeit(number = 1)
+    #s2 = """for line in lines: 
+    #         Amr.from_string(line)"""
+    #t2 = timeit.Timer(stmt = s2, setup = """from amr import Amr\nlines = open(sys.argv[1],'r').readlines()""")
+    #print t2.timeit(number = 1)
 
-    s = """for line in lines: 
-             parser.parse_string(line)"""
-    t = timeit.Timer(stmt = s, setup = """from graph_description_parser import GraphDescriptionParser\nlines = open(sys.argv[1],'r').readlines()\nparser = GraphDescriptionParser()""")
-    print t.timeit(number = 1)
-    s2 = """for line in lines: 
-             Amr.from_string(line)"""
-    t2 = timeit.Timer(stmt = s2, setup = """from amr import Amr\nlines = open(sys.argv[1],'r').readlines()""")
-    print t2.timeit(number = 1)
+    parser = GraphDescriptionParser()
+    with open(sys.argv[1]) as in_file:
+        for line in in_file:
+            print parser.parse_string(line).to_string(newline= False)
 
