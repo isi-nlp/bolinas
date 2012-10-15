@@ -112,12 +112,12 @@ class HergItem():
       return False
     o2 = self.outside_triple[2]
     n2 = new_edge[2]
-    if not len(o2) == len(n2) == 1:
+    # DB (2012-10-15): Changed to allow terminal hyperedges. 
+    if not len(o2) == len(n2):
       return False
-    o2 = o2[0]
-    n2 = n2[0]
-    if o2 in self.mapping and self.mapping[o2] != n2:
-      return False
+    for i in range(len(o2)): 
+        if o2[i] in self.mapping and self.mapping[o2[i]] != n2[i]:
+            return False
     return True
 
   def shift(self, new_edge):
@@ -127,16 +127,14 @@ class HergItem():
     """
     o1, olabel, o2 = self.outside_triple
     n1, nlabel, n2 = new_edge
-
-    assert len(o2) == len(n2) == 1
-    o2 = o2[0]
-    n2 = n2[0]
-
+    # DB (2012-10-15): Changed to allow terminal hyperedges.
+    assert len(o2) == len(n2) 
     new_size = self.size + 1
     new_shifted = frozenset(self.shifted | set([new_edge]))
     new_mapping = dict(self.mapping)
     new_mapping[o1] = n1
-    new_mapping[o2] = n2
+    for i in range(len(o2)):
+        new_mapping[o2[i]] = n2[i]
 
     return HergItem(self.rule, new_size, new_shifted, new_mapping)
 
@@ -426,6 +424,7 @@ class CfgHergItem:
     Determines whether given item can be shifted onto both the CFG item and the
     HERG item.
     """
+
     #print '  cfg:', self.cfg_item.can_complete(new_item.cfg_item)
     #print '  herg:', self.herg_item.can_complete(new_item.herg_item)
     if not (self.cfg_item.can_complete(new_item.cfg_item) and
