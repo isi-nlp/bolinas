@@ -2,13 +2,14 @@ import sys
 import re
 import math
 from collections import defaultdict
+
 from extractor_cansem.data_structures import galFormat,tibFormat
 
-def ghkm2tib(inFile,outFile,inFormat="Java"):
+def ghkm2tib(inFile,outFile):
 
     inf = open(inFile,'r')
     ouf = open(outFile,'w')
-    ouf.write("root\n") ### not needed if filtering!
+    ouf.write("root\n")
     '''
     FROM:
     ROOT@SL(ROOT@SL(x0:ROOT@DL x1:ARG1@DL) ARG0@SO(x2:ARG0@DL x3:ARG1@DL)) -> x0 "that" "the" x2 x1 x3 ||| 0.0074074073 0.01
@@ -24,12 +25,7 @@ def ghkm2tib(inFile,outFile,inFormat="Java"):
     x0:root@DL@code -> x0:root@DL and code.x0 for RHS
     '''    
 
-    if inFormat == "Java":
-        inf.next()
-    else:
-        inf.next()
-        inf.next()
-        inf.next()
+    inf.next()
 
 
     code1_matcher = re.compile("x([0-9]+):([^ @]+)@([^ @]+)@(.+)") # x0:ROOT@DL@q
@@ -85,11 +81,6 @@ def ghkm2tib(inFile,outFile,inFormat="Java"):
                             if match:
                                 currentBuf = match.group(1)
 
-                            elif inFormat == "C++":
-                                match = cppprob_matcher.match(currentBuf)
-                                if match:
-                                    probJoint = match.group(1)
-
                 newLine += currentBuf
                 newLine += char
                 currentBuf = ""
@@ -100,12 +91,8 @@ def ghkm2tib(inFile,outFile,inFormat="Java"):
 
         newLine += currentBuf
 
-        if inFormat == "Java":
-            (line,probs) = newLine.split("|||")
-            (probJoint,probCond) = probs.split()
-        else:
-            (line,rest) = newLine.split("###")
-        #probJoint = math.log(float(probJoint))
+        (line,probs) = newLine.split("|||")
+        (probJoint,probCond) = probs.split()
 
         rules[line] += float(probJoint.strip())
 
@@ -114,12 +101,3 @@ def ghkm2tib(inFile,outFile,inFormat="Java"):
         
     inf.close()
     ouf.close()
-
-if __name__=='__main__':
-
-    if len(sys.argv) < 1:
-        print "ERROR, need a file name"
-        sys.exit(-1)
-
-    fName = sys.argv[1]
-    g2t(fName)
