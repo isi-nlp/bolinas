@@ -1016,7 +1016,31 @@ class Dag(defaultdict):
         return self.to_string(newline = True)
 
   
+    def compute_fw_table(self):
+      table = dict()
+      nodes = self.get_nodes()
+      for node in nodes:
+        table[(node,node)] = (0,None)
+        for oedge in self.out_edges(node):
+          for tnode in oedge[2]:
+            table[(node,tnode)] = (1,oedge)
+            table[(tnode,node)] = (1,oedge)
+      for n_k in nodes:
+        for n_i in nodes:
+          for n_j in nodes:
+            if not ((n_i, n_k) in table and (n_k, n_j) in table):
+              continue
+            k_dist = table[(n_i,n_k)][0] + table[(n_k,n_j)][0]
+            k_edge_forward = table[(n_k,n_j)][1]
+            k_edge_back = table[(n_k,n_i)][1]
+            if (n_i, n_j) not in table or k_dist < table[(n_i,n_j)][0]:
+              table[(n_i,n_j)] = (k_dist, k_edge_forward)
+              table[(n_j,n_i)] = (k_dist, k_edge_back)
 
+      self.fw_table = table
+
+    def star(self, node):
+      return frozenset(self.in_edges(node) + self.out_edges(node))
 
     ####Methods to provide representations suitable for David's HERG parser###
     #def to_david_repr(self):

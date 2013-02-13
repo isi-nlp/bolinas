@@ -14,7 +14,7 @@ class Rule:
   @classmethod
   def load_from_file(cls, prefix):
     """
-    Loads a SHRG grammar (a of rules keyed by rule number) from the given
+    Loads a SHRG grammar (a list of rules keyed by rule number) from the given
     prefix. First attempts to load a pickled representation of the grammar, and
     falls back on plaintext. See documentation for format details.
     """

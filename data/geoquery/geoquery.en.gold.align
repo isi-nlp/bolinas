@@ -1,0 +1,880 @@
+x0:answer:x2-0 x0:answer:x2-1 x0:city:x1-2 x0:city:x1-3 x0:loc:b-4 b:stateid:virginia:virginia-5
+x0:answer:x2-0 x0:answer:x2-1 x0:high_point:b-2 x0:high_point:b-3 x0:high_point:b-4 x0:high_point:b-5 b:state:x1-6 b:next_to:c-7 c:stateid:mississippi:mississippi-8
+x0:answer:x2-0 x0:river:x1-1 x0:river:x1-2 x0:loc:b-3 b:stateid:arkansas:arkansas-4
+x0:answer:x2-0 x0:river:x1-1 x0:river:x1-2 x0:river:x1-3 x0:loc:b-4 b:stateid:colorado:colorado-5
+x0:answer:x2-0 x0:answer:x2-1 x0:answer:x2-2 x0:answer:x2-3 x0:capital:x1-4 x0:capital:x1-5 x0:loc:b-6 b:stateid:texas:texas-7
+x0:answer:x4-0 x0:answer:x4-1 x0:answer:x4-2 x0:answer:x4-3 x0:answer:x4-4 x0:answer:x4-5 x1:highest:x5-6 x1:highest:x5-7 x1:place:x2-8 x1:loc:b-9 b:state:x3-10 b:state:x3-11 b:state:x3-12 b:stateid:oregon:oregon-13
+b:count:x3-0 b:state:x1-1 b:state:x1-2 b:low_point-of:c-3 b:low_point-of:c-4 c:lower:d-5 c:lower:d-6 e:stateid:alabama:alabama-7 d:low_point:e-8
+x0:answer:x2-0 x0:answer:x2-1 x0:state:x1-2 x0:state:x1-3 x0:state:x1-4 x0:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x2-0 x0:answer:x2-1 x0:city:x1-2 x0:city:x1-3 x0:loc:b-4 b:stateid:texas:texas-5
+x0:answer:x2-0 x0:answer:x2-1 x0:city:x1-2 x0:city:x1-3 x0:loc:b-4 b:countryid:usa:usa-5
+x0:answer:x2-0 x0:answer:x2-1 x0:city:x1-2 x0:city:x1-3 x0:loc:b-4 b:stateid:virginia:virginia-5
+x0:answer:x2-0 x0:answer:x2-1 x0:city:x1-2 x0:city:x1-3 x0:answer:x2-4 x0:loc:b-5 x0:loc:b-6 b:stateid:texas:texas-7
+x0:answer:x2-0 x0:answer:x2-1 x0:lake:x1-2 x0:lake:x1-3 x0:loc:b-4 b:stateid:california:california-5
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:traverse:b-5 x1:traverse:b-6 x1:traverse:b-7 b:countryid:usa:usa-8 b:countryid:usa:usa-9
+x0:answer:x2-0 x0:answer:x2-1 b:count:x3-2 b:count:x3-3 b:count:x3-4 b:river:x1-5 b:loc:c-6 c:stateid:california:california-7
+x0:answer:x2-0 x0:answer:x2-1 x0:state:x1-2 x0:state:x1-3 x0:state:x1-4 x0:next_to:b-5 b:stateid:utah:utah-6
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:alaska:alaska-3
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:massachusetts:massachusetts-3
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:new_mexico:new_mexico-3 b:stateid:new_mexico:new_mexico-4
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:north_dakota:north_dakota-3 b:stateid:north_dakota:north_dakota-4
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:texas:texas-3
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:cityid_city:new_york:new_york-3 b:cityid_city:new_york:new_york-4 b:cityid_city:new_york:new_york-5 b:cityid_city:new_york:new_york-6 b:cityid_city:new_york:new_york-7
+x0:answer:x4-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x5-3 x1:highest:x5-4 x1:place:x2-5 x1:loc:c-6 c:state:x3-7 c:state:x3-8 c:state:x3-9
+x0:answer:x1-0 x0:elevation:b-1 x0:elevation:b-2 b:placeid:guadalupe_peak:guadalupe_peak-3 b:placeid:guadalupe_peak:guadalupe_peak-4
+x0:answer:x1-0 x0:elevation:b-1 x0:elevation:b-2 b:placeid:mount_mckinley:mount_mckinley-3 b:placeid:mount_mckinley:mount_mckinley-4
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:countryid:usa:usa-7
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:stateid:montana:montana-7
+x0:answer:x5-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x6-3 x1:highest:x6-4 x1:place:x3-5 x1:loc:c-6 x2:largest:x7-7 x2:largest:x7-8 x2:state:x4-9
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:stateid:alabama:alabama-7
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:stateid:delaware:delaware-7
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:stateid:florida:florida-7
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:stateid:louisiana:louisiana-7
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:alaska:alaska-3
+x0:answer:x1-0 x0:size:b-1 x0:size:b-2 b:stateid:texas:texas-3
+x0:answer:x3-0 x0:size:b-1 x0:size:b-2 x1:largest:x4-3 x1:largest:x4-4 x1:city:x2-5 x1:loc:c-6 c:stateid:alaska:alaska-7
+x0:answer:x1-0 x0:len:b-1 x0:len:b-2 b:riverid:rio_grande:rio_grande-3 b:riverid:rio_grande:rio_grande-4
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:colorado:colorado-4 b:river:x1-5
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:delaware:delaware-4 b:river:x1-5
+x0:answer:x3-0 x0:len:b-1 x0:len:b-2 x1:longest:x4-3 x1:longest:x4-4 x1:river:x2-5 x1:loc:c-6 c:stateid:california:california-7
+x0:answer:x3-0 x0:len:b-1 x0:len:b-2 x1:longest:x4-3 x1:longest:x4-4 x1:river:x2-5 x1:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+x0:answer:x1-0 x0:len:b-1 x0:len:b-2 b:riverid:mississippi:mississippi-3 b:riverid:mississippi:mississippi-4
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:mississippi:mississippi-4 b:river:x1-5
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:mississippi:mississippi-4 b:river:x1-5 x0:len:b-6 x0:len:b-7
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:missouri:missouri-4 b:river:x1-5
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:north_platte:north_platte-4 b:riverid:north_platte:north_platte-5 b:river:x1-6
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:ohio:ohio-4 b:river:x1-5
+x0:answer:x2-0 x0:len:b-1 x0:len:b-2 b:river:x1-3 b:riverid:rio_grande:rio_grande-4 b:riverid:rio_grande:rio_grande-5 b:river:x1-6
+x0:answer:x3-0 x0:len:b-1 x0:len:b-2 x1:shortest:x4-3 x1:shortest:x4-4 x1:river:x2-5 x1:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 c:stateid:pennsylvania:pennsylvania-6
+b:count:x3-0 b:count:x3-1 b:capital:x1-2 b:loc:c-3 c:stateid:rhode_island:rhode_island-4 c:stateid:rhode_island:rhode_island-5 b:loc:c-6
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 b:loc:c-4 c:stateid:louisiana:louisiana-5
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 b:loc:c-4 c:stateid:montana:montana-5
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6 c:countryid:usa:usa-7
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 c:stateid:texas:texas-4 b:loc:c-5
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:loc:c-3 c:countryid:usa:usa-4 c:countryid:usa:usa-5 b:loc:c-6
+b:count:x3-0 b:count:x3-1 b:city:x1-2 b:city:x1-3 b:cityid_city:austin:austin-4 b:loc:c-5 b:loc:c-6 b:loc:c-7 c:countryid:usa:usa-8 c:countryid:usa:usa-9
+x0:answer:x3-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x1:largest:x4-4 x1:largest:x4-5 x1:city:x2-6 x1:largest:x4-7 x1:largest:x4-8 x1:largest:x4-9 x1:largest:x4-10
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:stateid:alabama:alabama-4
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:cityid_city:boulder:boulder-4
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:california:california-5
+b:count:x3-0 b:count:x3-1 b:riverid:colorado:colorado-2 b:river:x1-3 b:count:x3-4 b:count:x3-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:cityid_city:montgomery:montgomery-4 x0:population:b-5
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 c:stateid:arizona:arizona-6
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 c:stateid:florida:florida-6
+b:count:x5-0 b:count:x5-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 c:state:x3-6 c:next_to:d-7 d:stateid:nebraska:nebraska-8
+b:count:x5-0 b:count:x5-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 c:state:x3-6 c:next_to:d-7 d:stateid:utah:utah-8
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 c:stateid:texas:texas-6
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:city:x2-3 b:count:x4-4 b:count:x4-5
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:city:x2-3 b:loc:c-4 b:loc:c-5 b:loc:c-6 c:stateid:oregon:oregon-7
+b:count:x4-0 b:count:x4-1 b:major:x1-2 b:river:x2-3 b:traverse:c-4 c:stateid:ohio:ohio-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:nevada:nevada-5 b:stateid:nevada:nevada-6 b:stateid:nevada:nevada-7 b:stateid:nevada:nevada-8
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x0:population:b-5 b:stateid:iowa:iowa-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x0:population:b-5 b:stateid:new_york:new_york-6 b:stateid:new_york:new_york-7
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:cityid_city:boulder:boulder-4
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:austin:austin-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:austin:austin-5 austin:cityid_state:tx:tx-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:california:california-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:chicago:chicago-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:detroit:detroit-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:hawaii:hawaii-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:houston:houston-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:kalamazoo:kalamazoo-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:kansas:kansas-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:minneapolis:minneapolis-5 minneapolis:cityid_state:mn:mn-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:mississippi:mississippi-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:montana:montana-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:new_hampshire:new_hampshire-5 b:stateid:new_hampshire:new_hampshire-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:new_mexico:new_mexico-5 b:stateid:new_mexico:new_mexico-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:new_york:new_york-5 b:stateid:new_york:new_york-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:rhode_island:rhode_island-5 b:stateid:rhode_island:rhode_island-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:riverside:riverside-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:san_francisco:san_francisco-5 b:cityid_city:san_francisco:san_francisco-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:south_dakota:south_dakota-5 b:stateid:south_dakota:south_dakota-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:spokane:spokane-5 spokane:cityid_state:wa:wa-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:texas:texas-5
+x0:answer:x4-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x1:largest:x5-5 x1:largest:x5-6 x1:city:x2-7 x1:loc:c-8 c:stateid:new_york:new_york-9 c:stateid:new_york:new_york-10 c:state:x3-11
+x0:answer:x2-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:capital:x1-5 b:capital:x1-6 b:loc:c-7 c:stateid:georgia:georgia-8
+x0:answer:x2-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:capital:x1-5 b:capital:x1-6 b:loc:c-7 c:stateid:texas:texas-8
+x0:answer:x3-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x1:smallest:x4-5 x1:smallest:x4-6 x1:state:x2-7 x1:next_to:c-8 c:stateid:wyoming:wyoming-9
+x0:answer:x3-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x2-5 b:state:x2-6 x1:largest:x4-7 x1:largest:x4-8 x1:largest:x4-9 b:density-of:x1-10 b:density-of:x1-11
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:countryid:usa:usa-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:washington:washington-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:washington:washington-5 washington:cityid_state:dc:dc-6
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:austin:austin-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:utah:utah-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:utah:utah-5
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:texas:texas-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:river:x1-3 b:river:x1-4 b:riverid:colorado:colorado-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:stateid:colorado:colorado-6
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 c:stateid:colorado:colorado-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 c:stateid:iowa:iowa-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 c:stateid:missouri:missouri-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 c:stateid:new_york:new_york-5 c:stateid:new_york:new_york-6
+b:count:x5-0 b:count:x5-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 c:state:x2-5 c:state:x2-6 c:loc-of:d-7 c:loc-of:d-8 d:most:x6-9 d:most:x6-10 d:river:x3-11
+b:count:x6-0 b:count:x6-1 b:river:x2-2 b:loc:c-3 b:loc:c-4 c:state:x3-5 c:state:x3-6 c:loc-of:d-7 x1:highest:x7-8 x1:highest:x7-9 x1:place:x4-10
+b:count:x5-0 b:count:x5-1 b:river:x2-2 b:loc:c-3 b:loc:c-4 c:state:x3-5 c:state:x3-6 x1:largest:x6-7 x1:largest:x6-8 x1:largest:x6-9 c:population-of:x1-10
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:stateid:idaho:idaho-6
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:stateid:texas:texas-6
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6
+b:count:x6-0 b:count:x6-1 b:river:x2-2 x1:not:x7-3 x1:not:x7-4 x1:traverse:c-5 c:state:x3-6 c:state:x3-7 c:loc-of:d-8 d:capital:x4-9 d:capital:x4-10 d:cityid_city:albany:albany-11
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 c:stateid:alaska:alaska-4 b:loc:c-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 c:stateid:colorado:colorado-4 b:loc:c-5
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 c:stateid:texas:texas-4 b:longer:d-5 b:longer:d-6 b:longer:d-7 d:riverid:red:red-8 d:riverid:red:red-9
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:loc:c-3 c:stateid:washington:washington-4
+b:count:x3-0 b:count:x3-1 b:river:x1-2 b:traverse:c-3 b:traverse:c-4 c:stateid:texas:texas-5
+b:count:x4-0 b:count:x4-1 b:river:x1-2 b:traverse:c-3 b:traverse:c-4 c:state:x2-5 c:state:x2-6 c:next_to:d-7 d:stateid:colorado:colorado-8
+x0:answer:x1-0 x0:area:b-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:countryid:usa:usa-5 b:countryid:usa:usa-6
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc:c-3 b:loc:c-4 c:countryid:usa:usa-5 c:countryid:usa:usa-6 c:countryid:usa:usa-7
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc:c-3 b:loc:c-4 c:countryid:usa:usa-5 c:countryid:usa:usa-6
+b:count:x5-0 b:count:x5-1 b:state:x1-2 b:next_to:c-3 b:next_to:c-4 b:next_to:c-5 c:major:x2-6 c:river:x3-7
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:count:x3-3 b:count:x3-4
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6 c:countryid:usa:usa-7
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc:c-3 b:loc:c-4 b:loc:c-5 c:countryid:usa:usa-6 c:countryid:usa:usa-7
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:alaska:alaska-4
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:next_to:c-3 c:state:x2-4 c:state:x2-5 c:state:x2-6 c:state:x2-7 c:state:x2-8
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:colorado:colorado-4 b:next_to:d-6 d:stateid:new_mexico:new_mexico-7 d:stateid:new_mexico:new_mexico-8
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:hawaii:hawaii-4
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:iowa:iowa-4
+b:count:x5-0 b:count:x5-1 b:state:x1-2 b:next_to:c-3 b:next_to:c-4 c:state:x2-5 c:state:x2-6 c:loc-of:d-7 d:capital:x3-8 d:capital:x3-9 d:cityid_city:boston:boston-10
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:tennessee:tennessee-4
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:texas:texas-4
+b:count:x5-0 b:count:x5-1 b:state:x2-2 b:next_to:c-3 x1:largest:x6-4 x1:largest:x6-5 x1:state:x3-6
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:next_to:c-3 c:river:x2-4 c:riverid:mississippi:mississippi-5 c:river:x2-6
+b:count:x5-0 b:count:x5-1 b:state:x1-2 b:next_to:c-3 c:state:x2-4 c:state:x2-5 c:next_to:d-6 c:next_to:d-7 d:most:x6-8 d:most:x6-9 d:state:x3-10
+b:count:x5-0 b:count:x5-1 b:state:x2-2 b:next_to:c-3 c:state:x3-4 c:state:x3-5 x1:largest:x6-6 x1:largest:x6-7 x1:largest:x6-8 c:population-of:x1-9
+b:count:x5-0 b:count:x5-1 b:state:x2-2 x1:not:x6-3 x1:not:x6-4 x1:loc-of:c-5 c:river:x3-6
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to-of:c-3 c:stateid:iowa:iowa-4 b:next_to-of:c-5
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to-of:c-3 c:stateid:missouri:missouri-4 b:next_to-of:c-5
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to-of:c-3 c:stateid:tennessee:tennessee-4 b:next_to-of:c-5
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:traverse-of:c-3 c:river:x2-4 c:riverid:colorado:colorado-5 c:river:x2-6 b:traverse-of:c-7 b:traverse-of:c-8
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:traverse-of:c-3 c:river:x2-4 c:riverid:colorado:colorado-5 c:river:x2-6 b:traverse-of:c-7 b:traverse-of:c-8
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:traverse-of:c-3 c:river:x2-4 c:riverid:mississippi:mississippi-5 c:river:x2-6 b:traverse-of:c-7 b:traverse-of:c-8
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:traverse-of:c-3 c:riverid:mississippi:mississippi-4 c:riverid:mississippi:mississippi-5 b:traverse-of:c-6 b:traverse-of:c-7
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:traverse-of:c-3 c:river:x2-4 c:riverid:missouri:missouri-5 c:river:x2-6 b:traverse-of:c-7 b:traverse-of:c-8
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc:c-3 c:countryid:usa:usa-4 b:loc:c-5
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc-of:c-3 c:cityid_city:rochester:rochester-4 c:cityid_city:rochester:rochester-5 c:cityid_city:rochester:rochester-6 c:cityid_city:rochester:rochester-7
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:loc-of:c-3 c:cityid_city:springfield:springfield-4 c:cityid_city:springfield:springfield-5 c:cityid_city:springfield:springfield-6 c:cityid_city:springfield:springfield-7
+b:count:x10-0 b:count:x10-1 b:state:x3-2 b:loc-of:c-3 c:place:x4-4 c:higher:d-5 c:place:x4-6 c:higher:d-7 x1:highest:x11-8 x1:highest:x11-9 x1:place:x5-10 x1:loc:e-11 e:state:x6-12 e:state:x6-13 e:loc-of:f-14 x2:largest:x12-15 x2:largest:x12-16 x2:capital:x7-17 x2:city:x8-18 x2:loc:g-19 g:countryid:usa:usa-20 g:countryid:usa:usa-21
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:loc-of:c-3 c:city:x2-4 c:city:x2-5 c:cityid_city:austin:austin-6
+b:count:x4-0 b:count:x4-1 b:state:x1-2 b:loc-of:c-3 c:city:x2-4 c:city:x2-5 c:city:x2-6 c:city:x2-7 c:cityid_city:springfield:springfield-8
+b:count:x5-0 b:count:x5-1 b:state:x1-2 b:loc-of:c-3 c:major:x2-4 c:river:x3-5
+b:count:x5-0 b:count:x5-1 b:state:x2-2 b:loc:c-3 c:countryid:usa:usa-4 c:countryid:usa:usa-5 b:traverse-of:d-6 x1:shortest:x6-7 x1:shortest:x6-8 x1:river:x3-9 b:traverse-of:d-10 b:traverse-of:d-11
+x0:answer:x1-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:stateid:texas:texas-4 x0:population:b-5
+x0:answer:x1-0 x0:elevation:b-1 x0:elevation:b-2 b:placeid:mount_mckinley:mount_mckinley-3 b:placeid:mount_mckinley:mount_mckinley-4
+x0:answer:x3-0 x0:elevation:b-1 x0:elevation:b-2 x1:highest:x4-3 x1:highest:x4-4 x1:place:x2-5 x1:loc:c-6 c:stateid:montana:montana-7
+x0:loc-of:b-0 x0:answer:x2-1 x0:state:x1-2 x0:loc-of:b-3 b:placeid:mount_mckinley:mount_mckinley-4 b:placeid:mount_mckinley:mount_mckinley-5
+x0:loc-of:b-0 x0:answer:x4-1 x0:state:x2-2 x0:loc-of:b-3 x1:highest:x5-4 x1:highest:x5-5 x1:place:x3-6 x1:loc:c-7 c:countryid:usa:usa-8 x1:loc:c-9
+x0:loc-of:b-0 x0:answer:x2-1 x0:state:x1-2 x0:loc-of:b-3 b:cityid_city:rochester:rochester-4
+c:stateid:iowa:iowa-0 b:next_to-of:c-1 b:count:x3-2 b:count:x3-3 b:state:x1-4
+x0:answer:x2-0 x0:state:x1-1 x0:state:x1-2
+x0:answer:x2-0 x0:lake:x1-1 x0:lake:x1-2 x0:lake:x1-3 x0:loc:b-4 b:countryid:usa:usa-5
+x0:answer:x2-0 x0:river:x1-1 x0:river:x1-2 x0:river:x1-3 x0:loc:b-4 b:stateid:colorado:colorado-5
+x0:answer:x2-0 x0:capital:x1-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:countryid:usa:usa-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x1:longest:x4-1 x1:longest:x4-2 x1:river:x2-3 x1:loc:b-4 b:countryid:usa:usa-5
+x0:answer:x3-0 x0:major:x1-1 x0:major:x1-2 x0:lake:x2-3 x0:loc:b-4 b:stateid:michigan:michigan-5
+x0:answer:x3-0 x0:major:x1-1 x0:major:x1-2 x0:river:x2-3 x0:loc:b-4 b:stateid:florida:florida-5
+x0:answer:x2-0 x0:river:x1-1 x0:river:x1-2 x0:loc:b-3 b:stateid:arkansas:arkansas-4
+x0:answer:x4-0 x0:state:x2-1 x0:state:x2-2 x1:not:x5-3 x1:not:x5-4 x1:not:x5-5 x1:next_to:b-6 b:state:x3-7
+x0:population:b-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:cityid_city:boulder:boulder-4
+x0:population:b-0 x0:population:b-1 x0:population:b-2 x0:population:b-3 b:cityid_city:boulder:boulder-4
+b:count:x3-0 b:count:x3-1 b:state:x1-2 b:next_to:c-3 c:stateid:iowa:iowa-4
+a:state:x4-0 a:state:x4-1 a:state:x4-2 a:traverse-of:c-3 a:traverse-of:c-4 c:riverid:mississippi:mississippi-5 c:riverid:mississippi:mississippi-6 c:riverid:mississippi:mississippi-7 x0:answer:x5-8 x0:loc-of:b-9 x1:lowest:x6-10 x1:lowest:x6-11 x1:place:x3-12
+x0:population:b-0 x0:population:b-1 b:cityid_city:boulder:boulder-2
+x0:population:b-0 x0:population:b-1 b:cityid_city:boulder:boulder-2
+x0:river:x1-0 x0:loc:b-1 b:stateid:new_york:new_york-2 b:stateid:new_york:new_york-3
+b:cityid_city:sacramento:sacramento-0 b:capital:x2-1 b:capital:x2-2 b:capital:x2-3 x0:loc-of:b-4 x0:answer:x3-5 x0:state:x1-6
+b:cityid_city:san_antonio:san_antonio-0 b:cityid_city:san_antonio:san_antonio-1 x0:loc-of:b-2 x0:loc-of:b-3 x0:answer:x2-4 x0:state:x1-5
+x0:answer:x3-0 x0:major:x1-1 x0:city:x2-2 x0:loc:b-3 b:stateid:colorado:colorado-4
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:major:x1-4 x0:lake:x2-5 x0:loc:b-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:state:x2-1 x0:state:x2-2 x1:largest:x4-3 x1:largest:x4-4 x1:largest:x4-5 x0:area-of:x1-6
+x0:state:x1-0 x0:next_to:b-1 b:stateid:iowa:iowa-2
+x0:answer:x2-0 x0:answer:x2-1 x0:answer:x2-2 x0:city:x1-3 x0:loc:b-4 x0:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 c:stateid:texas:texas-2 x0:traverse-of:b-3 x1:longest:x4-4 x1:longest:x4-5 x1:river:x2-6 x1:loc:c-7 c:stateid:texas:texas-8 x0:traverse-of:b-9
+x0:answer:x2-0 x0:answer:x2-1 x0:state:x1-2 x0:traverse-of:b-3 b:riverid:mississippi:mississippi-4 b:riverid:mississippi:mississippi-5 x0:traverse-of:b-6
+x0:answer:x2-0 x0:answer:x2-1 x0:state:x1-2 x0:traverse-of:b-3 b:riverid:mississippi:mississippi-4 b:riverid:mississippi:mississippi-5 x0:traverse-of:b-6
+x0:answer:x2-0 x0:answer:x2-1 x0:river:x1-2 x0:river:x1-3 x0:river:x1-4 x0:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:river:x2-3 x0:loc:b-4 b:stateid:texas:texas-5
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x1-2 x0:capital:x1-3 x0:city:x2-4 x0:loc:b-5 b:state:x3-6 b:state:x3-7 b:next_to:c-8 b:next_to:c-9 c:stateid:texas:texas-10
+x0:answer:x3-0 x0:answer:x3-1 x0:capital:x1-2 x0:capital:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:next_to:c-6 b:next_to:c-7 c:stateid:missouri:missouri-8
+x0:answer:x3-0 x0:answer:x3-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:state:x2-6 b:next_to:c-7 b:next_to:c-8 c:stateid:texas:texas-9
+x0:answer:x2-0 x0:answer:x2-1 x0:city:x1-2 x0:city:x1-3 x0:loc:b-4 b:stateid:california:california-5
+x0:answer:x3-0 x0:answer:x3-1 x0:city:x1-2 x0:city:x1-3 x0:loc:b-4 b:state:x2-5 b:traverse-of:c-6 b:traverse-of:c-7 c:riverid:mississippi:mississippi-8 c:riverid:mississippi:mississippi-9 b:traverse-of:c-10
+x0:answer:x5-0 x0:answer:x5-1 x0:city:x2-2 x0:city:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 b:loc-of:c-7 x1:highest:x6-8 x1:highest:x6-9 x1:place:x4-10
+x0:answer:x4-0 x0:answer:x4-1 x1:highest:x5-2 x1:highest:x5-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:state:x3-8
+x0:answer:x4-0 x0:answer:x4-1 x1:highest:x5-2 x1:highest:x5-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:next_to:c-7 c:stateid:mississippi:mississippi-8
+x0:answer:x3-0 x0:answer:x3-1 x0:lake:x1-2 x0:lake:x1-3 x0:loc:b-4 b:state:x2-5 b:next_to:c-6 c:stateid:texas:texas-7
+x0:answer:x6-0 x0:answer:x6-1 x1:largest:x7-2 x1:largest:x7-3 x1:city:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 b:next_to:c-8 b:next_to:c-9 x2:largest:x8-10 x2:largest:x8-11 x2:state:x5-12
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:alabama:alabama-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:alaska:alaska-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:california:california-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:delaware:delaware-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:kansas:kansas-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:missouri:missouri-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:new_mexico:new_mexico-6 b:stateid:new_mexico:new_mexico-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:new_york:new_york-6 b:stateid:new_york:new_york-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:north_carolina:north_carolina-6 b:stateid:north_carolina:north_carolina-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:ohio:ohio-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:oklahoma:oklahoma-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:rhode_island:rhode_island-6 b:stateid:rhode_island:rhode_island-7
+x0:answer:x4-0 x0:answer:x4-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:state:x3-6 b:traverse-of:c-7 b:traverse-of:c-8 c:riverid:mississippi:mississippi-9 c:riverid:mississippi:mississippi-10 b:traverse-of:c-11
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x5-0 x0:answer:x5-1 x0:major:x2-2 x0:major:x2-3 x0:city:x3-4 x0:loc:b-5 x1:largest:x6-6 x1:largest:x6-7 x1:state:x4-8
+x0:answer:x5-0 x0:answer:x5-1 x0:major:x2-2 x0:major:x2-3 x0:city:x3-4 x0:loc:b-5 x1:smallest:x6-6 x1:smallest:x6-7 x1:state:x4-8 x1:loc:c-9 c:countryid:usa:usa-10 c:countryid:usa:usa-11
+x0:answer:x4-0 x0:answer:x4-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:state:x3-6 b:state:x3-7 b:state:x3-8 b:stateid:california:california-9
+x0:answer:x6-0 x0:answer:x6-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:state:x3-6 b:state:x3-7 b:traverse-of:c-8 b:traverse-of:c-9 c:major:x4-10 c:major:x4-11 c:river:x5-12 c:loc:d-13 d:stateid:virginia:virginia-14 b:traverse-of:c-15
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:vermont:vermont-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:wyoming:wyoming-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:lake:x2-4 x0:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:river:x2-4 x0:loc:b-5 b:stateid:ohio:ohio-6
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:river:x2-4 x0:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x0:answer:x3-2 x0:answer:x3-3 x0:answer:x3-4 x0:major:x1-5 x0:major:x1-6 x0:city:x2-7 x0:loc:b-8 b:stateid:illinois:illinois-9
+x0:answer:x2-0 x0:answer:x2-1 x0:next_to:b-2 x0:next_to:b-3 x0:state:x1-4 x0:next_to:b-5 b:stateid:michigan:michigan-6
+x0:answer:x2-0 x0:answer:x2-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:state:x1-6 b:state:x1-7 b:state:x1-8
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:mississippi:mississippi-5
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:major:x1-5 b:major:x1-6 b:major:x1-7 b:city:x2-8 b:loc:c-9 c:stateid:montana:montana-10
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:traverse-of:c-6 b:traverse-of:c-7 c:river:x2-8 c:riverid:mississippi:mississippi-9 c:river:x2-10 b:traverse-of:c-11
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:traverse-of:c-6 b:traverse-of:c-7 c:river:x2-8 c:riverid:mississippi:mississippi-9 c:river:x2-10 b:traverse-of:c-11
+x0:answer:x2-0 x0:answer:x2-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:traverse-of:c-6 b:traverse-of:c-7 c:riverid:mississippi:mississippi-8 c:riverid:mississippi:mississippi-9 b:traverse-of:c-10
+x0:answer:x2-0 x0:answer:x2-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:traverse-of:c-6 b:traverse-of:c-7 c:riverid:mississippi:mississippi-8 c:riverid:mississippi:mississippi-9 b:traverse-of:c-10
+x0:answer:x2-0 x0:answer:x2-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:next_to:c-6 b:next_to:c-7 c:stateid:texas:texas-8
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:major:x1-5 b:major:x1-6 b:city:x2-7 b:loc:c-8 c:stateid:texas:texas-9
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:state:x1-6 b:traverse-of:c-7 b:traverse-of:c-8 c:river:x2-9 c:riverid:mississippi:mississippi-10 c:river:x2-11 b:traverse-of:c-12
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:state:x1-6 b:traverse-of:c-7 b:traverse-of:c-8 c:river:x2-9 c:riverid:mississippi:mississippi-10 c:river:x2-11 b:traverse-of:c-12
+x0:answer:x2-0 x0:answer:x2-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:state:x1-6 b:traverse-of:c-7 b:traverse-of:c-8 c:riverid:mississippi:mississippi-9 c:riverid:mississippi:mississippi-10 b:traverse-of:c-11
+x0:answer:x2-0 x0:answer:x2-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:state:x1-6 b:traverse-of:c-7 b:traverse-of:c-8 c:riverid:mississippi:mississippi-9 c:riverid:mississippi:mississippi-10 b:traverse-of:c-11
+x0:answer:x2-0 x0:answer:x2-1 x0:river:x1-2 x0:river:x1-3 x0:loc:b-4 b:stateid:alaska:alaska-5
+x0:answer:x3-0 x0:answer:x3-1 x0:river:x1-2 x0:river:x1-3 x0:loc:b-4 b:state:x2-5 b:state:x2-6 b:state:x2-7 b:stateid:indiana:indiana-8
+x0:answer:x3-0 x0:answer:x3-1 x0:river:x1-2 x0:river:x1-3 x0:loc:b-4 b:state:x2-5 b:state:x2-6 b:state:x2-7 b:stateid:texas:texas-8
+x0:answer:x2-0 x0:answer:x2-1 x0:river:x1-2 x0:river:x1-3 x0:loc:b-4 b:stateid:montana:montana-5
+x0:answer:x2-0 x0:answer:x2-1 x0:state:x1-2 x0:state:x1-3
+x0:answer:x4-0 x0:answer:x4-1 x0:state:x2-2 x0:state:x2-3 x0:next_to-of:b-4 x0:next_to-of:b-5 b:state:x3-6 b:state:x3-7 x1:largest:x5-8 x1:largest:x5-9 x1:largest:x5-10 b:population-of:x1-11
+x0:answer:x2-0 x0:answer:x2-1 x0:state:x1-2 x0:state:x1-3 x0:traverse-of:b-4 b:riverid:potomac:potomac-5 b:riverid:potomac:potomac-6 x0:traverse-of:b-7 x0:traverse-of:b-8
+x0:answer:x4-0 x0:answer:x4-1 x0:state:x2-2 x0:state:x2-3 x0:traverse-of:b-4 x0:traverse-of:b-5 x1:longest:x5-6 x1:longest:x5-7 x1:river:x3-8 x0:traverse-of:b-9
+x0:answer:x1-0 x0:answer:x1-1 x0:answer:x1-2 x0:answer:x1-3 x0:answer:x1-4 x0:answer:x1-5 x0:population:b-6 x0:population:b-7 x0:population:b-8 b:stateid:missouri:missouri-9
+x0:answer:x3-0 x0:capital:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x1:capital:x2-0 x1:capital:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x2-0 x0:city:x1-1 x0:loc:b-2 x0:loc:b-3 x0:loc:b-4 b:stateid:pennsylvania:pennsylvania-5
+x0:answer:x2-0 x0:city:x1-1 x0:loc:b-2 b:stateid:california:california-3
+x0:answer:x3-0 x0:city:x2-1 x0:loc:c-2 c:stateid:texas:texas-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:population-of:x1-7 x0:population-of:x1-8 x0:population-of:x1-9
+x0:answer:x3-0 x0:city:x2-1 x0:loc:c-2 c:stateid:texas:texas-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:population-of:x1-7
+x0:answer:x3-0 x0:city:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:city:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:city:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:city:x2-1 x0:loc:c-2 c:countryid:usa:usa-3 c:countryid:usa:usa-4 c:countryid:usa:usa-5 x1:largest:x4-6 x1:largest:x4-7 x1:largest:x4-8 x0:density-of:x1-9 x0:density-of:x1-10
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:loc:b-3 b:stateid:iowa:iowa-4
+x0:answer:x5-0 x0:answer:x5-1 x0:capital:x2-2 x0:loc:b-3 b:state:x3-4 b:state:x3-5 b:loc-of:c-6 x1:lowest:x6-7 x1:lowest:x6-8 x1:place:x4-9
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:capital:x2-3
+x0:answer:x2-0 x0:answer:x2-1 x0:next_to:b-2 x0:next_to:b-3 x0:state:x1-4 x0:next_to:b-5 b:stateid:california:california-6
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:alaska:alaska-5
+x0:answer:x2-0 x0:answer:x2-1 b:area:c-2 b:area:c-3 b:area:c-4 c:state:x1-5 c:state:x1-6 c:state:x1-7 b:sum:x3-8
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:california:california-5
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:florida:florida-5
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:idaho:idaho-5
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:maine:maine-5
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:maryland:maryland-5 x0:area:b-6 x0:area:b-7 x0:area:b-8
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:new_mexico:new_mexico-5 b:stateid:new_mexico:new_mexico-6
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:ohio:ohio-5
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:cityid_city:seattle:seattle-5
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:south_carolina:south_carolina-5 b:stateid:south_carolina:south_carolina-6
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:texas:texas-5
+x0:answer:x3-0 x0:answer:x3-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 x1:largest:x4-5 x1:largest:x4-6 x1:state:x2-7
+x0:answer:x3-0 x0:answer:x3-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 x1:smallest:x4-5 x1:smallest:x4-6 x1:state:x2-7
+x0:answer:x3-0 x0:answer:x3-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:state:x1-5 b:state:x1-6 b:loc-of:c-7 c:capital:x2-8 c:capital:x2-9 c:cityid_city:albany:albany-10
+x0:answer:x3-0 x0:answer:x3-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:state:x2-5 b:state:x2-6 x1:smallest:x4-7 x1:smallest:x4-8 x1:smallest:x4-9 b:density-of:x1-10 b:density-of:x1-11
+x0:answer:x2-0 x0:answer:x2-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:state:x1-5 b:state:x1-6
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:texas:texas-5 b:stateid:texas:texas-6 b:stateid:texas:texas-7
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 b:stateid:wisconsin:wisconsin-5
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 x0:density:b-8 x0:density:b-9
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 x0:density:b-6 x0:density:b-7 x0:density:b-8 b:stateid:pennsylvania:pennsylvania-9
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 x0:density:b-6 x0:density:b-7 x0:density:b-8 b:countryid:usa:usa-9 b:countryid:usa:usa-10
+x0:answer:x5-0 x0:answer:x5-1 x1:largest:x6-2 x1:largest:x6-3 x1:city:x2-4 x1:city:x2-5 x1:loc:b-6 b:state:x3-7 b:state:x3-8 b:loc-of:c-9 c:river:x4-10 c:river:x4-11
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:capital:x2-4 x1:capital:x2-5 x1:loc:b-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:arizona:arizona-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:georgia:georgia-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:kansas:kansas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:louisiana:louisiana-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:nebraska:nebraska-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:oregon:oregon-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x5-0 x0:answer:x5-1 x1:largest:x6-2 x1:largest:x6-3 x1:city:x3-4 x1:loc:b-5 x2:smallest:x7-6 x2:smallest:x7-7 x2:state:x4-8
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:wyoming:wyoming-6
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:illinois:illinois-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x5-0 x0:answer:x5-1 x0:capital:x2-2 x0:capital:x2-3 x0:city:x3-4 x0:loc:b-5 x1:largest:x6-6 x1:largest:x6-7 x1:state:x4-8 x1:loc:c-9 c:countryid:usa:usa-10 c:countryid:usa:usa-11
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:california:california-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:colorado:colorado-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:georgia:georgia-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:hawaii:hawaii-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:illinois:illinois-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:indiana:indiana-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:iowa:iowa-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:maine:maine-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:maryland:maryland-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:massachusetts:massachusetts-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:michigan:michigan-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:new_hampshire:new_hampshire-5 b:stateid:new_hampshire:new_hampshire-6
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:new_jersey:new_jersey-5 b:stateid:new_jersey:new_jersey-6
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:new_york:new_york-5 b:stateid:new_york:new_york-6
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:north_dakota:north_dakota-5 b:stateid:north_dakota:north_dakota-6
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:ohio:ohio-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:pennsylvania:pennsylvania-5
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:loc-of:c-6 b:loc-of:c-7 c:city:x3-8 c:city:x3-9 c:cityid_city:durham:durham-10
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:texas:texas-5
+x0:answer:x3-0 x0:answer:x3-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:stateid:alabama:alabama-6 b:state:x2-7
+x0:answer:x3-0 x0:answer:x3-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:stateid:florida:florida-6 b:state:x2-7
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 x1:largest:x5-5 x1:largest:x5-6 x1:state:x3-7
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 x1:smallest:x5-5 x1:smallest:x5-6 x1:state:x3-7
+x0:answer:x3-0 x0:answer:x3-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:state:x2-6 b:stateid:texas:texas-7
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:state:x2-6 b:next_to:c-7 b:next_to:c-8 c:most:x5-9 c:most:x5-10 c:state:x3-11
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:state:x2-5 b:state:x2-6 b:next_to:c-7 b:next_to:c-8 c:state:x3-9 c:state:x3-10 c:next_to:d-11 c:next_to:d-12 d:stateid:texas:texas-13
+x0:answer:x5-0 x0:answer:x5-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 b:loc-of:c-7 x1:highest:x6-8 x1:highest:x6-9 x1:place:x4-10
+x0:answer:x5-0 x0:answer:x5-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 b:loc-of:c-7 x1:highest:x6-8 x1:highest:x6-9 x1:place:x4-10
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 x1:largest:x5-7 x1:largest:x5-8 x1:largest:x5-9 b:population-of:x1-10
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 x1:largest:x5-7 x1:largest:x5-8 x1:largest:x5-9 b:density-of:x1-10 b:density-of:x1-11
+x0:answer:x5-0 x0:answer:x5-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 b:loc-of:c-7 x1:longest:x6-8 x1:longest:x6-9 x1:river:x4-10
+x0:answer:x4-0 x0:answer:x4-1 x0:capital:x2-2 x0:capital:x2-3 x0:loc:b-4 b:state:x3-5 b:state:x3-6 x1:largest:x5-7 x1:largest:x5-8 x1:largest:x5-9 b:population-of:x1-10
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:utah:utah-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:vermont:vermont-5
+x0:answer:x2-0 x0:answer:x2-1 x0:capital:x1-2 x0:capital:x1-3 x0:loc:b-4 b:stateid:washington:washington-5
+x0:answer:x3-0 x0:answer:x3-1 x0:city:x2-2 x0:city:x2-3 x0:loc:c-4 c:stateid:texas:texas-5 x1:largest:x4-6 x1:largest:x4-7 x1:largest:x4-8 x0:population-of:x1-9
+x0:answer:x3-0 x0:answer:x3-1 x0:city:x2-2 x0:city:x2-3 x1:smallest:x4-4 x1:smallest:x4-5 x1:smallest:x4-6 x0:population-of:x1-7
+x0:answer:x2-0 x0:answer:x2-1 b:sum:x3-2 b:sum:x3-3 b:area:c-4 b:area:c-5 c:state:x1-6 c:state:x1-7 c:state:x1-8
+x0:answer:x2-0 x0:answer:x2-1 b:sum:x3-2 b:sum:x3-3 b:population:c-4 b:population:c-5 c:state:x1-6 c:state:x1-7 c:state:x1-8
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 b:stateid:texas:texas-5
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 b:stateid:new_york:new_york-5 b:stateid:new_york:new_york-6 b:stateid:new_york:new_york-7
+x0:answer:x1-0 x0:answer:x1-1 x0:elevation:b-2 x0:elevation:b-3 x0:elevation:b-4 b:placeid:death_valley:death_valley-5 b:placeid:death_valley:death_valley-6
+x0:answer:x3-0 x0:answer:x3-1 x0:elevation:b-2 x0:elevation:b-3 x0:elevation:b-4 x1:highest:x4-5 x1:highest:x4-6 x1:place:x2-7 x1:loc:c-8 c:countryid:usa:usa-9 c:countryid:usa:usa-10
+x0:answer:x1-0 x0:answer:x1-1 x0:elevation:b-2 x0:elevation:b-3 x0:elevation:b-4 b:placeid:mount_mckinley:mount_mckinley-5 b:placeid:mount_mckinley:mount_mckinley-6
+x0:answer:x3-0 x0:answer:x3-1 x0:elevation:b-2 x0:elevation:b-3 x0:elevation:b-4 x1:highest:x4-5 x1:highest:x4-6 x1:mountain:x2-7 x1:loc:c-8 c:stateid:texas:texas-9
+x0:answer:x3-0 x0:answer:x3-1 x0:elevation:b-2 x0:elevation:b-3 x0:elevation:b-4 x1:highest:x4-5 x1:highest:x4-6 x1:place:x2-7 x1:loc:c-8 c:countryid:usa:usa-9 c:countryid:usa:usa-10
+x0:answer:x1-0 x0:answer:x1-1 x0:high_point:b-2 x0:high_point:b-3 x0:high_point:b-4 x0:high_point:b-5 b:stateid:wyoming:wyoming-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:new_mexico:new_mexico-6 b:stateid:new_mexico:new_mexico-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:south_carolina:south_carolina-6 b:stateid:south_carolina:south_carolina-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:stateid:alaska:alaska-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:colorado:colorado-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:delaware:delaware-6
+x0:answer:x7-0 x0:answer:x7-1 x1:highest:x8-2 x1:highest:x8-3 x1:place:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 b:loc-of:x2-8 x2:lowest:x9-9 x2:place:x5-10 x6:elevationid:sea_level:sea_level-11 x6:elevationid:sea_level:sea_level-12 x6:elevationid:sea_level:sea_level-13
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:florida:florida-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:iowa:iowa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:kansas:kansas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:maine:maine-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:montana:montana-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:nevada:nevada-6 x1:highest:x4-7 x1:highest:x4-8
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:new_mexico:new_mexico-6 b:stateid:new_mexico:new_mexico-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:ohio:ohio-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:rhode_island:rhode_island-6 b:stateid:rhode_island:rhode_island-7
+x0:answer:x4-0 x0:answer:x4-1 x1:highest:x5-2 x1:highest:x5-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:next_to:c-7 c:stateid:georgia:georgia-8
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x3-4 x1:loc:b-5 x2:smallest:x7-6 x2:smallest:x7-7 x2:state:x4-8
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:loc-of:c-8 c:capital:x4-9 c:cityid_city:austin:austin-10
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:loc-of:c-8 c:capital:x4-9 c:cityid_city:des_moines:des_moines-10 c:cityid_city:des_moines:des_moines-11
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:loc-of:c-8 c:capital:x4-9 c:capital:x4-10 c:cityid_city:des_moines:des_moines-11 c:cityid_city:des_moines:des_moines-12
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:traverse-of:c-8 c:most:x7-9 c:most:x7-10 c:river:x4-11
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 x2:smallest:x7-8 x2:smallest:x7-9 x2:smallest:x7-10 b:population-of:x2-11
+x0:answer:x4-0 x0:answer:x4-1 x1:highest:x5-2 x1:highest:x5-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:next_to:c-8 c:stateid:colorado:colorado-9
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:virginia:virginia-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:wyoming:wyoming-6
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 x2:largest:x7-8 x2:largest:x7-9 x2:largest:x7-10 b:area-of:x2-11
+x0:answer:x5-0 x0:answer:x5-1 x1:highest:x6-2 x1:highest:x6-3 x1:place:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 x2:smallest:x7-8 x2:smallest:x7-9 x2:smallest:x7-10 b:density-of:x2-11 b:density-of:x2-12
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:capital:x2-4
+x0:answer:x4-0 x0:answer:x4-1 x1:largest:x5-2 x1:largest:x5-3 x1:capital:x2-4 x1:city:x3-5 x1:loc:b-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x4-0 x0:answer:x4-1 x1:largest:x5-2 x1:largest:x5-3 x1:city:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:next_to:c-8 b:next_to:c-9 c:stateid:texas:texas-10
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:alabama:alabama-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:california:california-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:michigan:michigan-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:city:x2-4 x0:loc:c-5 c:stateid:minnesota:minnesota-6 x0:population-of:x1-7 x0:population-of:x1-8
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:missouri:missouri-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:rhode_island:rhode_island-6 b:stateid:rhode_island:rhode_island-7
+x0:answer:x5-0 x0:answer:x5-1 x1:largest:x6-2 x1:largest:x6-3 x1:city:x3-4 x1:loc:b-5 x2:smallest:x7-6 x2:state:x4-7 x2:traverse-of:c-8 x2:traverse-of:c-9 c:riverid:mississippi:mississippi-10 c:riverid:mississippi:mississippi-11 x2:traverse-of:c-12
+x0:answer:x4-0 x0:answer:x4-1 x1:largest:x5-2 x1:largest:x5-3 x1:city:x2-4 x1:loc:b-5 b:state:x3-6 b:next_to:c-7 b:next_to:c-8 c:stateid:california:california-9
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x5-0 x0:answer:x5-1 x1:largest:x6-2 x1:largest:x6-3 x1:city:x3-4 x1:loc:b-5 x2:smallest:x7-6 x2:smallest:x7-7 x2:state:x4-8 x2:loc:c-9 c:countryid:usa:usa-10 c:countryid:usa:usa-11
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:wisconsin:wisconsin-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:kansas:kansas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x1:state:x2-5 x1:state:x2-6 x1:traverse-of:b-7 b:riverid:rio_grande:rio_grande-8 b:riverid:rio_grande:rio_grande-9 b:riverid:rio_grande:rio_grande-10 x1:traverse-of:b-11 x1:traverse-of:b-12
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:washington:washington-6 b:stateid:washington:washington-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:next_to:b-5 b:stateid:arkansas:arkansas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:next_to:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 c:state:x2-4 x0:capital:c-5 x1:largest:x4-6 x0:population-of:x1-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:next_to:b-5 x1:next_to:b-6 b:stateid:california:california-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:next_to:b-5 x1:next_to:b-6 b:stateid:texas:texas-7
+x0:answer:x5-0 x0:answer:x5-1 x1:largest:x6-2 x1:largest:x6-3 x1:state:x3-4 x1:next_to:b-5 x1:next_to:b-6 b:state:x4-7 b:state:x4-8 x2:largest:x7-9 x2:largest:x7-10 x2:largest:x7-11 b:population-of:x2-12
+x0:answer:x6-0 x0:answer:x6-1 x1:largest:x7-2 x1:largest:x7-3 x1:state:x3-4 x1:next_to:b-5 x1:next_to:b-6 b:state:x4-7 b:state:x4-8 b:loc-of:c-9 x2:lowest:x8-10 x2:lowest:x8-11 x2:place:x5-12 x2:loc:d-13 d:countryid:usa:usa-14 d:countryid:usa:usa-15
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:state:x2-4 x1:traverse-of:b-5 x1:traverse-of:b-6 b:riverid:mississippi:mississippi-7 b:riverid:mississippi:mississippi-8 b:riverid:mississippi:mississippi-9
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x0:population-of:x1-4 x0:state:x2-5
+x0:answer:x2-0 x0:answer:x2-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:riverid:colorado:colorado-6 b:river:x1-7
+x0:answer:x2-0 x0:answer:x2-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:riverid:colorado:colorado-6 b:river:x1-7 b:loc:c-8 c:stateid:texas:texas-9
+x0:answer:x3-0 x0:answer:x3-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 x1:longest:x4-5 x1:longest:x4-6 x1:river:x2-7 x1:loc:c-8 c:countryid:usa:usa-9 c:countryid:usa:usa-10
+x0:answer:x3-0 x0:answer:x3-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 x1:longest:x4-5 x1:longest:x4-6 x1:river:x2-7 x1:traverse:c-8 x1:traverse:c-9 x1:traverse:c-10 c:stateid:texas:texas-11
+x0:answer:x2-0 x0:answer:x2-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:riverid:mississippi:mississippi-6 b:river:x1-7
+x0:answer:x3-0 x0:answer:x3-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:river:x1-6 b:traverse:c-7 b:traverse:c-8 b:traverse:c-9 c:most:x4-10 c:most:x4-11 c:state:x2-12
+x0:answer:x3-0 x0:answer:x3-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:river:x1-6 b:traverse:c-7 b:traverse:c-8 b:traverse:c-9 c:most:x4-10 c:most:x4-11 c:most:x4-12 c:most:x4-13 c:state:x2-14
+x0:answer:x3-0 x0:answer:x3-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:river:x1-6 b:traverse:c-7 b:traverse:c-8 b:traverse:c-9 c:most:x4-10 c:most:x4-11 c:state:x2-12
+x0:answer:x3-0 x0:answer:x3-1 x0:len:b-2 x0:len:b-3 x0:len:b-4 b:river:x1-5 b:river:x1-6 b:traverse:c-7 b:traverse:c-8 c:most:x4-9 c:most:x4-10 c:state:x2-11
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:traverse:b-5 x1:traverse:b-6 b:stateid:new_york:new_york-7 b:stateid:new_york:new_york-8
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:california:california-6
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:florida:florida-6
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:mississippi:mississippi-6
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:new_york:new_york-6 b:stateid:new_york:new_york-7
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:pennsylvania:pennsylvania-6
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x5-0 x0:answer:x5-1 x1:longest:x6-2 x1:longest:x6-3 x1:river:x3-4 x1:loc:b-5 x2:largest:x7-6 x2:largest:x7-7 x2:state:x4-8
+x0:answer:x5-0 x0:answer:x5-1 x1:longest:x6-2 x1:longest:x6-3 x1:river:x3-4 x1:loc:b-5 x2:smallest:x7-6 x2:smallest:x7-7 x2:state:x4-8 x2:loc:c-9 c:countryid:usa:usa-10 c:countryid:usa:usa-11
+x0:answer:x6-0 x0:answer:x6-1 x1:longest:x7-2 x1:longest:x7-3 x1:river:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 b:loc-of:c-8 x2:highest:x8-9 x2:highest:x8-10 x2:place:x5-11
+x0:answer:x6-0 x0:answer:x6-1 x1:longest:x7-2 x1:longest:x7-3 x1:river:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:loc-of:c-8 c:most:x8-9 c:most:x8-10 c:major:x5-11 c:city:x4-12
+x0:answer:x4-0 x0:answer:x4-1 x1:longest:x5-2 x1:longest:x5-3 x1:river:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:next_to:c-8 b:next_to:c-9 c:stateid:nebraska:nebraska-10
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x4-0 x0:answer:x4-1 x1:longest:x5-2 x1:longest:x5-3 x1:river:x3-4 x2:not:x6-5 x2:not:x6-6 x2:not:x6-7 x2:traverse:b-8 x2:traverse:b-9 b:stateid:texas:texas-10
+x0:answer:x4-0 x0:answer:x4-1 x1:longest:x5-2 x1:longest:x5-3 x1:river:x2-4 x1:traverse:b-5 x1:traverse:b-6 x1:traverse:b-7 b:state:x3-8 b:state:x3-9 b:next_to:c-10 b:next_to:c-11 c:stateid:indiana:indiana-12
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:traverse:b-5 x1:traverse:b-6 x1:traverse:b-7 b:stateid:colorado:colorado-8
+x0:answer:x6-0 x0:answer:x6-1 x1:longest:x7-2 x1:longest:x7-3 x1:river:x2-4 x1:traverse:b-5 x1:traverse:b-6 b:state:x3-7 b:state:x3-8 b:next_to:c-9 b:next_to:c-10 c:state:x4-11 c:state:x4-12 c:next_to:d-13 c:next_to:d-14 d:most:x8-15 d:most:x8-16 d:state:x5-17
+x0:answer:x4-0 x0:answer:x4-1 x1:longest:x5-2 x1:longest:x5-3 x1:river:x2-4 x1:traverse:b-5 x1:traverse:b-6 x1:traverse:b-7 b:state:x3-8 b:state:x3-9 b:next_to:c-10 b:next_to:c-11 c:stateid:tennessee:tennessee-12
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:pennsylvania:pennsylvania-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:arkansas:arkansas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:california:california-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:louisiana:louisiana-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:massachusetts:massachusetts-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:mississippi:mississippi-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:nebraska:nebraska-6 x1:lowest:x4-7 x1:lowest:x4-8
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:oregon:oregon-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x4-0 x0:answer:x4-1 x1:lowest:x5-2 x1:lowest:x5-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:state:x3-8 b:stateid:california:california-9
+x0:answer:x4-0 x0:answer:x4-1 x1:lowest:x5-2 x1:lowest:x5-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:state:x3-8 b:stateid:texas:texas-9
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:wisconsin:wisconsin-6
+x0:answer:x5-0 x0:answer:x5-1 x1:lowest:x6-2 x1:lowest:x6-3 x1:place:x2-4 x1:loc:b-5 b:state:x3-6 b:state:x3-7 b:traverse-of:c-8 b:traverse-of:c-9 c:river:x4-10 c:riverid:colorado:colorado-11 c:river:x4-12 b:traverse-of:c-13 b:traverse-of:c-14
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:colorado:colorado-6
+x0:answer:x5-0 x0:answer:x5-1 x1:lowest:x6-2 x1:lowest:x6-3 x1:place:x3-4 x1:loc:b-5 b:state:x4-6 b:state:x4-7 x2:largest:x7-8 x2:largest:x7-9 x2:largest:x7-10 b:area-of:x2-11
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x0:major:x1-2 x0:major:x1-3 x0:city:x2-4 x0:loc:b-5 b:stateid:montana:montana-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:cityid_city:san_francisco:san_francisco-6 b:cityid_city:san_francisco:san_francisco-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:density-of:x1-4 x0:state:x2-5 x0:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:capital:x2-5 x0:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:state:x2-5 x0:next_to:c-6 c:stateid:oklahoma:oklahoma-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:city:x2-5
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:city:x2-5 x0:loc:c-6 c:stateid:texas:texas-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:city:x2-5 x0:loc:c-6 c:stateid:wyoming:wyoming-7
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:state:x2-5
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:state:x2-5 x0:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:state:x2-5 x0:traverse-of:c-6 x0:traverse-of:c-7 c:riverid:mississippi:mississippi-8 c:riverid:mississippi:mississippi-9 x0:traverse-of:c-10
+x0:answer:x4-0 x0:answer:x4-1 x0:answer:x4-2 x0:answer:x4-3 x0:answer:x4-4 x0:state:x2-5 x0:state:x2-6 x0:loc-of:b-7 x1:lowest:x5-8 x1:lowest:x5-9 x1:place:x3-10
+x0:answer:x2-0 x0:answer:x2-1 b:count:x3-2 b:count:x3-3 b:count:x3-4 b:next_to:c-5 b:state:x1-6 b:next_to:c-7 c:stateid:kentucky:kentucky-8
+x0:answer:x3-0 x0:answer:x3-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:state:x1-6 b:state:x1-7 b:loc-of:c-8 c:capital:x2-9 c:cityid_city:austin:austin-10
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:stateid:maine:maine-6
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:stateid:south_dakota:south_dakota-6 b:stateid:south_dakota:south_dakota-7
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 x1:largest:x4-6 x1:largest:x4-7 x1:state:x2-8
+x0:answer:x3-0 x0:answer:x3-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 x1:smallest:x4-6 x1:smallest:x4-7 x1:state:x2-8
+x0:answer:x3-0 x0:answer:x3-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 b:state:x2-5 b:state:x2-6 b:state:x2-7 x1:smallest:x4-8 x1:smallest:x4-9 x1:smallest:x4-10 x1:smallest:x4-11
+x0:answer:x3-0 x0:answer:x3-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:state:x2-6 b:state:x2-7 x1:smallest:x4-8 x1:smallest:x4-9 x1:smallest:x4-10 b:population-of:x1-11
+x0:answer:x1-0 x0:answer:x1-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 x0:density:b-5 b:stateid:wyoming:wyoming-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:boston:boston-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:alaska:alaska-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:arizona:arizona-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:atlanta:atlanta-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:atlanta:atlanta-5 atlanta:cityid_state:ga:ga-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:austin:austin-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:austin:austin-5 austin:cityid_state:tx:tx-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:boston:boston-5 boston:cityid_state:ma:ma-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:boulder:boulder-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:california:california-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:dallas:dallas-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:denver:denver-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:erie:erie-5 erie:cityid_state:pa:pa-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:hawaii:hawaii-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:houston:houston-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:idaho:idaho-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:illinois:illinois-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:maine:maine-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:maryland:maryland-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:minnesota:minnesota-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:montana:montana-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:new_mexico:new_mexico-5 b:stateid:new_mexico:new_mexico-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:new_york:new_york-5 b:stateid:new_york:new_york-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:new_york:new_york-5 b:cityid_city:new_york:new_york-6 b:cityid_city:new_york:new_york-7
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:oregon:oregon-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:portland:portland-5 portland:cityid_state:me:me-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:rhode_island:rhode_island-5 b:stateid:rhode_island:rhode_island-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:sacramento:sacramento-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:san_antonio:san_antonio-5 b:cityid_city:san_antonio:san_antonio-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:seattle:seattle-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:seattle:seattle-5 seattle:cityid_state:wa:wa-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:south_dakota:south_dakota-5 b:stateid:south_dakota:south_dakota-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:springfield:springfield-5 springfield:cityid_state:mo:mo-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:springfield:springfield-5 springfield:cityid_state:sd:sd-6 springfield:cityid_state:sd:sd-7
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:tempe:tempe-5 tempe:cityid_state:az:az-6
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:texas:texas-5
+x0:answer:x4-0 x0:answer:x4-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:capital:x2-5 b:capital:x2-6 b:loc:c-7 x1:largest:x5-8 x1:largest:x5-9 x1:state:x3-10
+x0:answer:x4-0 x0:answer:x4-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:capital:x2-5 b:capital:x2-6 b:loc:c-7 x1:largest:x5-8 x1:largest:x5-9 x1:state:x3-10 x1:traverse-of:d-11 x1:traverse-of:d-12 d:riverid:mississippi:mississippi-13 d:riverid:mississippi:mississippi-14 x1:traverse-of:d-15
+x0:answer:x4-0 x0:answer:x4-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:capital:x2-5 b:capital:x2-6 b:loc:c-7 x1:smallest:x5-8 x1:smallest:x5-9 x1:state:x3-10
+x0:answer:x5-0 x0:answer:x5-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x1:largest:x6-5 x1:largest:x6-6 x1:city:x3-7 x1:loc:c-8 c:state:x4-9 c:state:x4-10 x2:largest:x7-11 x2:largest:x7-12 x2:largest:x7-13 c:area-of:x2-14
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x1:largest:x4-5 x1:largest:x4-6 x1:state:x2-7
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 x1:largest:x4-5 x1:largest:x4-6 x1:state:x2-7 x1:next_to:c-8 x1:next_to:c-9 c:stateid:texas:texas-10
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:major:x1-5 b:major:x1-6 b:city:x2-7 b:loc:c-8 c:stateid:wisconsin:wisconsin-9
+x0:answer:x3-0 x0:answer:x3-1 x1:population:b-2 x1:population:b-3 x1:population:b-4 x1:smallest:x4-5 x1:smallest:x4-6 b:state:x2-7
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x1-5 b:state:x1-6 b:next_to:c-7 b:next_to:c-8 c:most:x4-9 c:most:x4-10 c:state:x2-11
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x2-5 b:state:x2-6 x1:largest:x4-7 x1:largest:x4-8 x1:largest:x4-9 b:density-of:x1-10 b:density-of:x1-11
+x0:answer:x3-0 x0:answer:x3-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:state:x2-5 b:state:x2-6 x1:largest:x4-7 x1:largest:x4-8 x1:largest:x4-9 b:area-of:x1-10
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:tucson:tucson-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:utah:utah-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:stateid:washington:washington-5
+x0:answer:x1-0 x0:answer:x1-1 x0:population:b-2 x0:population:b-3 x0:population:b-4 b:cityid_city:washington:washington-5 washington:cityid_state:dc:dc-6
+x0:answer:x2-0 x0:answer:x2-1 x0:river:x1-2 x0:river:x1-3 x0:traverse:b-4 x0:traverse:b-5 x0:traverse:b-6 b:stateid:ohio:ohio-7
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:alaska:alaska-6
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:iowa:iowa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:nebraska:nebraska-6
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x1-0 x0:answer:x1-1 x0:size:b-2 x0:size:b-3 x0:size:b-4 b:stateid:california:california-5
+x0:answer:x1-0 x0:answer:x1-1 x0:size:b-2 x0:size:b-3 x0:size:b-4 b:stateid:florida:florida-5
+x0:answer:x1-0 x0:answer:x1-1 x0:size:b-2 x0:size:b-3 x0:size:b-4 b:stateid:texas:texas-5
+x0:answer:x2-0 x0:answer:x2-1 x0:size:b-2 x0:size:b-3 x0:size:b-4 b:capital:x1-5 b:capital:x1-6 b:loc:c-7 c:stateid:texas:texas-8
+x0:answer:x3-0 x0:answer:x3-1 x0:size:b-2 x0:size:b-3 x0:size:b-4 x1:largest:x4-5 x1:largest:x4-6 x1:state:x2-7 x1:loc:c-8 c:countryid:usa:usa-9 c:countryid:usa:usa-10
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:alaska:alaska-6
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:arkansas:arkansas-6
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:hawaii:hawaii-6
+x0:answer:x5-0 x0:answer:x5-1 x1:smallest:x6-2 x1:smallest:x6-3 x1:city:x3-4 x1:loc:b-5 x2:largest:x7-6 x2:largest:x7-7 x2:state:x4-8
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4 x1:loc:b-5 b:stateid:washington:washington-6
+x0:answer:x5-0 x0:answer:x5-1 x1:smallest:x6-2 x1:smallest:x6-3 x1:city:x3-4 x1:loc:b-5 x2:smallest:x7-6 x2:smallest:x7-7 x2:state:x4-8 x2:loc:c-9 c:countryid:usa:usa-10 c:countryid:usa:usa-11
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:state:x2-4 x1:next_to:b-5 b:stateid:ohio:ohio-6
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:state:x2-4 x1:next_to:b-5 b:stateid:wyoming:wyoming-6
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x0:state:x2-4 x0:area-of:x1-5 x0:area-of:x1-6
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:state:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:state:x2-4 x1:next_to:b-5 x1:next_to:b-6 b:stateid:texas:texas-7
+x0:answer:x4-0 x0:answer:x4-1 x1:smallest:x5-2 x1:smallest:x5-3 x1:state:x2-4 x1:next_to:b-5 x1:next_to:b-6 b:most:x6-7 b:most:x6-8 b:state:x3-9
+x0:answer:x4-0 x0:answer:x4-1 x1:smallest:x5-2 x1:smallest:x5-3 x1:state:x2-4 x1:traverse-of:b-5 b:river:x3-6 b:riverid:mississippi:mississippi-7 b:river:x3-8 x1:traverse-of:b-9 x1:traverse-of:b-10
+x0:answer:x5-0 x0:answer:x5-1 x1:smallest:x6-2 x1:smallest:x6-3 x1:state:x3-4 x1:traverse-of:b-5 x1:traverse-of:b-6 x2:longest:x7-7 x2:longest:x7-8 x2:river:x4-9 x1:traverse-of:b-10
+x0:answer:x4-0 x0:answer:x4-1 x0:state:x2-2 x0:state:x2-3 x0:loc-of:b-4 x0:loc-of:b-5 x1:highest:x5-6 x1:highest:x5-7 x1:place:x3-8
+x0:answer:x4-0 x0:answer:x4-1 x0:state:x2-2 x0:state:x2-3 x0:loc-of:b-4 x1:highest:x5-5 x1:highest:x5-6 x1:place:x3-7 x1:loc:c-8 c:countryid:usa:usa-9 c:countryid:usa:usa-10 c:countryid:usa:usa-11
+x0:answer:x3-0 x0:answer:x3-1 x0:state:x2-2 x0:state:x2-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:area-of:x1-7
+x0:answer:x3-0 x0:answer:x3-1 x0:state:x2-2 x0:state:x2-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:density-of:x1-7 x0:loc:c-8 c:countryid:usa:usa-9
+x0:answer:x3-0 x0:answer:x3-1 x0:state:x2-2 x0:state:x2-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:density-of:x1-7 x0:density-of:x1-8
+x0:answer:x4-0 x0:answer:x4-1 x0:state:x2-2 x0:state:x2-3 x0:loc-of:b-4 x1:lowest:x5-5 x1:lowest:x5-6 x1:place:x3-7
+x0:answer:x3-0 x0:answer:x3-1 x0:state:x2-2 x0:state:x2-3 x1:smallest:x4-4 x1:smallest:x4-5 x1:smallest:x4-6 x0:population-of:x1-7
+x0:answer:x3-0 x0:answer:x3-1 x0:state:x2-2 x0:state:x2-3 x1:smallest:x4-4 x1:smallest:x4-5 x1:smallest:x4-6 x0:density-of:x1-7 x0:density-of:x1-8
+x0:answer:x3-0 x0:answer:x3-1 x0:state:x2-2 x0:state:x2-3 x1:smallest:x4-4 x1:smallest:x4-5 x1:smallest:x4-6 x0:area-of:x1-7
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x1-0 x0:answer:x1-1 x0:area:b-2 x0:area:b-3 x0:area:b-4 x0:area:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x2-0 x0:answer:x2-1 b:sum:x3-2 b:sum:x3-3 b:len:c-4 b:len:c-5 c:river:x1-6 c:river:x1-7 c:river:x1-8 c:river:x1-9 c:river:x1-10
+x0:answer:x2-0 x0:answer:x2-1 b:sum:x3-2 b:sum:x3-3 b:population:c-4 b:population:c-5 c:state:x1-6 c:state:x1-7 c:next_to-of:d-8 c:next_to-of:d-9 d:stateid:texas:texas-10
+x0:answer:x1-0 x0:len:b-1 x0:len:b-2 b:riverid:mississippi:mississippi-3 b:riverid:mississippi:mississippi-4
+x0:answer:x3-0 x0:major:x1-1 x0:city:x2-2 x0:loc:b-3 x0:loc:b-4 x0:loc:b-5 b:stateid:pennsylvania:pennsylvania-6
+x0:answer:x3-0 x0:major:x1-1 x0:river:x2-2 x0:traverse:b-3 x0:traverse:b-4 b:stateid:illinois:illinois-5
+x0:answer:x2-0 x0:mountain:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:alaska:alaska-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:kansas:kansas-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:texas:texas-4
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:most:x4-4 b:most:x4-5 b:state:x2-6
+x1:river:x2-0 x1:river:x2-1 x1:river:x2-2 x1:longest:x4-3 x1:longest:x4-4 x1:longest:x4-5 x1:loc:b-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8 b:countryid:usa:usa-9
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:illinois:illinois-4
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:most:x4-4 b:most:x4-5 b:state:x2-6
+x0:answer:x4-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x2-4 b:state:x2-5 b:loc-of:c-6 c:most:x5-7 c:most:x5-8 c:city:x3-9
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:virginia:virginia-4
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 b:most:x4-3 b:most:x4-4 b:state:x2-5
+x0:answer:x4-0 x0:river:x1-1 x0:traverse:b-2 b:state:x2-3 b:state:x2-4 b:next_to:c-5 b:next_to:c-6 c:most:x5-7 c:most:x5-8 c:state:x3-9
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:nevada:nevada-4
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:new_mexico:new_mexico-4 b:stateid:new_mexico:new_mexico-5
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:oregon:oregon-4
+x0:answer:x3-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:state:x2-4 b:next_to:c-5 b:next_to:c-6 c:stateid:texas:texas-7
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:texas:texas-4
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:utah:utah-4
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 x0:loc:b-4 b:stateid:texas:texas-5
+x0:answer:x3-0 x0:river:x2-1 x1:not:x4-2 x1:not:x4-3 x1:traverse:b-4 x1:traverse:b-5 b:stateid:tennessee:tennessee-6
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:colorado:colorado-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:missouri:missouri-4
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x2-4 b:next_to-of:c-5 c:stateid:alabama:alabama-6 b:next_to-of:c-7
+x0:answer:x5-0 x0:river:x2-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x3-4 b:next_to:c-5 b:next_to:c-6 c:state:x4-7 c:state:x4-8 x1:largest:x6-9 x1:largest:x6-10 x1:largest:x6-11 c:population-of:x1-12
+x0:answer:x4-0 x0:river:x2-1 x0:traverse:b-2 x0:traverse:b-3 x1:largest:x5-4 x1:largest:x5-5 x1:state:x3-6
+x0:answer:x4-0 x0:river:x2-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x3-4 b:state:x3-5 x1:largest:x5-6 x1:largest:x5-7 x1:largest:x5-8 b:population-of:x1-9
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:arizona:arizona-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:cityid_city:austin:austin-4 austin:cityid_state:tx:tx-5
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:colorado:colorado-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:louisiana:louisiana-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:maine:maine-4
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:new_york:new_york-4 b:stateid:new_york:new_york-5
+x0:answer:x5-0 x0:river:x2-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x3-4 b:state:x3-5 b:loc-of:c-6 x1:lowest:x6-7 x1:lowest:x6-8 x1:place:x4-9 x1:loc:d-10 d:countryid:usa:usa-11 d:countryid:usa:usa-12
+x0:answer:x5-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x2-4 b:state:x2-5 b:next_to:c-6 b:next_to:c-7 c:state:x3-8 c:state:x3-9 c:loc-of:d-10 d:capital:x4-11 d:capital:x4-12 d:cityid_city:atlanta:atlanta-13
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:west_virginia:west_virginia-4 b:stateid:west_virginia:west_virginia-5
+x0:answer:x4-0 x0:river:x1-1 x0:traverse:b-2 b:state:x2-3 b:state:x2-4 b:next_to:c-5 b:next_to:c-6 c:most:x5-7 c:most:x5-8 c:state:x3-9
+x0:answer:x3-0 x0:state:x2-1 x0:next_to:c-2 c:stateid:nevada:nevada-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:population-of:x1-7
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:michigan:michigan-3
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:most:x4-3 b:state:x2-4 b:state:x2-5
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:new_york:new_york-3 b:stateid:new_york:new_york-4
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:fewest:x4-3 b:fewest:x4-4 b:state:x2-5
+x0:answer:x5-0 x0:state:x3-1 x0:next_to:b-2 b:fewest:x6-3 b:fewest:x6-4 b:state:x4-5 x1:not:x7-6 x1:stateid:alaska:alaska-7 x2:not:x8-8 x2:not:x8-9 x2:stateid:hawaii:hawaii-10
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:most:x4-3 b:most:x4-4 b:state:x2-5
+x0:answer:x4-0 x0:state:x2-1 x0:next_to:b-2 b:state:x3-3 b:state:x3-4 x1:smallest:x5-5 x1:smallest:x5-6 x1:smallest:x5-7 b:population-of:x1-8
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x5-3 x1:highest:x5-4 x1:place:x3-5 x1:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+x0:answer:x6-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x7-3 x1:highest:x7-4 x1:place:x3-5 x1:loc:c-6 c:state:x4-7 d:river:x5-8 d:riverid:colorado:colorado-9 d:river:x5-10 c:traverse-of:d-11
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x5-3 x1:place:x3-4
+x0:answer:x4-0 x0:state:x2-1 x1:loc-of:b-2 x1:not:x5-3 b:river:x3-4
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:capital:x2-3 b:capital:x2-4 b:cityid_city:salem:salem-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:flint:flint-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 b:city:x3-3 b:city:x3-4 x1:largest:x5-5 x1:largest:x5-6 x1:largest:x5-7 b:population-of:x1-8
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 b:city:x3-3 b:city:x3-4 x1:largest:x5-5 x1:largest:x5-6 x1:largest:x5-7 b:population-of:x1-8
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x1:largest:x4-5 x0:density-of:x1-6
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x5-3 x1:highest:x5-4 x1:place:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:area-of:x1-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:largest:x5-3 x1:largest:x5-4 x1:capital:x3-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:largest:x5-3 x1:largest:x5-4 x1:city:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5 x0:population-of:x1-6
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:longest:x5-3 x1:longest:x5-4 x1:river:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x4-3 b:most:x4-4 b:city:x2-5
+x0:answer:x4-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x5-3 b:most:x5-4 b:major:x3-5 b:city:x2-6
+x0:answer:x4-0 x0:state:x1-1 x0:traverse-of:b-2 b:most:x5-3 b:most:x5-4 b:major:x3-5 b:river:x2-6 x0:traverse-of:b-7 x0:traverse-of:b-8 x0:traverse-of:b-9
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x4-3 b:most:x4-4 b:river:x2-5
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:most:x4-3 b:most:x4-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7 x0:traverse-of:b-8
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:shortest:x5-3 x1:shortest:x5-4 x1:river:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:area-of:x1-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:smallest:x5-3 x1:smallest:x5-4 x1:capital:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:population-of:x1-5 x0:population-of:x1-6
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:austin:austin-3 x0:loc-of:b-4
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:austin:austin-3 b:capital:x2-4 b:capital:x2-5 x0:loc-of:b-6
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:boston:boston-3 x0:loc-of:b-4
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:columbus:columbus-3 b:capital:x2-4 b:capital:x2-5 x0:loc-of:b-6
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:dallas:dallas-3 x0:loc-of:b-4
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:des_moines:des_moines-3 b:cityid_city:des_moines:des_moines-4 x0:loc-of:b-5 x0:loc-of:b-6
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:miami:miami-3 x0:loc-of:b-4
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:pittsburgh:pittsburgh-3 x0:loc-of:b-4
+x1:state:x2-0 x1:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5 x0:population-of:x1-6
+x0:answer:x3-0 x0:state:x1-1 x0:state:x1-2 x0:state:x1-3 x0:state:x1-4 x0:loc-of:b-5 b:most:x4-6 b:most:x4-7 b:river:x2-8
+x0:answer:x3-0 x0:state:x2-1 x0:next_to:c-2 x0:next_to:c-3 c:stateid:texas:texas-4 x1:largest:x4-5 x1:largest:x4-6 x1:largest:x4-7 x0:population-of:x1-8
+x1:state:x2-0 x1:state:x2-1 x1:next_to:b-2 x1:next_to:b-3 b:stateid:texas:texas-4 x1:largest:x4-5 x1:largest:x4-6 x1:largest:x4-7
+x0:answer:x3-0 x0:state:x2-1 x0:traverse-of:c-2 c:riverid:mississippi:mississippi-3 c:riverid:mississippi:mississippi-4 x0:traverse-of:c-5 x0:traverse-of:c-6 x1:largest:x4-7 x1:largest:x4-8 x1:largest:x4-9 x0:population-of:x1-10
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 x0:next_to:b-3 x0:next_to:b-4 b:stateid:arizona:arizona-5
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 x0:next_to:b-3 x0:next_to:b-4 b:stateid:texas:texas-5
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 x0:next_to:b-3 x0:next_to:b-4 b:stateid:mississippi:mississippi-5 b:stateid:mississippi:mississippi-6
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:alaska:alaska-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:arkansas:arkansas-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:delaware:delaware-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:florida:florida-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:georgia:georgia-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:hawaii:hawaii-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:indiana:indiana-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:kentucky:kentucky-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:michigan:michigan-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:missouri:missouri-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:montana:montana-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:new_hampshire:new_hampshire-3 b:stateid:new_hampshire:new_hampshire-4
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:new_jersey:new_jersey-3 b:stateid:new_jersey:new_jersey-4
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:ohio:ohio-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:rhode_island:rhode_island-3 b:stateid:rhode_island:rhode_island-4
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:next_to:c-4 b:next_to:c-5 c:stateid:colorado:colorado-6
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:next_to:c-4 b:next_to:c-5 c:stateid:mississippi:mississippi-6
+x0:answer:x4-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:next_to:c-4 b:next_to:c-5 c:state:x3-6 c:next_to:d-7 c:next_to:d-8 d:stateid:florida:florida-9
+x0:answer:x5-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:next_to:c-4 b:next_to:c-5 c:state:x3-6 c:next_to:d-7 c:next_to:d-8 d:state:x4-9 d:next_to:e-10 d:next_to:e-11 e:stateid:texas:texas-12
+x0:answer:x5-0 x0:state:x2-1 x0:next_to:b-2 b:state:x3-3 b:next_to:c-4 b:next_to:c-5 c:state:x4-6 c:state:x4-7 x1:largest:x6-8 x1:largest:x6-9 x1:largest:x6-10 c:population-of:x1-11
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:traverse-of:c-4 c:riverid:mississippi:mississippi-5 c:riverid:mississippi:mississippi-6 b:traverse-of:c-7 b:traverse-of:c-8
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:traverse-of:c-4 c:riverid:ohio:ohio-5 c:riverid:ohio:ohio-6 b:traverse-of:c-7 b:traverse-of:c-8
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:traverse-of:c-4 c:riverid:mississippi:mississippi-5 c:riverid:mississippi:mississippi-6 b:traverse-of:c-7 b:traverse-of:c-8
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:texas:texas-3
+x0:answer:x4-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:texas:texas-3 x0:loc-of:c-5 c:major:x2-6 c:major:x2-7 c:river:x3-8
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:river:x2-3 b:riverid:mississippi:mississippi-4 b:river:x2-5
+x0:answer:x4-0 x0:state:x2-1 x0:next_to:b-2 x1:largest:x5-3 x1:largest:x5-4 b:population-of:x1-5 b:state:x3-6
+x0:answer:x4-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:state:x2-4 b:next_to:c-5 b:next_to:c-6 c:most:x5-7 c:most:x5-8 c:state:x3-9
+x0:answer:x4-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:state:x2-4 b:loc-of:c-5 c:most:x5-6 c:most:x5-7 c:city:x3-8
+x0:answer:x5-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:state:x2-4 b:loc-of:c-5 c:most:x6-6 c:most:x6-7 c:major:x4-8 c:city:x3-9
+x0:answer:x4-0 x0:state:x2-1 x0:next_to:b-2 b:state:x3-3 b:state:x3-4 x1:smallest:x5-5 x1:smallest:x5-6 x1:smallest:x5-7 b:area-of:x1-8
+x0:answer:x4-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:state:x2-4 b:loc-of:c-5 c:most:x5-6 c:most:x5-7 c:city:x3-8
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:wisconsin:wisconsin-3
+x0:answer:x2-0 x0:state:x1-1 x0:capital-of:b-2 x0:capital-of:b-3 x0:capital-of:b-4 b:cityid_city:dover:dover-5
+x0:answer:x4-0 x0:state:x1-1 x0:loc-of:b-2 b:river:x3-3 b:river:x3-4 b:river:x3-5 b:major:x2-6 b:river:x3-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:colorado:colorado-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:delaware:delaware-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:mississippi:mississippi-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x2-0 x0:state:x1-1 x0:traverse-of:b-2 b:riverid:mississippi:mississippi-3 b:riverid:mississippi:mississippi-4 x0:traverse-of:b-5 x0:traverse-of:b-6
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:missouri:missouri-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x2-0 x0:state:x1-1 x0:traverse-of:b-2 b:riverid:missouri:missouri-3 b:riverid:missouri:missouri-4 x0:traverse-of:b-5 x0:traverse-of:b-6
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:ohio:ohio-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:ohio:ohio-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x4-0 x0:state:x2-1 x0:traverse-of:b-2 x1:shortest:x5-3 x1:shortest:x5-4 x1:river:x3-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x5-0 x0:state:x2-1 x0:loc-of:b-2 b:capital:x3-3 b:capital:x3-4 x1:highest:x6-5 x1:highest:x6-6 x1:highest:x6-7 x1:highest:x6-8 x1:place:x4-9 x1:highest:x6-10 x1:highest:x6-11 x1:highest:x6-12
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:austin:austin-3 b:cityid_city:austin:austin-4 b:cityid_city:austin:austin-5 b:cityid_city:austin:austin-6
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:austin:austin-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:dallas:dallas-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:plano:plano-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:portland:portland-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:rochester:rochester-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:salt_lake_city:salt_lake_city-5 b:cityid_city:salt_lake_city:salt_lake_city-6 b:cityid_city:salt_lake_city:salt_lake_city-7
+x0:answer:x4-0 x0:state:x2-1 x1:not:x5-2 x1:not:x5-3 x1:next_to:b-4 b:state:x3-5
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:riverid:colorado:colorado-3 b:riverid:colorado:colorado-4 b:riverid:colorado:colorado-5
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 x0:traverse-of:b-4 x0:traverse-of:b-5 x0:traverse-of:b-6
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:springfield:springfield-3 b:cityid_city:springfield:springfield-4 b:cityid_city:springfield:springfield-5
+x0:answer:x2-0 x0:state:x1-1 x0:high_point-of:b-2 x0:high_point-of:b-3 x0:high_point-of:b-4 b:higher:c-5 b:higher:c-6 b:higher:c-7 c:high_point:d-8 c:high_point:d-9 d:stateid:colorado:colorado-10
+x0:answer:x2-0 x0:state:x1-1 x0:loc:b-2 b:countryid:usa:usa-3 b:countryid:usa:usa-4 b:countryid:usa:usa-5 x0:loc-of:c-6 c:cityid_city:springfield:springfield-7 c:cityid_city:springfield:springfield-8 c:cityid_city:springfield:springfield-9 c:cityid_city:springfield:springfield-10
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:maine:maine-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:kentucky:kentucky-3
+x0:answer:x3-0 c:stateid:texas:texas-1 x0:city:x2-2 x1:largest:x4-3 x1:largest:x4-4 x1:largest:x4-5 x0:population-of:x1-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x1:city:x2-4
+x0:loc-of:b-0 x0:loc-of:b-1 b:mountain:x1-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:austin:austin-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:baton_rouge:baton_rouge-2 b:cityid_city:baton_rouge:baton_rouge-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:dallas:dallas-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:fort_wayne:fort_wayne-2 b:cityid_city:fort_wayne:fort_wayne-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:houston:houston-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:indianapolis:indianapolis-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:stateid:massachusetts:massachusetts-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:placeid:mount_whitney:mount_whitney-2 b:placeid:mount_whitney:mount_whitney-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:placeid:mount_whitney:mount_whitney-2 b:placeid:mount_whitney:mount_whitney-3 x0:loc-of:b-4
+x0:loc-of:b-0 x0:loc-of:b-1 b:stateid:new_hampshire:new_hampshire-2 b:stateid:new_hampshire:new_hampshire-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:new_orleans:new_orleans-2 b:cityid_city:new_orleans:new_orleans-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:portland:portland-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:san_diego:san_diego-2 b:cityid_city:san_diego:san_diego-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:san_jose:san_jose-2 b:cityid_city:san_jose:san_jose-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:scotts_valley:scotts_valley-2 b:cityid_city:scotts_valley:scotts_valley-3
+x0:loc-of:b-0 x0:loc-of:b-1 b:cityid_city:springfield:springfield-2
+x0:loc-of:b-0 x0:loc-of:b-1 b:river:x1-2 b:riverid:chattahoochee:chattahoochee-3 b:river:x1-4
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:mountain:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7 b:countryid:usa:usa-8
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:hawaii:hawaii-6
+x0:answer:x3-0 x0:answer:x3-1 x1:highest:x4-2 x1:highest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:montana:montana-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:maryland:maryland-6
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:countryid:usa:usa-6 b:countryid:usa:usa-7
+x0:answer:x3-0 x0:answer:x3-1 x1:lowest:x4-2 x1:lowest:x4-3 x1:place:x2-4 x1:loc:b-5 b:stateid:iowa:iowa-6
+x0:answer:x3-0 x0:answer:x3-1 x1:largest:x4-2 x1:largest:x4-3 x0:population-of:x1-4 x0:city:x2-5 x0:loc:c-6 c:stateid:new_mexico:new_mexico-7 c:stateid:new_mexico:new_mexico-8
+x0:loc-of:b-0 x0:loc-of:b-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:city:x2-4
+x0:answer:x3-0 x0:capital:x1-1 x0:loc:b-2 x0:loc:b-3 b:state:x2-4 b:state:x2-5 b:next_to:c-6 b:next_to:c-7 c:stateid:texas:texas-8
+x0:answer:x5-0 x0:capital:x2-1 x1:not:x6-2 x1:not:x6-3 x1:major:x3-4 x1:city:x4-5
+x0:answer:x3-0 x0:city:x2-1 x0:loc:c-2 c:stateid:california:california-3 x1:largest:x4-4 x1:largest:x4-5 x1:largest:x4-6 x0:population-of:x1-7
+x0:answer:x4-0 x0:answer:x4-1 x0:density:b-2 x0:density:b-3 x0:density:b-4 b:state:x2-5 b:state:x2-6 b:traverse-of:c-7 x1:longest:x5-8 x1:longest:x5-9 x1:river:x3-10 x1:loc:d-11 d:countryid:usa:usa-12 d:countryid:usa:usa-13 d:countryid:usa:usa-14 b:traverse-of:c-15 b:traverse-of:c-16
+x0:answer:x4-0 x0:answer:x4-1 x1:highest:x5-2 x1:highest:x5-3 x1:mountain:x3-4 x2:not:x6-5 x2:loc:b-6 b:stateid:alaska:alaska-7
+x0:answer:x3-0 x0:answer:x3-1 x1:longest:x4-2 x1:longest:x4-3 x1:river:x2-4 x1:loc:b-5 b:countryid:usa:usa-6
+x0:answer:x4-0 x0:answer:x4-1 x1:lowest:x5-2 x1:lowest:x5-3 x1:place:x2-4 x1:loc:a-5 a:state:x3-6 a:state:x3-7 a:traverse-of:c-8 c:riverid:mississippi:mississippi-9 c:riverid:mississippi:mississippi-10 a:traverse-of:c-11 a:traverse-of:c-12
+x0:answer:x3-0 x0:answer:x3-1 x1:shortest:x4-2 x1:shortest:x4-3 x1:river:x2-4
+x0:answer:x3-0 x0:answer:x3-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:state:x2-4
+x0:answer:x3-0 x0:state:x2-1 x0:state:x2-2 x0:state:x2-3 x0:next_to:c-4 c:stateid:pennsylvania:pennsylvania-5 x1:largest:x4-6 x1:largest:x4-7 x1:largest:x4-8 x0:population-of:x1-9
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:most:x4-4 b:most:x4-5 b:state:x2-6
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:most:x4-4 b:state:x2-5
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:most:x4-4 b:most:x4-5 b:state:x2-6
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 b:most:x4-3 b:state:x2-4
+x0:answer:x2-0 x0:river:x1-1 x0:loc:b-2 x0:loc:b-3 b:stateid:alaska:alaska-4
+x0:answer:x3-0 x0:river:x2-1 x1:not:x4-2 x1:not:x4-3 x1:traverse:b-4 x1:traverse:b-5 b:stateid:texas:texas-6
+x0:answer:x3-0 x0:river:x2-1 x1:not:x4-2 x1:not:x4-3 x1:traverse:b-4 x1:traverse:b-5 b:countryid:usa:usa-6
+x0:answer:x2-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:stateid:alaska:alaska-4
+x0:answer:x3-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x2-4 b:next_to:c-5 c:stateid:new_mexico:new_mexico-6 c:stateid:new_mexico:new_mexico-7
+x0:answer:x5-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x2-4 b:next_to:c-5 b:next_to:c-6 c:state:x3-7 c:state:x3-8 c:loc-of:d-9 d:capital:x4-10 d:capital:x4-11 d:cityid_city:austin:austin-12
+x0:answer:x4-0 x0:river:x1-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x2-4 b:loc-of:c-5 c:fewest:x5-6 c:city:x3-7
+x0:answer:x5-0 x0:river:x2-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x3-4 b:state:x3-5 b:loc-of:c-6 x1:largest:x6-7 x1:largest:x6-8 x1:city:x4-9 x1:loc:d-10 d:countryid:usa:usa-11 d:countryid:usa:usa-12
+x0:answer:x5-0 x0:river:x2-1 x0:traverse:b-2 x0:traverse:b-3 b:state:x3-4 b:state:x3-5 b:loc-of:c-6 x1:lowest:x6-7 x1:lowest:x6-8 x1:place:x4-9 x1:loc:d-10 d:countryid:usa:usa-11 d:countryid:usa:usa-12
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:kentucky:kentucky-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:florida:florida-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:hawaii:hawaii-3
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:most:x4-3 b:state:x2-4
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:most:x4-3 b:most:x4-4 b:state:x2-5
+x0:answer:x3-0 x0:capital:x2-1 x0:capital:x2-2 x1:smallest:x4-3 x1:smallest:x4-4 x1:smallest:x4-5 x0:population-of:x1-6
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x4-3 b:river:x2-4
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:density-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x5-3 x1:highest:x5-4 x1:place:x3-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x5-3 x1:highest:x5-4 x1:mountain:x3-5 x1:highest:x5-6 x1:highest:x5-7 x1:highest:x5-8
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:highest:x5-3 x1:highest:x5-4 x1:place:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:largest:x5-3 x1:largest:x5-4 x1:city:x3-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:density-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x1:smallest:x4-5 x0:density-of:x1-6
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:longest:x5-3 x1:longest:x5-4 x1:river:x3-5
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:lowest:x5-3 x1:lowest:x5-4 x1:place:x3-5
+x0:answer:x5-0 x0:state:x2-1 x0:loc-of:b-2 x1:lowest:x6-3 x1:lowest:x6-4 x1:place:x3-5 x1:loc:a-6 a:next_to:c-7 c:stateid:idaho:idaho-8
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x4-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x5-3 b:most:x5-4 b:major:x3-5 b:city:x2-6
+x0:answer:x4-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x5-3 b:most:x5-4 b:major:x3-5 b:river:x2-6
+x0:answer:x4-0 x0:state:x1-1 x0:traverse-of:b-2 b:most:x5-3 b:most:x5-4 b:major:x3-5 b:river:x2-6 x0:traverse-of:b-7 x0:traverse-of:b-8 x0:traverse-of:b-9
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x2-1 x1:largest:x4-2 x1:largest:x4-3 x1:largest:x4-4 x0:population-of:x1-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:most:x4-3 b:most:x4-4 b:river:x2-5
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:most:x4-3 b:most:x4-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7 x0:traverse-of:b-8
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:river:x2-3 b:riverid:red:red-4 b:river:x2-5
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:area-of:x1-5 x0:next_to:c-6 x0:next_to:c-7 c:stateid:texas:texas-8
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6 x0:density-of:x1-7
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x0:density-of:x1-5 x0:density-of:x1-6
+x0:answer:x3-0 x0:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4 x1:smallest:x4-5 x0:density-of:x1-6
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:cityid_city:kalamazoo:kalamazoo-3 x0:loc-of:b-4
+x0:answer:x2-0 x0:state:x1-1 x0:loc-of:b-2 b:placeid:mount_mckinley:mount_mckinley-3 b:placeid:mount_mckinley:mount_mckinley-4 x0:loc-of:b-5
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:denver:denver-5 x0:loc-of:b-6 x0:loc-of:b-7
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:largest:x5-3 x1:largest:x5-4 x1:city:x3-5 x1:loc:c-6 c:stateid:montana:montana-7 x1:loc:c-8
+x1:state:x2-0 x1:state:x2-1 x1:smallest:x4-2 x1:smallest:x4-3 x1:smallest:x4-4
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:alabama:alabama-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:alabama:alabama-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:alaska:alaska-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:arizona:arizona-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:colorado:colorado-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:hawaii:hawaii-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:illinois:illinois-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:iowa:iowa-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:kentucky:kentucky-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:michigan:michigan-3
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:new_york:new_york-3 b:stateid:new_york:new_york-4
+x0:answer:x4-0 x0:state:x2-1 x1:next_to:b-2 x1:not:x5-3 x1:not:x5-4 b:state:x3-5
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:south_dakota:south_dakota-3 b:stateid:south_dakota:south_dakota-4
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:state:x2-3 b:traverse-of:c-4 b:traverse-of:c-5 c:riverid:mississippi:mississippi-6 c:riverid:mississippi:mississippi-7 b:traverse-of:c-8
+x0:answer:x2-0 x0:state:x1-1 x0:next_to:b-2 b:stateid:texas:texas-3
+x0:answer:x4-0 x0:state:x2-1 x0:next_to:b-2 x1:longest:x5-3 x1:longest:x5-4 x1:river:x3-5 x1:loc:c-6 c:countryid:usa:usa-7 c:countryid:usa:usa-8
+x0:answer:x3-0 x0:state:x1-1 x0:next_to:b-2 b:river:x2-3 b:riverid:missouri:missouri-4 b:river:x2-5
+x0:answer:x4-0 x0:state:x2-1 x0:next_to:b-2 b:state:x3-3 b:state:x3-4 x1:smallest:x5-5 x1:smallest:x5-6 x1:smallest:x5-7 b:area-of:x1-8
+x0:answer:x5-0 x0:state:x2-1 x0:loc-of:b-2 x1:capital:a-3 x1:city:x3-4 x1:largest:x6-5 x1:largest:x6-6 x1:largest:x6-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:riverid:colorado:colorado-3 b:river:x2-4 x0:traverse-of:b-5 x0:traverse-of:b-6
+x0:answer:x3-0 x0:state:x2-1 x1:not:x4-2 x1:not:x4-3 x1:next_to:b-4 b:stateid:texas:texas-5
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:chattahoochee:chattahoochee-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x2-0 x0:state:x1-1 x0:traverse-of:b-2 b:riverid:colorado:colorado-3 b:riverid:colorado:colorado-4 b:riverid:colorado:colorado-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x4-0 x0:state:x2-1 x0:traverse-of:b-2 x1:longest:x5-3 x1:longest:x5-4 x1:river:x3-5 x0:traverse-of:b-6
+x0:answer:x4-0 x0:state:x2-1 x0:traverse-of:b-2 x1:longest:x5-3 x1:longest:x5-4 x1:river:x3-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:mississippi:mississippi-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x2-0 x0:state:x1-1 x0:traverse-of:b-2 b:riverid:mississippi:mississippi-3 b:riverid:mississippi:mississippi-4 x0:traverse-of:b-5 x0:traverse-of:b-6
+x0:answer:x2-0 x0:state:x1-1 x0:traverse-of:b-2 b:riverid:missouri:missouri-3 b:riverid:missouri:missouri-4 b:riverid:missouri:missouri-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x3-0 x0:state:x1-1 x0:traverse-of:b-2 b:river:x2-3 b:riverid:missouri:missouri-4 b:river:x2-5 x0:traverse-of:b-6 x0:traverse-of:b-7
+x0:answer:x4-0 x0:state:x1-1 x0:loc-of:b-2 b:major:x2-3 b:major:x2-4 b:city:x3-5 b:city:x3-6 b:cityid_city:austin:austin-7
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:river:x2-3 b:river:x2-4
+x0:answer:x3-0 x0:state:x1-1 x0:loc-of:b-2 b:city:x2-3 b:city:x2-4 b:cityid_city:austin:austin-5
+x0:answer:x5-0 x0:state:x2-1 x0:loc-of:b-2 b:place:x3-3 b:higher:c-4 b:higher:c-5 x1:highest:x6-6 x1:highest:x6-7 x1:place:x4-8 x1:loc:d-9 d:stateid:colorado:colorado-10
+x0:answer:x4-0 x0:state:x2-1 x0:loc-of:b-2 x1:place:x3-3 b:higher:c-4 b:higher:c-5 b:higher:c-6 b:higher:c-7 x1:highest:x5-8 x1:highest:x5-9 x1:place:x3-10 x1:loc:d-11 d:stateid:texas:texas-12
+x0:answer:x4-0 x0:state:x2-1 x0:traverse-of:b-2 x0:traverse-of:b-3 x1:longest:x5-4 x1:longest:x5-5 x1:river:x3-6 x1:loc:c-7 c:countryid:usa:usa-8 c:countryid:usa:usa-9 c:countryid:usa:usa-10
+x0:answer:x3-0 x0:city:x2-1 x0:city:x2-2 x1:largest:x4-3 x1:largest:x4-4 x1:largest:x4-5 x0:density-of:x1-6 x0:density-of:x1-7

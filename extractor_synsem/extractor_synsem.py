@@ -95,7 +95,7 @@ def get_alignments(align_s, amr):
   alignments = ddict(list)
   align_s_parts = align_s.split()
   for part in align_s_parts:
-    match = re.match(r'([^:]+):([^:]+:[^:]+):([^:]+)-(\d+)', part)
+    match = re.match(r'([^:]+):([^:]+:?[^:]+):([^:]+)-(\d+)', part)
     head = match.group(1)
     label = match.group(2)
     tail = match.group(3)
@@ -310,7 +310,10 @@ def make_rule(frontier_pair, amr, tree, align, next_index):
     m = re.match(r'(.+)_(.+)_(\d+)', symbol)
     role = m.group(1)
   else:
-    role, concept = root_label.split(':')
+    if ':' in root_label:
+      role, concept = root_label.split(':')
+    else:
+      role = root_label
 
   external_nodes = amr.find_external_nodes(amr_fragment)
   if len(external_nodes) == 0:

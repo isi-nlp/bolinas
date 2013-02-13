@@ -9,6 +9,7 @@ from aligner.aligner import Aligner
 from extractor_synsem.extractor_synsem import ExtractorSynSem
 #from extractor_cansem.extractor_cansem import ExtractorCanSem
 from binarizer.binarizer import Binarizer
+from parser_td.parser_td import ParserTD
 
 SUBMODULES = {
   'parse': Parser,
@@ -16,6 +17,7 @@ SUBMODULES = {
   'align': Aligner,
   'extract-synsem': ExtractorSynSem,
 #  'extract-cansem': ExtractorCanSem,
+  'parse-td': ParserTD,
 }
 
 HELP_EXIT_CODE = 1

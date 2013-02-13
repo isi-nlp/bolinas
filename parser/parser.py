@@ -144,6 +144,7 @@ def parse_corpus(grammar, string_input_path=None, graph_input_path=None):
         graphs.append(Dag.from_string(line))
 
   # parse!
+  start_time = time.clock()
   charts = []
   for i in range(max(len(strings), len(graphs))):
     string = strings[i] if parse_string else None
@@ -151,6 +152,9 @@ def parse_corpus(grammar, string_input_path=None, graph_input_path=None):
     raw_chart = parse(grammar, string, graph, filter_cache)
     chart = cky_chart(raw_chart)
     charts.append(chart)
+
+  etime = time.clock() - start_time
+  log.info('Parsed %s sentences in %.2fs' % (len(graphs), etime))
 
   return charts
 
@@ -187,7 +191,7 @@ def parse(grammar, string, graph, filter_cache):
 
   # remember when we started
   start_time = time.clock()
-  log.info('parse...')
+  log.chatter('parse...')
 
   # specify what kind of items we're working with
   if string and graph:
@@ -217,15 +221,15 @@ def parse(grammar, string, graph, filter_cache):
   pending = set() # a copy of queue with constant-time lookup
   attempted = set() # a cache of previously-attempted item combinations
   visited = set() # a cache of already-visited items
-  word_terminal_lookup = ddict(set) # a mapping from words to string indices
+  word_terminal_lookup = ddict(set) 
   nonterminal_lookup = ddict(set) # a mapping from labels to graph edges
   reverse_lookup = ddict(set) # a mapping from outside symbols open items
   if string:
-    word_terminal_lookup = ddict(set)
+    word_terminal_lookup = ddict(set) # mapping from words to string indices
     for i in range(len(string)):
       word_terminal_lookup[string[i]].add(i)
   if graph:
-    edge_terminal_lookup = ddict(set)
+    edge_terminal_lookup = ddict(set) # mapping from edge labels to graph edges
     for edge in graph.triples():
       edge_terminal_lookup[edge[1]].add(edge)
   for rule in pgrammar:
@@ -306,18 +310,16 @@ def parse(grammar, string, graph, filter_cache):
               item.can_shift(edge)]
 
         for nitem in new_items:
-          log.debug('shift', nitem)
+          log.debug('  shift', nitem)
           chart[nitem].add((item,))
           if nitem not in pending and nitem not in visited:
             queue.append(nitem)
             pending.add(nitem)
 
   if success:
-    log.info('   success!')
-  else:
-    log.info('   failed!')
+    log.chatter('  success!')
   etime = time.clock() - start_time
-  log.chatter('done in ' + str(etime) + 's')
+  log.chatter('done in %.2fs' % etime)
 
   # TODO return partial chart
   return chart
