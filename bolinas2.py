@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import sys
+import pprint
 from argparse import ArgumentParser
 from config import config
 
@@ -66,11 +67,10 @@ if __name__ == "__main__":
              % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar))
 
         parser = Parser(grammar)
-        with file(config.input_file,'r') as in_file:
-            for chart in parser.parse_graphs((Amr.from_string(x) for x in in_file)):
-                print chart
-                if chart:
-                    print chart_to_tiburon(chart) 
+        if config.input_file:
+            with file(config.input_file,'r') as in_file:
+                for chart in parser.parse_graphs((Amr.from_string(x) for x in in_file)):
+                    print chart 
 
     elif config.parser == "td":
         # Run the tree decomposition HRG parser

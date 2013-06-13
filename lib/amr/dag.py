@@ -65,78 +65,6 @@ def flatten(ll):
   else: 
     return [ll]
   
-###Decode parse AST
-def ast_to_dag(ast):
-    """
-    Convert the abstract syntax tree returned by the dag parser into an dag.
-    """
-    dag = Dag()
-
-    def rec_step(x):  # Closure over dag
-
-        node, concept, roles = x         
-        if type(node) is str:
-            node = node.replace("@","")
-            for role, child in roles:
-                if type(child) == tuple and len(child) == 3:
-                    childnode = child[0]                                           
-                    if type(childnode) is str and childnode.startswith("@"):
-                        childnode = childnode.replace("@","")
-                        dag.external_nodes.append(childnode)
-                    tuple_child = (childnode,)
-                    dag[node].append(role, tuple_child)
-                    x = dag[childnode]
-                    rec_step(child)
-
-                elif type(child) == list: #Hyperedge 
-                    childnode = set()
-                    for c in child: 
-                        if type(c) == tuple and len(c) == 3:
-                            if type(c[0]) is str and c[0].startswith("@"):
-                                new_c = c[0].replace("@","")
-                                dag.external_nodes.append(new_c)
-                            else: 
-                                new_c = c[0]
-                            childnode.add(new_c)
-                            x = dag[new_c]
-                            rec_step(c)
-                        else:
-                            if type(c) is str and c.startswith("@"):
-                                c = c.replace("@","")
-                                dag.external_nodes.append(c)
-                            x = dag[c]
-                            childnode.add(c)
-                    newchild = tuple(childnode)        
-                    dag[node].append(role, newchild)
-
-                else: # Just assume this node is some special symbol
-                    if type(child) is str and child.startswith("@"):
-                        child = child.replace("@","")
-                        tuple_child = (child,)
-                        dag.external_nodes.append(child)
-                        dag[node].append(role, tuple_child)
-                        x = dag[child]
-                    else:
-                        dag[node].append(role, (child,))
-                        x = dag[child]
-
-
-    root = ast[0]
-    if type(root) == tuple and len(root) == 3: 
-        if "@" in root[0]:
-            dag.external_nodes.append(root[0].replace("@",""))  
-
-        dag.roots.append(root[0].replace("@",""))
-       
-        rec_step(root)
-    else: 
-        if "@" in root:
-            dag.external_nodes.append(root.replace("@",""))        
-        dag.roots.append(root.replace("@",""))
-
-    return dag 
-
-###
 
 class ListMap(defaultdict):
     '''
@@ -213,6 +141,7 @@ class Dag(defaultdict):
         defaultdict.__init__(self, ListMap, *args, **kwargs) 
         self.roots = []
         self.external_nodes = {}
+        self.rev_external_nodes = {}
         self.replace_count = 0    # Count how many replacements have occured in this DAG
                                   # to prefix unique new node IDs for glued fragments.
 

@@ -241,7 +241,8 @@ class Amr(Dag):
             new_amr._add_triple(p_new, r, c_new)
 
         new_amr.roots = [conv(r) for r in self.roots]
-        new_amr.external_nodes = [conv(r) for r in self.external_nodes]
+        new_amr.external_nodes = dict((conv(r),val) for r,val in self.external_nodes.items())
+        new_amr.rev_external_nodes = dict((val, conv(r)) for val,r in self.rev_external_nodes.items())
         new_amr.edge_alignments = self.edge_alignments
         new_amr.node_alignments = self.node_alignments
         for node in self.node_to_concepts:    
@@ -305,19 +306,16 @@ class Amr(Dag):
                         concept = self.node_to_concepts[node]
                         if not self[node]:
                             if node in self.external_nodes:
-                                return "%s.%s*%i " % (node, concept, self.external_nodes[n])
+                                return "%s.%s*%i " % (node, concept, self.external_nodes[node])
                             else:
                                 return "%s.%s " % (node, concept)
                         else: 
                             if node in self.external_nodes:    
-                                return "%s.%s*%i " % (node, concept, self.external_nodes[n])
+                                return "%s.%s*%i " % (node, concept, self.external_nodes[node])
                             else:
                                 return "%s.%s " % (node, concept)
                     else:
-                        if node in self.external_nodes:
-                            return "%s.*%i" % (node, self.external_nodes[n])
-                        else:
-                            return "%s." % node
+                        return "%s." % node
 
 
         def combiner(nodestr, childmap, depth):
@@ -382,6 +380,7 @@ class Amr(Dag):
         new = Amr() 
         new.roots = copy.copy(self.roots)
         new.external_nodes = copy.copy(self.external_nodes)
+        new.rev_external_nodes = copy.copy(self.rev_external_nodes)
         new.node_to_concepts = copy.copy(self.node_to_concepts)
         for triple in self.triples(instances = False):
             new._add_triple(*copy.copy(triple), warn=warn)        
@@ -397,6 +396,7 @@ class Amr(Dag):
             new._add_triple(*copy.copy(triple))
         new.roots = copy.copy(self.roots)
         new.external_nodes = copy.copy(self.external_nodes)
+        new.rev_external_nodes = copy.copy(self.rev_external_nodes)
         return new
 
     ### Dispatched to Dag
@@ -421,7 +421,8 @@ class Amr(Dag):
             else: 
                 new.edge_alignments[(node_map[par] if par in node_map else par, rel, node_map[child] if child in node_map else child)] = self.edge_alignments[(par, rel, child)]
         
-        new.external_nodes = set([node_map[x] for x in self.external_nodes])
+        new.external_nodes = dict((node_map[x], self.external_nodes[x]) for x in self.external_nodes)
+        new.rev_external_nodes = dict((self.rev_external_nodes[x], node_map[x]) for x in self.rev_external_nodes)
         for par, rel, child in self.triples(instances = False):
             if type(child) is tuple:                 
                 new._add_triple(node_map[par], rel, tuple([node_map[c] for c in child]))

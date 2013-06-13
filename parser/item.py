@@ -1,4 +1,5 @@
 from lib.amr.dag import NonterminalLabel
+from lib import log
 
 # Some general advice for reading this file:
 #
@@ -34,6 +35,7 @@ class HergItem():
     self.mapping = mapping
 
     triples = rule.rhs1.triples()
+    self.outside_symbol = None
     if size < len(triples):
       # this item is not closed
       self.outside_triple = triples[rule.rhs1_visit_order[size]]
@@ -43,8 +45,9 @@ class HergItem():
           NonterminalLabel)
       if self.outside_is_nonterminal:
         # strip the index off of the nonterminal label
-        self.outside_symbol = str(self.outside_triple[1])
-        self.outside_symbol = self.outside_symbol[1:].split('[')[0]
+        #self.outside_symbol = str(self.outside_triple[1])
+        #self.outside_symbol = self.outside_symbol[1:].split('[')[0]
+        self.outside_symbol = self.outside_triple[1].label
     else:
       # this item is closed
       self.outside_triple = None
@@ -83,9 +86,10 @@ class HergItem():
     return 'HergItem(%d, %d)' % (self.rule.rule_id, self.size)
 
   def __str__(self):
-    return '[%s, %d/%d, {%d}]' % (self.rule,
+    return '[%s, %d/%d, %s, {%d}]' % (self.rule,
                                   self.size,
                                   len(self.rule.rhs1.triples()),
+                                  self.outside_symbol,
                                   len(self.shifted))
 
   def can_shift(self, new_edge):
@@ -145,20 +149,20 @@ class HergItem():
     """
     # can't add to a closed item
     if self.closed:
-      #print 'fail bc closed'
+      #log.debug('fail bc closed')
       return False
     # can't shift an incomplete item
     if not new_item.closed:
-      #print 'fail bc other not closed'
+      #log.debug('fail bc other not closed')
       return False
 
     # make sure labels agree
     if not self.outside_is_nonterminal:
-      #print 'fail bc outside terminal'
+      #log.debug('fail bc outside terminal')
       return False
     # TODO should be able to check boundary only
     if any(edge in self.shifted for edge in new_item.shifted):
-      #print 'fail bc overlap'
+      #log.debug('fail bc overlap')
       return False
 
     # make sure mappings agree
@@ -166,17 +170,17 @@ class HergItem():
     o2 = self.outside_triple[2]
 
     if len(o2) != len(new_item.rule.rhs1.external_nodes):
-      #print 'fail bc hyperedge type mismatch'
+      #log.debug('fail bc hyperedge type mismatch')
       return False
     if o1 in self.mapping and self.mapping[o1] != \
         new_item.mapping[list(new_item.rule.rhs1.roots)[0]]:
-      #print 'fail bc mismapping'
+      #log.debug('fail bc mismapping')
       return False
     for i in range(len(o2)):
       otail = o2[i]
-      ntail = new_item.rule.rhs1.external_nodes[i]
+      ntail = new_item.rule.rhs1.rev_external_nodes[i]
       if otail in self.mapping and self.mapping[otail] != new_item.mapping[ntail]:
-        #print 'fail bc bad tail'
+        #log.debug('fail bc bad mapping in tail')
         return False
 
     return True
@@ -194,7 +198,7 @@ class HergItem():
     new_mapping[o1] = new_item.mapping[list(new_item.rule.rhs1.roots)[0]]
     for i in range(len(o2)):
       otail = o2[i]
-      ntail = new_item.rule.rhs1.external_nodes[i]
+      ntail = new_item.rule.rhs1.rev_external_nodes[i]
       new_mapping[otail] = new_item.mapping[ntail]
 
     return HergItem(self.rule, new_size, new_shifted, new_mapping)
@@ -390,8 +394,13 @@ class CfgHergItem:
         and other.herg_item == self.herg_item
 
   def __repr__(self):
-    return '[%s, (%d,%d), {%d}]' % (self.rule, self.cfg_item.i, self.cfg_item.j,
-        len(self.herg_item.shifted))
+    if "outside_symbol" in self.__dict__:
+        return '[%s, (%d,%d), (%s), {%d}]' % (self.rule, self.cfg_item.i, self.cfg_item.j,
+            self.outside_symbol,
+            len(self.herg_item.shifted))
+    else: 
+        return '[%s, (%d,%d), {%d}]' % (self.rule, self.cfg_item.i, self.cfg_item.j,
+         len(self.herg_item.shifted))
 
   def can_shift_word(self, word, index):
     """

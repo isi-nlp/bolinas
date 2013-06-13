@@ -7,8 +7,6 @@ from dag import Dag, SpecialValue, StrLiteral, Quantity, Literal
 from amr import Amr
 from lib.cfg import NonterminalLabel
 
-import logging
-
 """
 A deterministic, linear time parser for hypergraph descriptions.
 The graph format is described here...
@@ -121,19 +119,6 @@ class GraphDescriptionParser(object):
         match = self.node_re.match(token)
         groups = match.groups()
         
-        if groups[3]:       #Check if node is an external node
-            if groups[4]:   #Get external node ID
-                ext_id = int(groups[4]) 
-                if not self.explicit_ext_ids and self.ext_id_count >= 1:
-                    raise LexerError, "Must specify explicit external node IDs for all or none of the external nodes."
-                self.explicit_ext_ids = True
-            else:
-                if self.explicit_ext_ids:
-                    raise LexerError, "Must specify explicit external node IDs for all or none of the external nodes."
-                ext_id = self.ext_id_count
-                self.ext_id_count += 1
-        else:
-            ext_id = None
         
         if not groups[1]:    #This node is only a label
             label = groups[0]
@@ -146,6 +131,22 @@ class GraphDescriptionParser(object):
                 self.id_count += 1       
             else: 
                 ident = groups[0] 
+        
+        if groups[3]:       #Check if node is an external node
+            if groups[4]:   #Get external node ID
+                ext_id = int(groups[4]) 
+                if not self.explicit_ext_ids and self.ext_id_count >= 1:
+                    raise LexerError, "Must specify explicit external node IDs for all or none of the external nodes."
+                self.explicit_ext_ids = True
+            else:
+                if self.explicit_ext_ids:
+                    raise LexerError, "Must specify explicit external node IDs for all or none of the external nodes."
+                if not ident in self.seen_nodes: #UGLY
+                    self.seen_nodes.add(ident)
+                    ext_id = self.ext_id_count
+                    self.ext_id_count += 1
+        else:
+            ext_id = None
 
         return ident, label, ext_id 
 
@@ -166,8 +167,9 @@ class GraphDescriptionParser(object):
 
         self.id_count = 0
         self.ext_id_count = 0
-        self.explicit_ext_ids = False
-        
+        self.seen_nodes = set()
+        self.explicit_ext_ids = False                 
+ 
         # States of the finite state parser
         #0, top level
         #1, expecting head nodename
@@ -180,8 +182,11 @@ class GraphDescriptionParser(object):
             ident, label, ext_id = node                              
             ignoreme = amr[ident] #Initialize dictionary for this node
             amr.node_to_concepts[ident] = label
-            if ext_id:
+            if ext_id is not None:                
+                if ident in amr.external_nodes and amr.external_nodes[ident] != ext_id:
+                    raise ParserError, "Incompatible external node IDs for node %s." % ident
                 amr.external_nodes[ident] = ext_id
+                amr.rev_external_nodes[ext_id] = ident
             if root: 
                 amr.roots.append(ident)
                 
@@ -226,9 +231,6 @@ class GraphDescriptionParser(object):
         # Parser transitions start here
         for typ, token, pos in self.lexer.lex(s):
 
-            logging.debug("STATE: %i %s" % (state, str(stack)))
-            logging.debug("INPUT: %s %s %i" % (typ, token, pos))
-            
             if state == 0:
                 if typ == LexTypes.LPAR:
                     state = 1
@@ -299,7 +301,6 @@ class GraphDescriptionParser(object):
 if __name__ == "__main__":
     # Just test the module
     import doctest
-    logging.basicConfig(level = logging.DEBUG)
     doctest.testmod()
 
     parser = GraphDescriptionParser()

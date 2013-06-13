@@ -13,6 +13,8 @@ from lib.amr.dag import Dag
 from item import CfgItem, HergItem, CfgHergItem
 from rule import Rule
 
+import pprint
+
 # input corpus formats
 IFORMAT_STRING = 0
 IFORMAT_TREE = 1
@@ -167,7 +169,6 @@ class Parser:
       filter_cache = make_graph_filter_cache()
       for graph in graph_iterator: 
           raw_chart = self.parse(None, graph, filter_cache) 
-          print raw_chart
           chart = cky_chart(raw_chart)
           yield chart
 
@@ -246,6 +247,7 @@ class Parser:
         log.debug('handling', item)
 
         if item.closed:
+          log.debug('  is closed.')
           # check if it's a complete derivation
           if successful_parse(string, graph, item, string_size, graph_size):
               chart['START'].add((item,))
@@ -271,12 +273,15 @@ class Parser:
             reverse_lookup[item.outside_symbol].add(item)
 
             for oitem in nonterminal_lookup[item.outside_symbol]:
+              log.debug("oitem:", oitem)
               if (item, oitem) in attempted:
                 # don't repeat combinations we've tried before
                 continue
               attempted.add((item, oitem))
               if not item.can_complete(oitem):
+                log.debug("fail")
                 continue
+              log.debug("ok")
               nitem = item.complete(oitem)
               chart[nitem].add((item, oitem))
               if nitem not in pending and nitem not in visited:
@@ -294,7 +299,7 @@ class Parser:
                 assert not item.outside_edge_is_nonterminal
                 new_items = [item.shift_edge(edge) for edge in
                     edge_terminal_lookup[item.outside_edge] if
-                    item.can_shift_edge(edge)]
+                    item.can_shift_edge(edge)]               
             elif string:
               new_items = [item.shift(item.outside_word, index) for index in
                   word_terminal_lookup[item.outside_word] if
@@ -306,7 +311,7 @@ class Parser:
                   item.can_shift(edge)]
 
             for nitem in new_items:
-              log.debug('  shift', nitem)
+              log.debug('  shift', nitem, nitem.shifted)
               chart[nitem].add((item,))
               if nitem not in pending and nitem not in visited:
                 queue.append(nitem)
@@ -589,7 +594,6 @@ def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
             assert ritem.rule.is_terminal or ritem in chart
             stack.append(ritem)
     else:
-      print item
       assert item.rule.is_terminal
       strings.append(t_stringifier(item))
 
