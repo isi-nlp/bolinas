@@ -5,7 +5,7 @@ from collections import defaultdict as ddict
 
 class Subgraph:
   """
-  Represents a boundary-induced subgraph, for fast union computatin.
+  Represents a boundary-induced subgraph, for fast union computation.
   """
   def __init__(self, boundary_nodes, boundary_edges, size):
     self.boundary_nodes = frozenset(boundary_nodes)

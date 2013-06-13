@@ -1,8 +1,11 @@
 class InvocationException(Exception):
-  pass
+    pass
 
 class InputFormatException(Exception):
-  pass
+    pass
 
 class BinarizationException(Exception):
-  pass
+    pass
+
+class GrammarError(Exception):
+    pass
