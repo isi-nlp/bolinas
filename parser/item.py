@@ -33,10 +33,10 @@ class HergItem():
     self.shifted = shifted
     self.mapping = mapping
 
-    triples = rule.amr.triples()
+    triples = rule.rhs1.triples()
     if size < len(triples):
       # this item is not closed
-      self.outside_triple = triples[rule.amr_visit_order[size]]
+      self.outside_triple = triples[rule.rhs1_visit_order[size]]
       self.outside_edge = self.outside_triple[1]
       self.closed = False
       self.outside_is_nonterminal = isinstance(self.outside_triple[1],
@@ -85,7 +85,7 @@ class HergItem():
   def __str__(self):
     return '[%s, %d/%d, {%d}]' % (self.rule,
                                   self.size,
-                                  len(self.rule.amr.triples()),
+                                  len(self.rule.rhs1.triples()),
                                   len(self.shifted))
 
   def can_shift(self, new_edge):
@@ -165,16 +165,16 @@ class HergItem():
     o1 = self.outside_triple[0]
     o2 = self.outside_triple[2]
 
-    if len(o2) != len(new_item.rule.amr.external_nodes):
+    if len(o2) != len(new_item.rule.rhs1.external_nodes):
       #print 'fail bc hyperedge type mismatch'
       return False
     if o1 in self.mapping and self.mapping[o1] != \
-        new_item.mapping[list(new_item.rule.amr.roots)[0]]:
+        new_item.mapping[list(new_item.rule.rhs1.roots)[0]]:
       #print 'fail bc mismapping'
       return False
     for i in range(len(o2)):
       otail = o2[i]
-      ntail = new_item.rule.amr.external_nodes[i]
+      ntail = new_item.rule.rhs1.external_nodes[i]
       if otail in self.mapping and self.mapping[otail] != new_item.mapping[ntail]:
         #print 'fail bc bad tail'
         return False
@@ -191,10 +191,10 @@ class HergItem():
     new_size = self.size + 1
     new_shifted = frozenset(self.shifted | new_item.shifted)
     new_mapping = dict(self.mapping)
-    new_mapping[o1] = new_item.mapping[list(new_item.rule.amr.roots)[0]]
+    new_mapping[o1] = new_item.mapping[list(new_item.rule.rhs1.roots)[0]]
     for i in range(len(o2)):
       otail = o2[i]
-      ntail = new_item.rule.amr.external_nodes[i]
+      ntail = new_item.rule.rhs1.external_nodes[i]
       new_mapping[otail] = new_item.mapping[ntail]
 
     return HergItem(self.rule, new_size, new_shifted, new_mapping)

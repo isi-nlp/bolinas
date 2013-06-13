@@ -7,9 +7,7 @@ Abstract Meaning Representation
 '''
 
 from dag import Dag, SpecialValue, Literal, StrLiteral, Quantity
-#from amr_parser import make_amr_parser, SpecialValue, StrLiteral
 from collections import defaultdict
-#from lib import pyparsing
 import unittest
 import re
 import sys
@@ -93,14 +91,10 @@ class Amr(Dag):
         #    raise e 
         #return ast_to_amr(ast)
         if not cls._parser_singleton: # Initialize the AMR parser only once
-            from graph_description_parser import GraphDescriptionParser, LexerError, ParserError 
+            from new_graph_description_parser import GraphDescriptionParser, LexerError, ParserError 
             _parser_singleton = GraphDescriptionParser() 
-        try:
             amr = _parser_singleton.parse_string(amr_string)
             return amr
-        except (LexerError, ParserError), e:
-            sys.stderr.write("Could not parse graph description: %s" % amr_string)
-            raise e 
 
     @classmethod
     def from_concept_edge_labels(cls, amr):
@@ -278,7 +272,7 @@ class Amr(Dag):
         """
         self.node_to_concepts[node] = concept
 
-    def triples(self, instances = True, start_node = None, refresh = False):
+    def triples(self, instances =  False, start_node = None, refresh = False):
         """
         Retrieve a list of (node, role, filler) triples. If instances is False
         do not include 'instance' roles.
@@ -302,28 +296,28 @@ class Amr(Dag):
             if node is None:
                     return "root"
             if type(node) is tuple or type(node) is list: 
-                return ",".join("@%s" % (n) if n in self.external_nodes else n for n in node)
+                return " ".join("%s*%i" % (n, self.external_nodes[n]) if n in self.external_nodes else n for n in node)
             else: 
                 if type(node) is int or type(node) is float or isinstance(node, (Literal, StrLiteral)):
                     return str(node)
                 else: 
-                    if firsthit and node in self.node_to_concepts: 
+                    if firsthit and node in self.node_to_concepts and self.node_to_concepts[node]: 
                         concept = self.node_to_concepts[node]
                         if not self[node]:
                             if node in self.external_nodes:
-                                return "(@%s / %s) " % (node, concept)
+                                return "%s.%s*%i " % (node, concept, self.external_nodes[n])
                             else:
-                                return "(%s / %s) " % (node, concept)
+                                return "%s.%s " % (node, concept)
                         else: 
                             if node in self.external_nodes:    
-                                return "@%s / %s " % (node, concept)
+                                return "%s.%s*%i " % (node, concept, self.external_nodes[n])
                             else:
-                                return "%s / %s " % (node, concept)
+                                return "%s.%s " % (node, concept)
                     else:
                         if node in self.external_nodes:
-                            return "@%s" % node 
+                            return "%s.*%i" % (node, self.external_nodes[n])
                         else:
-                            return "%s" % node
+                            return "%s." % node
 
 
         def combiner(nodestr, childmap, depth):
@@ -331,9 +325,9 @@ class Amr(Dag):
             return "(%s %s)" % (nodestr, childstr)
 
         def hedgecombiner(nodes):
-             return " ,".join(nodes)
+             return " ".join(nodes)
 
-        return "\n".join(self.dfs(extractor, combiner, hedgecombiner))
+        return " ".join(self.dfs(extractor, combiner, hedgecombiner))
     
     def to_string(self, newline = False):
          if newline:
@@ -395,7 +389,7 @@ class Amr(Dag):
 
     def clone_as_dag(self, instances = True):        
         """
-        Return a copy of the AMR as DAG.
+        Return a copy of the AMR as DAG, ignoring node labels.
         """
         new = Dag()
         
@@ -454,97 +448,6 @@ class Amr(Dag):
                 new.node_to_concepts[node] = self.node_to_concepts[node]
         return new
         
-        
-############################
-# Pennman format AMR parser
-############################
-
-def ast_to_amr(ast):
-    """
-    Convert the abstract syntax tree returned by the amr parser into an amr.
-    """
-    dag = Amr()
-
-    def rec_step(x):  # Closure over dag
-
-        node, concept, roles = x         
-
-        aligned_tokens = []
-        if concept and "~" in concept: 
-            concept, alignments = concept.rsplit("~",1)
-            language,alignments= alignments.split(".",1)
-            aligned_tokens = [int(x) for x in alignments.split(",")]
-
-        if type(node) is str:
-            node = node.replace("@","")
-            dag.node_to_concepts[node] = concept
-            if aligned_tokens:
-                dag.node_alignments[node] = aligned_tokens
-            for r, child in roles:
-                role = r
-                aligned = [] 
-                #if "~" in r:
-                #    role, alignments = r.rsplit("~",1)
-                #    language,alignments = alignments.split(".",1)
-                #    aligned = [int(x) for x in alignments.split(",")]
-
-                if type(child) == tuple and len(child) == 3:
-                    childnode = child[0]                                           
-                    if type(childnode) is str and childnode.startswith("@"):
-                        childnode = childnode.replace("@","")
-                        dag.external_nodes.append(childnode)
-                    tuple_child = (childnode,)
-                    dag[node].append(role, tuple_child)
-                    if aligned:
-                        dag.edge_alignments[(node, role, tuple_child)] = aligned
-                    x = dag[childnode]
-                    rec_step(child)
-
-                elif type(child) == list: #Hyperedge 
-                    childnode = set()
-                    for c in child: 
-                        if type(c) == tuple and len(c) == 3:
-                            if type(c[0]) is str and c[0].startswith("@"):
-                                new_c = c[0].replace("@","")
-                                dag.external_nodes.append(new_c)                               
-                            else: 
-                                new_c = c[0]
-                            childnode.add(new_c)
-                            rec_step(c)
-                        else:
-                            if type(c) is str and c.startswith("@"):
-                                c = c.replace("@","")
-                                dag.external_nodes.append(c)                               
-                            childnode.add(c)
-                    newchild = tuple(childnode)        
-                    dag[node].append(role, newchild)
-                    if aligned:
-                        dag.edge_alignments[(node, role, newchild)] = aligned
-                    x = dag[newchild]
-
-                else: # Just assume this node is some special symbol
-                    if type(child) is str and child.startswith("@"):
-                        child = child.replace("@","")
-                        tuple_child = (child,)
-                        dag.external_nodes.append(tuple_child)
-                        dag[node].append(role, tuple_child)
-                    else:
-                        dag[node].append(role, (child,))
-                    if aligned:
-                        dag.edge_alignments[(node, role, (child,))] = aligned
-                    x = dag[child]
-
-    root = ast[0]
-    if type(root) == tuple and len(root) == 3: 
-        dag.roots.append(root[0])
-        rec_step(root)
-    else: 
-        dag.roots.append(root)
-
-    return dag 
-
-
-
 if __name__ == "__main__":
 
     import doctest

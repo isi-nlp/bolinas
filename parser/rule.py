@@ -1,115 +1,235 @@
-from lib.amr.dag import Dag, NonterminalLabel
-from lib.amr.graph_description_parser import ParserError, LexerError
+from lib.amr.dag import Dag
+from lib.cfg import NonterminalLabel
+from lib.amr.amr import Amr
+from lib.amr.new_graph_description_parser import ParserError, LexerError
 from lib.tree import Tree
 from lib import log
-from lib.exceptions import InputFormatException, BinarizationException 
+from lib.exceptions import InputFormatException, BinarizationException, GrammarError
 #from lib import util
 import sys
 import cPickle as pickle
 from collections import defaultdict as ddict
 import re
+import StringIO
 
-class Rule:
+def parse_string(s):
+    tokens = s.strip().split()
+    return [NonterminalLabel.from_string(t) if "$" in t else t for t in tokens]
 
-  @classmethod
-  def load_from_file(cls, prefix):
-    """
-    Loads a SHRG grammar (a list of rules keyed by rule number) from the given
-    prefix. First attempts to load a pickled representation of the grammar, and
-    falls back on plaintext. See documentation for format details.
-    """
+class Grammar(dict):
+  
+ 
+    @classmethod
+    def load_from_file(cls, in_file, reverse = False):
+        """
+        Loads a SHRG grammar from the given prefix. 
+        See documentation for format details.
+        """    
 
-    # try loading from pickle
-    try:
-      pickle_file = open('%s.pickle' % prefix)
-      output = pickle.load(pickle_file)
-      pickle_file.close()
-      return output
-    except IOError:
-      log.warn('No pickled grammar---loading from string instead. ' + \
-          'This could take a while.')
+        output = Grammar()
+
+        rule_count = 1
+        line_count = 0
+        is_synchronous = False
+
+        rhs1_type = None
+        rhs2_type = None
+        GRAPH_FORMAT = "hypergraph" 
+        STRING_FORMAT = "string"
+        TREE_FORMAT = "tree"
+
+        buf = StringIO.StringIO() 
+
+        for line in in_file: 
+            line_count += 1
+            l = line.strip()
+            if l:
+                if "#" in l: 
+                    content, comment = l.split("#",1)
+                else: 
+                    content = l
+                buf.write(content.strip())
+                if ";" in content:
+                    rulestring = buf.getvalue()
+                    try:
+                        content, weights = rulestring.split(";",1)
+                        weight = 1.0 if not weights else float(weights)
+                    except:
+                        raise GrammarError, \
+            "Line %i, Rule %i: Error near end of line." % (line_count, rule_count)
+                    
+                    lhs, rhsstring = content.split("->")
+                    lhs = lhs.strip()
+                    if "|" in rhsstring:
+                        if not is_synchronous and rule_count > 1:
+                            raise GrammarError,\
+           "Line %i, Rule %i: All or none of the rules need to have two RHSs." % (line_count, rule_count)
+                        is_synchronous = True
+                        try:
+                            rhs1,rhs2 = rhsstring.split("|")
+                        except:
+                            raise GrammarError,"Only up to two RHSs are allowed in grammar file."
+                    else: 
+                        if is_synchronous and rule_count > 0:
+                            raise ParserError,\
+            "Line %i, Rule %i: All or none of the rules need to have two RHSs." % (line_count, rule_count)
+                        is_synchronous = False
+                        rhs1 = rhsstring
+                        rhs2 = None                               
+                    
+                    try:    # If the first graph in the file cannot be parsed, assume it's a string
+                        r1  = Amr.from_string(rhs1)
+                        r1_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r1.nonterminal_edges()])
+                        if not rhs1_type:
+                            rhs1_type = GRAPH_FORMAT
+                    except ParserError, e: 
+                        if rhs1_type == GRAPH_FORMAT:
+                           raise ParserError,\
+            "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
+                        else:
+                           r1 = parse_string(rhs1) 
+                           nts = [t for t in r1 if type(t) is NonterminalLabel]
+                           r1_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
+                           rhs1_type = STRING_FORMAT
+  
+                    if is_synchronous: 
+                        try:    # If the first graph in the file cannot be parsed, assume it's a string
+                            r2  = Amr.from_string(rhs2)
+                            r2_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r2.nonterminal_edges()])
+                            if not rhs2_type:
+                                rhs2_type = GRAPH_FORMAT
+                        except ParserError, e: 
+                            if rhs2_type == GRAPH_FORMAT:
+                               raise ParserError,\
+                "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
+                            else:
+                               r2 = parse_string(rhs2) 
+                               nts = [t for t in r2 if type(t) is NonterminalLabel]
+                               r2_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
+                               rhs2_type = STRING_FORMAT
+
+                        # Verify that nonterminals match up
+                        if not r1_nts == r2_nts:
+                            print r1_nts, r2_nts
+                            raise GrammarError, \
+            "Line %i, Rule %i: Nonterminals do not match between RHSs." % (line_count, rule_count)
+                    else: 
+                        r2 = None
+                    if is_synchronous and reverse: 
+                        output[rule_count] = Rule(rule_count, lhs, weight, r2, r1) 
+                    else: 
+                        output[rule_count] = Rule(rule_count, lhs, weight, r1, r2) 
+                    buf = StringIO.StringIO() 
+                    rule_count += 1
+        output.is_synchronous = is_synchronous
+        if is_synchronous and reverse:
+            output.rhs1_type, output.rhs2_type = rhs2_type, rhs1_type
+        else: 
+            output.rhs1_type, output.rhs2_type = rhs1_type, rhs2_type
+
+        return output 
 
 
-    # try loading from plain text
-    lhs_file = open('%s.lhs' % prefix)
-    rhs_amr_file = open('%s.rhs-amr' % prefix)
-    rhs_ptb_file = open('%s.rhs-ptb' % prefix)
+class Rule(object):
+#  @classmethod
+#  def load_from_file(cls, prefix):
+#    """
+#    Loads a SHRG grammar (a list of rules keyed by rule number) from the given
+#    prefix. First attempts to load a pickled representation of the grammar, and
+#    falls back on plaintext. See documentation for format details.
+#    """
+#
+#    # try loading from pickle
+#    try:
+#      pickle_file = open('%s.pickle' % prefix)
+#      output = pickle.load(pickle_file)
+#      pickle_file.close()
+#      return output
+#    except IOError:
+#      log.warn('No pickled grammar---loading from string instead. ' + \
+#          'This could take a while.')
+#
+#
+#    # try loading from plain text
+#    lhs_file = open('%s.lhs' % prefix)
+#    rhs_amr_file = open('%s.rhs-amr' % prefix)
+#    rhs_ptb_file = open('%s.rhs-ptb' % prefix)
+#
+#    output = {}
+#    while True:
+#      lhs = lhs_file.readline().strip()
+#      if not lhs:
+#        break
+#      rhs_amr = rhs_amr_file.readline().strip()
+#      rhs_ptb = rhs_ptb_file.readline().strip()
+#
+#      parts = lhs.split(',',2)
+#      if len(parts) == 3:
+#        rule_id, symbol, weight = parts
+#      elif len(parts) == 2:
+#        rule_id, symbol = parts
+#        weight = 1.0 # Default to 1.0
+#      else: 
+#        raise InputFormatException, "Invalid rule LHS: %s" % lhs  
+#
+#      rid2, amr_str = rhs_amr.split(',', 1)
+#      rid3, ptb_str = rhs_ptb.split(',', 1)
+#      try: 
+#          assert rule_id == rid2 == rid3
+#      except AssertionError,e:    
+#          raise InputFormatException, "Rule ID mismatch in grammar specification."
+#      rule_id = int(rule_id)
+#      if symbol[0] == "#":
+#          symbol = symbol[1:]
+#      weight = float(weight)
+#      try:
+#          amr = Dag.from_string(amr_str)
+#      except (ParserError, LexerError), e:    
+#          raise InputFormatException, "Invalid graph RHS: %s" % amr_str
+#      try:
+#          ptb = Tree(ptb_str)
+#      except:
+#          raise InputFormatException, "Invalid tree RHS: %s" % ptb_str 
+#
+#      assert rule_id not in output
+#      rule = Rule(rule_id, symbol, weight, amr, ptb)
+#      output[rule_id] = rule
+#
+#    found_root = False
+#    for rule_id in output: 
+#        if "root" in output[rule_id].symbol.lower():
+#            found_root = True
+#            break
+#    if not found_root:
+#        raise InputFormatException, "Need at least one rule with start symbol 'root' on LHS."
+#
+#    lhs_file.close()
+#    rhs_amr_file.close()
+#    rhs_ptb_file.close()
+#
+#    return output
 
-    output = {}
-    while True:
-      lhs = lhs_file.readline().strip()
-      if not lhs:
-        break
-      rhs_amr = rhs_amr_file.readline().strip()
-      rhs_ptb = rhs_ptb_file.readline().strip()
-
-      parts = lhs.split(',',2)
-      if len(parts) == 3:
-        rule_id, symbol, weight = parts
-      elif len(parts) == 2:
-        rule_id, symbol = parts
-        weight = 1.0 # Default to 1.0
-      else: 
-        raise InputFormatException, "Invalid rule LHS: %s" % lhs  
-
-      rid2, amr_str = rhs_amr.split(',', 1)
-      rid3, ptb_str = rhs_ptb.split(',', 1)
-      try: 
-          assert rule_id == rid2 == rid3
-      except AssertionError,e:    
-          raise InputFormatException, "Rule ID mismatch in grammar specification."
-      rule_id = int(rule_id)
-      if symbol[0] == "#":
-          symbol = symbol[1:]
-      weight = float(weight)
-      try:
-          amr = Dag.from_string(amr_str)
-      except (ParserError, LexerError), e:    
-          raise InputFormatException, "Invalid graph RHS: %s" % amr_str
-      try:
-          ptb = Tree(ptb_str)
-      except:
-          raise InputFormatException, "Invalid tree RHS: %s" % ptb_str 
-
-      assert rule_id not in output
-      rule = Rule(rule_id, symbol, weight, amr, ptb)
-      output[rule_id] = rule
-
-    found_root = False
-    for rule_id in output: 
-        if "root" in output[rule_id].symbol.lower():
-            found_root = True
-            break
-    if not found_root:
-        raise InputFormatException, "Need at least one rule with start symbol 'root' on LHS."
-
-    lhs_file.close()
-    rhs_amr_file.close()
-    rhs_ptb_file.close()
-
-    return output
-
-  @classmethod
-  def write_to_file(cls, grammar, prefix):
-    """
-    Writes a SHRG grammar to a file, in both text and pickled formats.
-    """
-
-    pickle_file = open('%s.pickle' % prefix, 'w')
-    lhs_file = open('%s.lhs' % prefix, 'w')
-    rhs_amr_file = open('%s.rhs-amr' % prefix, 'w')
-    rhs_ptb_file = open('%s.rhs-ptb' % prefix, 'w')
-    
-    for rule in grammar.values():
-      print >>lhs_file, '%d,%s,%f' % (rule.rule_id, rule.symbol, rule.weight)
-      print >>rhs_amr_file, '%d,%s' % (rule.rule_id, rule.amr.to_string(newline = False))
-      print >>rhs_ptb_file, '%d,%s' % (rule.rule_id, rule.parse.pprint(margin=sys.maxint))
-
-    pickle.dump(grammar, pickle_file)
-    lhs_file.close()
-    rhs_amr_file.close()
-    rhs_ptb_file.close()
-    pickle_file.close()
+#  @classmethod
+#  def write_to_file(cls, grammar, prefix):
+#    """
+#    Writes a SHRG grammar to a file, in both text and pickled formats.
+#    """
+#
+#    pickle_file = open('%s.pickle' % prefix, 'w')
+#    lhs_file = open('%s.lhs' % prefix, 'w')
+#    rhs_amr_file = open('%s.rhs-amr' % prefix, 'w')
+#    rhs_ptb_file = open('%s.rhs-ptb' % prefix, 'w')
+#    
+#    for rule in grammar.values():
+#      print >>lhs_file, '%d,%s,%f' % (rule.rule_id, rule.symbol, rule.weight)
+#      print >>rhs_amr_file, '%d,%s' % (rule.rule_id, rule.amr.to_string(newline = False))
+#      print >>rhs_ptb_file, '%d,%s' % (rule.rule_id, rule.parse.pprint(margin=sys.maxint))
+#
+#    pickle.dump(grammar, pickle_file)
+#    lhs_file.close()
+#    rhs_amr_file.close()
+#    rhs_ptb_file.close()
+#    pickle_file.close()
 
   @classmethod
   def normalize_weights(cls, grammar):
@@ -126,42 +246,46 @@ class Rule:
       ngrammar[rule_id] = nrule
     return ngrammar
 
-  def __init__(self, rule_id, symbol, weight, amr, parse, amr_visit_order =
-      None, string_visit_order = None, original_index = None):
-    assert len(amr.roots) == 1
+  def __init__(self, rule_id, symbol, weight, rhs1, rhs2, rhs1_visit_order =
+      None, rhs2_visit_order = None, original_index = None):
     self.rule_id = rule_id
     self.symbol = symbol
     self.weight = weight
-    self.amr = amr
-    self.parse = parse
-    if isinstance(parse, Tree):
-      self.string = parse.leaves()
-    else:
-      self.string = [parse]
+    self.rhs1 = rhs1
+    self.rhs2 = rhs2
+    #if isinstance(rhs2, Tree):
+    #  self.string = rhs2.leaves()
+    #else:
+    #  self.string = [rhs2]
 
-    if amr_visit_order == None:
-      self.amr_visit_order = range(len(amr.triples()))
-    else:
-      self.amr_visit_order = amr_visit_order
+    # Set default visit order: canonical order of hyperedges or string tokens left-to-right
+    # Also determine if this RHS is a terminal
+    if type(rhs1) is Amr:
+        assert len(rhs1.roots) == 1
+        self.is_terminal = not any(rhs1.nonterminal_edges())
+        self.rhs1_visit_order = rhs1_visit_order if rhs1_visit_order is not None else range(len(rhs1.triples()))
+    else: 
+        self.is_terminal = not any([t for t in rhs1 if type(t) is NonterminalLabel])
+        self.rhs1_visit_order = rhs1_visit_order if rhs1_visit_order is not None else range(len(rhs1)) 
 
-    if string_visit_order == None:
-      self.string_visit_order = range(len(self.string))
-    else:
-      self.string_visit_order = string_visit_order
+    if self.rhs2 is not None:
+        if type(rhs2) is Amr:
+            self.rhs2_visit_order = rhs2_visit_order if rhs2_visit_order is not None else range(len(rhs2.triples()))
+        else: 
+            self.rhs2_visit_order = rhs2_visit_order if rhs2_visit_order is not None else range(len(rhs2)) 
 
     if original_index != None:
       self.original_index = original_index
 
-    self.is_terminal = not any(w[0] == '#' for w in self.string)
 
   def reweight(self, nweight):
-    return Rule(self.rule_id, self.symbol, nweight, self.amr, self.parse, \
-        self.amr_visit_order, self.string_visit_order)
+    return Rule(self.rule_id, self.symbol, nweight, self.rhs1, self.parse, \
+        self.rhs1_visit_order, self.rhs2_visit_order)
 
   def canonicalize_amr(self):
     return Rule(self.rule_id, self.symbol, self.weight,
-        self.amr.clone_canonical(), self.parse, self.amr_visit_order,
-        self.string_visit_order)
+        self.amr.clone_canonical(), self.parse, self.rhs1_visit_order,
+        self.rhs2_visit_order)
 
   def __repr__(self):
     return 'Rule(%d,%s)' % (self.rule_id, self.symbol)
@@ -180,7 +304,7 @@ class Rule:
     # handle all-terminal rules
     if not any(s[0] == '#' for s in tree.leaves()):
       return [Rule(next_id, self.symbol, self.weight, self.amr, self.parse,
-        self.amr_visit_order, self.string_visit_order)], next_id + 1
+        self.rhs1_visit_order, self.rhs2_visit_order)], next_id + 1
 
     # handle rules containing nonterminals
     rules = []
@@ -216,7 +340,7 @@ class Rule:
     # handle all-terminal rules
     if not any(s[0] == '#' for s in tree.leaves()):
       return [Rule(next_id, self.symbol, self.weight, self.amr, self.parse,
-        self.amr_visit_order, self.string_visit_order)], next_id + 1
+        self.rhs1_visit_order, self.rhs2_visit_order)], next_id + 1
 
     # handle rules containing nonterminals
     rules = []
@@ -476,17 +600,17 @@ class Rule:
         amr_nt_indices.append(i)
       else:
         amr_t_indices.append(i)
-    amr_visit_order = amr_t_indices + amr_nt_indices
+    rhs1_visit_order = amr_t_indices + amr_nt_indices
 
-    string_visit_order = range(len(rule_string))
+    rhs2_visit_order = range(len(rule_string))
     string_t_indices = [s for s in rule_string if s[0] == '#']
 
     # choose visit order correctly for multi-nonterminal rules
     if len(amr_t_indices) == 0 and len(string_t_indices) == 0:
-      assert string_visit_order == [0,1]
-      assert amr_visit_order == [0,1]
+      assert rhs2_visit_order == [0,1]
+      assert rhs1_visit_order == [0,1]
       if rule_string[0] != str(rule_amr.triples()[0][1]):
-        amr_visit_order = [1,0]
+        rhs1_visit_order = [1,0]
 
     # determine external nodes
     external = []
@@ -506,7 +630,7 @@ class Rule:
 
     # create new rule
     new_rule = Rule(new_rule_id, new_symbol, 1, rule_amr, rule_tree,
-        amr_visit_order, string_visit_order)
+        rhs1_visit_order, rhs2_visit_order)
 
     # unapply new rule
     label = NonterminalLabel(new_symbol)

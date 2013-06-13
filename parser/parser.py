@@ -33,10 +33,81 @@ OFORMATS = {
 }
 
 # OUTPUT_METHODS (mappings from formats to printing functions) at bottom of file
+def get_format(path):
+  """
+  Determines the format (string, tree or graph) of the file at path.
+  """
+  if path == None:
+    return None
+  with open(path) as f:
+    line = f.readline().strip()
+    try:
+      Dag.from_string(line)
+      return IFORMAT_GRAPH
+    except ParseException:
+      pass
+    try:
+      Tree(line)
+      return IFORMAT_TREE
+    except ValueError as e:
+      pass
+    return IFORMAT_STRING
+
+
+#def parse_corpus(string_input_path=None, graph_input_path=None):
+#  """
+#  Finds derivation forests for all the examples in the corpus specified by one
+#  or both of the input_paths.
+#  """
+#  parse_string = True if string_input_path else False
+#  parse_graph = True if graph_input_path else False
+#  assert parse_string or parse_graph
+#  modes = []
+#  if parse_string:
+#    modes.append('string')
+#  if parse_graph:
+#    modes.append('graph')
+#  log.info('Parsing %s.' % ' and '.join(modes))
+#
+#  # for more efficient filtering of rules, precompute a fast lookup of terminals
+#  if parse_string and parse_graph:
+#    filter_cache = make_synch_filter_cache()
+#  elif parse_string:
+#    filter_cache = make_string_filter_cache()
+#  else:
+#    filter_cache = make_graph_filter_cache()
+#
+#  # get all of the input data into machine-readable format
+#  strings = []
+#  graphs = []
+#  if parse_string:
+#    with open(string_input_path) as sf:
+#      for line in sf.readlines():
+#        strings.append(line.strip().split())
+#  if parse_graph:
+#    with open(graph_input_path) as gf:
+#      for line in gf.readlines():
+#        graphs.append(Dag.from_string(line))
+#
+#  # parse!
+#  start_time = time.clock()
+#  charts = []
+#  for i in range(max(len(strings), len(graphs))):
+#    string = strings[i] if parse_string else None
+#    graph = graphs[i] if parse_graph else None
+#    raw_chart = parse(grammar, string, graph, filter_cache)
+#    chart = cky_chart(raw_chart)
+#    charts.append(chart)
+#
+#  etime = time.clock() - start_time
+#  log.info('Parsed %s sentences in %.2fs' % (len(graphs), etime))
+#
+#  return charts
 
 class Parser:
 
-  def __init__(self):
+  def __init__(self, grammar):
+    self.grammar = grammar
     pass
 
   @classmethod 
@@ -88,75 +159,168 @@ class Parser:
     # write output
     OUTPUT_METHODS[o_format](charts, grammar, output_prefix)
 
-def get_format(path):
-  """
-  Determines the format (string, tree or graph) of the file at path.
-  """
-  if path == None:
-    return None
-  with open(path) as f:
-    line = f.readline().strip()
-    try:
-      Dag.from_string(line)
-      return IFORMAT_GRAPH
-    except ParseException:
-      pass
-    try:
-      Tree(line)
-      return IFORMAT_TREE
-    except ValueError as e:
-      pass
-    return IFORMAT_STRING
+  def parse_graphs(self, graph_iterator):
+      """
+      Parse all the graphs in graph_iterator.
+      This is a generator.
+      """
+      filter_cache = make_graph_filter_cache()
+      for graph in graph_iterator: 
+          raw_chart = self.parse(None, graph, filter_cache) 
+          print raw_chart
+          chart = cky_chart(raw_chart)
+          yield chart
 
-def parse_corpus(grammar, string_input_path=None, graph_input_path=None):
-  """
-  Finds derivation forests for all the examples in the corpus specified by one
-  or both of the input_paths.
-  """
-  parse_string = True if string_input_path else False
-  parse_graph = True if graph_input_path else False
-  assert parse_string or parse_graph
-  modes = []
-  if parse_string:
-    modes.append('string')
-  if parse_graph:
-    modes.append('graph')
-  log.info('Parsing %s.' % ' and '.join(modes))
+  def parse(self, string, graph, filter_cache):
+      """
+      Parses the given string and/or graph.
+      """
 
-  # for more efficient filtering of rules, precompute a fast lookup of terminals
-  if parse_string and parse_graph:
-    filter_cache = make_synch_filter_cache()
-  elif parse_string:
-    filter_cache = make_string_filter_cache()
-  else:
-    filter_cache = make_graph_filter_cache()
+      # This is a long function, so let's start with a high-level overview. This is
+      # a "deductive-proof-style" parser: We begin with one "axiomatic" chart item
+      # for each rule, and combine these items with each other and with fragments of
+      # the object(s) being parsed to deduce new items. We can think of these items
+      # as defining a search space in which we need to find a path to the goal item.
+      # The parser implemented here performs a BFS of this search space.
 
-  # get all of the input data into machine-readable format
-  strings = []
-  graphs = []
-  if parse_string:
-    with open(string_input_path) as sf:
-      for line in sf.readlines():
-        strings.append(line.strip().split())
-  if parse_graph:
-    with open(graph_input_path) as gf:
-      for line in gf.readlines():
-        graphs.append(Dag.from_string(line))
+      grammar = self.grammar
 
-  # parse!
-  start_time = time.clock()
-  charts = []
-  for i in range(max(len(strings), len(graphs))):
-    string = strings[i] if parse_string else None
-    graph = graphs[i] if parse_graph else None
-    raw_chart = parse(grammar, string, graph, filter_cache)
-    chart = cky_chart(raw_chart)
-    charts.append(chart)
+      # remember when we started
+      start_time = time.clock()
+      log.chatter('parse...')
 
-  etime = time.clock() - start_time
-  log.info('Parsed %s sentences in %.2fs' % (len(graphs), etime))
+      # specify what kind of items we're working with
+      if string and graph:
+        axiom_class = CfgHergItem
+      elif string:
+        axiom_class = CfgItem
+      else:
+        axiom_class = HergItem
 
-  return charts
+      # remember the size of the example
+      if string:
+        string_size = len(string)
+      else:
+        string_size = -1
+      if graph:
+        graph_size = len(graph.triples())
+      else:
+        graph_size = -1
+
+      # initialize data structures and lookups
+      # we use various tables to provide constant-time lookup of fragments available
+      # for shifting, completion, etc.
+      chart = ddict(set)
+      # TODO prune
+      pgrammar = grammar.values()
+      queue = deque() # the items left to be visited
+      pending = set() # a copy of queue with constant-time lookup
+      attempted = set() # a cache of previously-attempted item combinations
+      visited = set() # a cache of already-visited items
+      word_terminal_lookup = ddict(set) 
+      nonterminal_lookup = ddict(set) # a mapping from labels to graph edges
+      reverse_lookup = ddict(set) # a mapping from outside symbols open items
+      if string:
+        word_terminal_lookup = ddict(set) # mapping from words to string indices
+        for i in range(len(string)):
+          word_terminal_lookup[string[i]].add(i)
+      if graph:
+        edge_terminal_lookup = ddict(set) # mapping from edge labels to graph edges
+        for edge in graph.triples():
+          edge_terminal_lookup[edge[1]].add(edge)
+      for rule in pgrammar:
+        axiom = axiom_class(rule)
+        queue.append(axiom)
+        pending.add(axiom)
+        if axiom.outside_is_nonterminal:
+          reverse_lookup[axiom.outside_symbol].add(axiom)
+
+      # keep track of whether we found any complete derivation
+      success = False
+
+      # parse
+      while queue:
+        item = queue.popleft()
+        pending.remove(item)
+        visited.add(item)
+        log.debug('handling', item)
+
+        if item.closed:
+          # check if it's a complete derivation
+          if successful_parse(string, graph, item, string_size, graph_size):
+              chart['START'].add((item,))
+              success = True
+
+          # add to nonterminal lookup
+          nonterminal_lookup[item.rule.symbol].add(item)
+
+          # wake up any containing rules
+          # Unlike in ordinary state-space search, it's possible that we will have
+          # to re-visit items which couldn't be merged with anything the first time
+          # we saw them, and are waiting for the current item. The reverse_lookup
+          # indexes all items by their outside symbol, so we re-append to the queue
+          # all items looking for something with the current item's symbol.
+          for ritem in reverse_lookup[item.rule.symbol]:
+            if ritem not in pending:
+              queue.append(ritem)
+              pending.add(ritem)
+
+        else:
+          if item.outside_is_nonterminal:
+            # complete
+            reverse_lookup[item.outside_symbol].add(item)
+
+            for oitem in nonterminal_lookup[item.outside_symbol]:
+              if (item, oitem) in attempted:
+                # don't repeat combinations we've tried before
+                continue
+              attempted.add((item, oitem))
+              if not item.can_complete(oitem):
+                continue
+              nitem = item.complete(oitem)
+              chart[nitem].add((item, oitem))
+              if nitem not in pending and nitem not in visited:
+                queue.append(nitem)
+                pending.add(nitem)
+
+          else:
+            # shift
+            if string and graph:
+              if not item.outside_word_is_nonterminal:
+                new_items = [item.shift_word(item.outside_word, index) for index in
+                    word_terminal_lookup[item.outside_word] if
+                    item.can_shift_word(item.outside_word, index)]
+              else:
+                assert not item.outside_edge_is_nonterminal
+                new_items = [item.shift_edge(edge) for edge in
+                    edge_terminal_lookup[item.outside_edge] if
+                    item.can_shift_edge(edge)]
+            elif string:
+              new_items = [item.shift(item.outside_word, index) for index in
+                  word_terminal_lookup[item.outside_word] if
+                  item.can_shift(item.outside_word, index)]
+            else:
+              assert graph
+              new_items = [item.shift(edge) for edge in
+                  edge_terminal_lookup[item.outside_edge] if
+                  item.can_shift(edge)]
+
+            for nitem in new_items:
+              log.debug('  shift', nitem)
+              chart[nitem].add((item,))
+              if nitem not in pending and nitem not in visited:
+                queue.append(nitem)
+                pending.add(nitem)
+
+      if success:
+        log.chatter('  success!')
+      etime = time.clock() - start_time
+      log.chatter('done in %.2fs' % etime)
+
+      # TODO return partial chart
+      return chart
+
+
 
 def successful_parse(string, graph, item, string_size, graph_size):
   """
@@ -164,9 +328,10 @@ def successful_parse(string, graph, item, string_size, graph_size):
   object(s) being parsed.
   """
   # make sure the right start symbol is used
-  if 'root' not in item.rule.symbol.lower():
+  if 's' not in item.rule.symbol.lower():
     return False
     
+
   # make sure the item spans the whole object
   if string and graph:
     whole_string = item.cfg_item.j - item.cfg_item.i == string_size
@@ -176,153 +341,6 @@ def successful_parse(string, graph, item, string_size, graph_size):
     return item.j - item.i == string_size
   else: # graph
     return len(item.shifted) == graph_size
-
-def parse(grammar, string, graph, filter_cache):
-  """
-  Parses the given string and/or graph with the provided grammar.
-  """
-
-  # This is a long function, so let's start with a high-level overview. This is
-  # a "deductive-proof-style" parser: We begin with one "axiomatic" chart item
-  # for each rule, and combine these items with each other and with fragments of
-  # the object(s) being parsed to deduce new items. We can think of these items
-  # as defining a search space in which we need to find a path to the goal item.
-  # The parser implemented here performs a BFS of this search space.
-
-  # remember when we started
-  start_time = time.clock()
-  log.chatter('parse...')
-
-  # specify what kind of items we're working with
-  if string and graph:
-    axiom_class = CfgHergItem
-  elif string:
-    axiom_class = CfgItem
-  else:
-    axiom_class = HergItem
-
-  # remember the size of the example
-  if string:
-    string_size = len(string)
-  else:
-    string_size = -1
-  if graph:
-    graph_size = len(graph.triples())
-  else:
-    graph_size = -1
-
-  # initialize data structures and lookups
-  # we use various tables to provide constant-time lookup of fragments available
-  # for shifting, completion, etc.
-  chart = ddict(set)
-  # TODO prune
-  pgrammar = grammar.values()
-  queue = deque() # the items left to be visited
-  pending = set() # a copy of queue with constant-time lookup
-  attempted = set() # a cache of previously-attempted item combinations
-  visited = set() # a cache of already-visited items
-  word_terminal_lookup = ddict(set) 
-  nonterminal_lookup = ddict(set) # a mapping from labels to graph edges
-  reverse_lookup = ddict(set) # a mapping from outside symbols open items
-  if string:
-    word_terminal_lookup = ddict(set) # mapping from words to string indices
-    for i in range(len(string)):
-      word_terminal_lookup[string[i]].add(i)
-  if graph:
-    edge_terminal_lookup = ddict(set) # mapping from edge labels to graph edges
-    for edge in graph.triples():
-      edge_terminal_lookup[edge[1]].add(edge)
-  for rule in pgrammar:
-    axiom = axiom_class(rule)
-    queue.append(axiom)
-    pending.add(axiom)
-    if axiom.outside_is_nonterminal:
-      reverse_lookup[axiom.outside_symbol].add(axiom)
-
-  # keep track of whether we found any complete derivation
-  success = False
-
-  # parse
-  while queue:
-    item = queue.popleft()
-    pending.remove(item)
-    visited.add(item)
-    log.debug('handling', item)
-
-    if item.closed:
-      # check if it's a complete derivation
-      if successful_parse(string, graph, item, string_size, graph_size):
-          chart['START'].add((item,))
-          success = True
-
-      # add to nonterminal lookup
-      nonterminal_lookup[item.rule.symbol].add(item)
-
-      # wake up any containing rules
-      # Unlike in ordinary state-space search, it's possible that we will have
-      # to re-visit items which couldn't be merged with anything the first time
-      # we saw them, and are waiting for the current item. The reverse_lookup
-      # indexes all items by their outside symbol, so we re-append to the queue
-      # all items looking for something with the current item's symbol.
-      for ritem in reverse_lookup[item.rule.symbol]:
-        if ritem not in pending:
-          queue.append(ritem)
-          pending.add(ritem)
-
-    else:
-      if item.outside_is_nonterminal:
-        # complete
-        reverse_lookup[item.outside_symbol].add(item)
-
-        for oitem in nonterminal_lookup[item.outside_symbol]:
-          if (item, oitem) in attempted:
-            # don't repeat combinations we've tried before
-            continue
-          attempted.add((item, oitem))
-          if not item.can_complete(oitem):
-            continue
-          nitem = item.complete(oitem)
-          chart[nitem].add((item, oitem))
-          if nitem not in pending and nitem not in visited:
-            queue.append(nitem)
-            pending.add(nitem)
-
-      else:
-        # shift
-        if string and graph:
-          if not item.outside_word_is_nonterminal:
-            new_items = [item.shift_word(item.outside_word, index) for index in
-                word_terminal_lookup[item.outside_word] if
-                item.can_shift_word(item.outside_word, index)]
-          else:
-            assert not item.outside_edge_is_nonterminal
-            new_items = [item.shift_edge(edge) for edge in
-                edge_terminal_lookup[item.outside_edge] if
-                item.can_shift_edge(edge)]
-        elif string:
-          new_items = [item.shift(item.outside_word, index) for index in
-              word_terminal_lookup[item.outside_word] if
-              item.can_shift(item.outside_word, index)]
-        else:
-          assert graph
-          new_items = [item.shift(edge) for edge in
-              edge_terminal_lookup[item.outside_edge] if
-              item.can_shift(edge)]
-
-        for nitem in new_items:
-          log.debug('  shift', nitem)
-          chart[nitem].add((item,))
-          if nitem not in pending and nitem not in visited:
-            queue.append(nitem)
-            pending.add(nitem)
-
-  if success:
-    log.chatter('  success!')
-  etime = time.clock() - start_time
-  log.chatter('done in %.2fs' % etime)
-
-  # TODO return partial chart
-  return chart
 
 def make_synch_filter_cache():
   pass
@@ -468,6 +486,30 @@ def output_carmel(charts, grammar, prefix):
 
       print >>ofile, format_inner('START')
 
+
+def chart_to_tiburon(chart):
+  def start_stringifier(rhs_item):
+    return 'START -> %s # 1.0' % rhs_item.uniq_str()
+
+  def nt_stringifier(item, rhs):
+    nrhs = ' '.join([i for i in item.rule.string if i[0] == '#'])
+    # strip indices
+    nrhs = re.sub(r'\[\d+\]', '', nrhs)
+    for ritem in rhs:
+      # replace only one occurrence, in case we have a repeated NT symbol
+      nrhs = re.sub('#' + ritem.rule.symbol, ritem.uniq_str(), nrhs, count=1)
+    nrhs = '%s(%d(%s))' % (item.rule.symbol, item.rule.rule_id, nrhs)
+    return '%s -> %s # %f' % (item.uniq_str(), nrhs, item.rule.weight)
+
+  def t_stringifier(item):
+    return '%s -> %s(%d) # %f' % (item.uniq_str(), item.rule.symbol,
+        item.rule.rule_id, item.rule.weight)
+  
+  rules = ['START'] + strings_for_items(chart, start_stringifier,
+            nt_stringifier, t_stringifier)
+  return rules
+    
+
 def output_tiburon(charts, grammar, prefix):
   """
   Prints given charts in tiburon format, for finding n-best AMRs.
@@ -489,6 +531,7 @@ def output_tiburon(charts, grammar, prefix):
   def t_stringifier(item):
     return '%s -> %s(%d) # %f' % (item.uniq_str(), item.rule.symbol,
         item.rule.rule_id, item.rule.weight)
+
 
   for i, chart in zip(range(len(charts)), charts):
     if chart:   
@@ -546,7 +589,8 @@ def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
             assert ritem.rule.is_terminal or ritem in chart
             stack.append(ritem)
     else:
-      assert not any('#' in word for word in item.rule.string)
+      print item
+      assert item.rule.is_terminal
       strings.append(t_stringifier(item))
 
   return strings

@@ -6,10 +6,8 @@ Directed Acyclic Graphs.
 '''
 
 #from rule import Rule
-
+from lib.cfg import NonterminalLabel
 from collections import defaultdict
-#from lib import pyparsing
-from amr_parser import *
 from operator import itemgetter
 import functools
 import unittest
@@ -204,45 +202,6 @@ class ListMap(defaultdict):
         return (t[0], ()) + t[2:]
 
 
-class NonterminalLabel(object):
-    """
-    There can be multiple nonterminal edges with the same symbol. Wrap the 
-    edge into an object so two edges do not compare equal.
-    Nonterminal edges carry a nonterminal symbol and an index that identifies
-    it uniquely in a rule.
-    """
-
-    label_matcher = re.compile("(?P<label>.*?)(\[(?P<index>.*)\])?$")
-
-    def __init__(self, label, index = None):            
-        if index is not None:
-            self.label = label
-            self.index = index  
-        else: 
-            match = NonterminalLabel.label_matcher.match(label)
-            self.index = match.group("index")
-            self.label = match.group("label")
-
-    def __eq__(self, other):
-        try: 
-            return self.label == other.label and self.index == other.index
-        except AttributeError:
-            return False     
-    
-    def __repr__(self):
-        return "NT(%s)" % str(self)
-
-    def __str__(self):
-        if self.index is not None:
-            return "#%s[%s]" % (str(self.label), str(self.index))
-        else: 
-            return "#%s" % str(self.label)
-
-    def __hash__(self):
-        return 83 * hash(self.label) + 17 * hash(self.index)
-
-
-
 class Dag(defaultdict):
     """
     A directed acyclic graph permitting duplicate outgoing edge labels.
@@ -253,7 +212,7 @@ class Dag(defaultdict):
     def __init__(self, *args, **kwargs):
         defaultdict.__init__(self, ListMap, *args, **kwargs) 
         self.roots = []
-        self.external_nodes = [] 
+        self.external_nodes = {}
         self.replace_count = 0    # Count how many replacements have occured in this DAG
                                   # to prefix unique new node IDs for glued fragments.
 
@@ -270,16 +229,8 @@ class Dag(defaultdict):
     @classmethod
     def from_string(cls, s):
         """
-        Initialize a new DAG from a Pennman style string.
+        Initialize a new graph from a graph description.
         """
-        #if not cls._parser_singleton: # Initialize the AMR parser only once
-        #    _parser_singleton = make_amr_parser()           
-        #try:
-        #    ast = _parser_singleton.parseString(s)
-        #except pyparsing.ParseException, e:
-        #    sys.stderr.write("Could not parse AMR: %s" % s)
-        #    raise e 
-        #return ast_to_dag(ast)
 
         if not cls._parser_singleton: # Initialize the AMR parser only once
             from graph_description_parser import GraphDescriptionParser, LexerError, ParserError
@@ -288,7 +239,7 @@ class Dag(defaultdict):
             amr = _parser_singleton.parse_string(s, concepts = False)
             return amr
         except (ParserError, LexerError), e:
-            #sys.stderr.write("Could not parse DAG: %s" % s)
+            #sys.stderr.write("Could not parse DAG: %s" % s) #TODO add debug
             raise e 
 
     @classmethod
@@ -1135,8 +1086,6 @@ class Literal(str):
 
     def __repr__(self):
             return "".join(self)
-
-
 
 
 if __name__ == '__main__':
