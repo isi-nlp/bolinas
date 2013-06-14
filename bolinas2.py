@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 
 import sys
-import pprint
+import fileinput
+from lib import log
 from argparse import ArgumentParser
 from config import config
 
@@ -12,16 +13,12 @@ from parser.rule import Grammar, Rule
 from parser_td.parser_td import ParserTD
 from lib.amr.amr import Amr
 
-def die(msg):
-    print >>sys.stderr, msg
-    sys.exit(1)
-
 if __name__ == "__main__":
    
     # Initialize the command line argument parser 
     argparser = ArgumentParser(description = "Bolinas is a synchronous hyperedge replacement grammar toolkit. If no input file is provided the tool just verifies the grammar file and exits.")
 
-    argparser.add_argument("grammar_file", help="A hyperedge replacement grammar (HRG) or synchronouse HRG (SHRG).")
+    argparser.add_argument("grammar_file", help="A hyperedge replacement grammar (HRG) or synchronous HRG (SHRG).")
     argparser.add_argument("input_file", nargs="?", help="Input file containing one object per line or pairs of objects. Use - to read from stdin.")
     argparser.add_argument("-c", "--config", help="Read configuration file.")
     argparser.add_argument("-o","--output_file", type=str, help="Write output to a file instead of stdout.")
@@ -40,18 +37,23 @@ if __name__ == "__main__":
     argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
     argparser.add_argument("-p","--parser", default="laut", help="Specify which parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'laut' uses the Lautemann parser. 'cky' use a native CKY parser instead of the HRG parser if the input is a tree.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
+    argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
+    
     
     args = argparser.parse_args()
 
     # Verify command line parameters 
     if not args.output_type in ['forest', 'derivation', 'derived']:
-        die("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
+        log.error("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
+        sys.exit(1)
     
     if not args.parser in ['td', 'laut', 'cky']:
-        die("Parser (-p) must be either 'td', 'laut', or 'cky'.")
+        log.error("Parser (-p) must be either 'td', 'laut', or 'cky'.")
+        sys.exit(1)
 
     if args.k > config.maxk:
-        die("k must be <= than %i (defined in in config.py)." % config.maxk)
+        log.error("k must be <= than %i (defined in in config.py)." % config.maxk)
+        sys.exit(1)
 
     # If a configuration file was specified read in the configuration
     if args.config:
@@ -60,16 +62,23 @@ if __name__ == "__main__":
     # Otherwise just store configuration in the global configuration object
     config.__dict__.update(vars(args))
 
+    log.LOG = {0:{log.err},
+               1:{log.err, log.warn},
+               2:{log.err, log.warn, log.info},
+               3:{log.err, log.warn, log.info, log.chatter},
+               4:{log.err, log.warn, log.chatter, log.info, log.debug}
+              }[config.verbose]
+
     if config.parser == "laut":
         # Run the non-TD HRG parser 
-        grammar = Grammar.load_from_file(file(config.grammar_file,'ra'), config.backward)                
-        print >>sys.stderr, "Loaded %s%s grammar with %i rules."\
-             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar))
-
-        parser = Parser(grammar)
-        if config.input_file:
-            with file(config.input_file,'r') as in_file:
-                for chart in parser.parse_graphs((Amr.from_string(x) for x in in_file)):
+        with open(config.grammar_file,'ra') as grammar_file:
+            grammar = Grammar.load_from_file(grammar_file, config.backward)                
+            log.info("Loaded %s%s grammar with %i rules."\
+                 % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
+    
+            parser = Parser(grammar)
+            if config.input_file:
+                for chart in parser.parse_graphs((Amr.from_string(x) for x in fileinput.input(config.input_file))):
                     print chart 
 
     elif config.parser == "td":
