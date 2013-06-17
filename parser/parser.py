@@ -10,7 +10,7 @@ import math
 from lib.exceptions import InvocationException, InputFormatException
 from lib.amr.dag import Dag
 
-from item import CfgItem, HergItem, CfgHergItem
+from item import CfgItem, HergItem, CfgHergItem, Chart
 from rule import Rule
 
 import pprint
@@ -168,7 +168,8 @@ class Parser:
       """
       filter_cache = make_graph_filter_cache()
       for graph in graph_iterator: 
-          raw_chart = self.parse(None, graph, filter_cache) 
+          raw_chart = self.parse(None, graph, filter_cache)
+          # The raw chart contains parser operations, need to decode the parse forest from this 
           chart = cky_chart(raw_chart)
           yield chart
 
@@ -368,7 +369,7 @@ def cky_chart(chart):
       for citem in production:
         stack.append(citem)
 
-  cky_chart = {}
+  cky_chart = Chart() 
   for item in visit_items:
     # we only care about complete steps, so only add closed items to the chart
     if not (item == 'START' or item.closed):
@@ -386,7 +387,7 @@ def cky_chart(chart):
         break
       elif pitem == 'START':
         # add all START -> (real start symbol) productions on their own
-        real_productions.append(sum(chart[pitem], ()))
+        real_productions.append(list(sum(chart[pitem],())))# ,()))
         break
 
       elif pitem.rule.symbol == 'PARTIAL':
@@ -409,7 +410,6 @@ def cky_chart(chart):
       split_len = lengths.pop()
 
       # figure out all items that could have been used to complete this rule
-
       if split_len != 1:
         assert split_len == 2
         production = [x[1] for x in chart[pitem]]
@@ -419,9 +419,11 @@ def cky_chart(chart):
       pitem = lefts.pop()
 
     # realize all possible splits represented by this chart item
-    all_productions = list(itertools.product(*real_productions))
-    if all_productions != [()]:
-      cky_chart[item] = all_productions
+    #all_productions = list(itertools.product(*real_productions))
+    #if all_productions != [()]:
+    #  cky_chart[item] = all_productions
+    if real_productions:
+        cky_chart[item] = real_productions 
 
   return cky_chart
 

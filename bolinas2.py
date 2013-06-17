@@ -5,6 +5,7 @@ import fileinput
 from lib import log
 from argparse import ArgumentParser
 from config import config
+import pprint
 
 #Import bolinas modules
 from parser.parser import Parser
@@ -14,6 +15,8 @@ from parser_td.parser_td import ParserTD
 from lib.amr.amr import Amr
 
 if __name__ == "__main__":
+
+    # Parse all the command line arguments, figure out what to do and dispatch to the appropriate modules. 
    
     # Initialize the command line argument parser 
     argparser = ArgumentParser(description = "Bolinas is a synchronous hyperedge replacement grammar toolkit. If no input file is provided the tool just verifies the grammar file and exits.")
@@ -39,28 +42,32 @@ if __name__ == "__main__":
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
     
-    
     args = argparser.parse_args()
-
-    # Verify command line parameters 
-    if not args.output_type in ['forest', 'derivation', 'derived']:
-        log.error("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
-        sys.exit(1)
     
-    if not args.parser in ['td', 'laut', 'cky']:
-        log.error("Parser (-p) must be either 'td', 'laut', or 'cky'.")
-        sys.exit(1)
-
-    if args.k > config.maxk:
-        log.error("k must be <= than %i (defined in in config.py)." % config.maxk)
-        sys.exit(1)
-
     # If a configuration file was specified read in the configuration
     if args.config:
         config.load_config(file(args.config,'r'))
-   
+    
     # Otherwise just store configuration in the global configuration object
     config.__dict__.update(vars(args))
+
+    # Verify command line parameters 
+    if not config.output_type in ['forest', 'derivation', 'derived']:
+        log.err("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
+        sys.exit(1)
+    
+    if not config.parser in ['td', 'laut', 'cky']:
+        log.err("Parser (-p) must be either 'td', 'laut', or 'cky'.")
+        sys.exit(1)
+
+    if config.k > config.maxk:
+        log.err("k must be <= than %i (defined in in config.py)." % config.maxk)
+        sys.exit(1)
+
+    if config.verbose < 0 or config.verbose > 4:
+        log.err("Invalid verbosity level, must be 0-4.")
+        sys.exit(1)
+   
 
     log.LOG = {0:{log.err},
                1:{log.err, log.warn},
@@ -68,6 +75,12 @@ if __name__ == "__main__":
                3:{log.err, log.warn, log.info, log.chatter},
                4:{log.err, log.warn, log.chatter, log.info, log.debug}
               }[config.verbose]
+
+    if config.output_file:
+        output_file = open(config.output_file,'wa')
+    else:
+        output_file = sys.stdout        
+            
 
     if config.parser == "laut":
         # Run the non-TD HRG parser 
@@ -79,7 +92,8 @@ if __name__ == "__main__":
             parser = Parser(grammar)
             if config.input_file:
                 for chart in parser.parse_graphs((Amr.from_string(x) for x in fileinput.input(config.input_file))):
-                    print chart 
+                    #print >>output_file, chart 
+                    print chart.kbest('START', config.k)
 
     elif config.parser == "td":
         # Run the tree decomposition HRG parser
