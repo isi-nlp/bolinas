@@ -1,5 +1,6 @@
 from lib.amr.dag import NonterminalLabel
 from lib import log
+import itertools
 
 # Some general advice for reading this file:
 #
@@ -14,6 +15,51 @@ from lib import log
 # In consuming this object, we either "shift" a terminal element or "complete" a
 # nonterminal (actually a closed chart item). Each of these steps produces a new
 # chart item.
+
+class Chart(dict):
+   
+   
+    def kbest(self, item, k):
+        """
+        Traverse all possible ways of computing the item.
+        """
+        print "DOWN" 
+        # If item does not have children, just return it and it's probability
+        
+        if item == "START":
+            rprob = 0.0
+        else: 
+            rprob = item.rule.weight
+
+        if not item in self: 
+            print "LEAF", item
+            return [(rprob, item)]
+
+        children = self[item]
+        
+
+        kbest_each_child = []
+        for c in children: # Find the k-best options for each nonterminal
+            print item, ":", c
+            kbest_each_child.append(sorted(sum([self.kbest(poss,k) for poss in c],[]), reverse = True))
+      
+        generator = itertools.product(kbest_each_child)
+
+        kbest = []
+        for i in range(k):
+            try:
+                cprobs, trees = zip(*next(generator)[0]) #unpack list of (score, chart) tuples 
+                print "###",item
+                print cprobs
+                print trees
+                prob = sum(cprobs) + rprob
+                new_chart = (item, tuple(trees))
+                kbest.append((prob, new_chart))
+            except:
+                log.warn("Less than %i derivations found." % k)
+
+        return kbest
+
 
 class HergItem():
   """
