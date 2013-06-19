@@ -375,7 +375,7 @@ def cky_chart(chart):
     if not (item == 'START' or item.closed):
       continue
     # this list will store the complete steps used to create this item
-    real_productions = []
+    real_productions = {} 
     # we will search down the list of completions
     pitem_history = set()
     pitem = item
@@ -387,7 +387,7 @@ def cky_chart(chart):
         break
       elif pitem == 'START':
         # add all START -> (real start symbol) productions on their own
-        real_productions.append(list(sum(chart[pitem],())))# ,()))
+        real_productions['START'] = list(sum(chart[pitem],()))
         break
 
       elif pitem.rule.symbol == 'PARTIAL':
@@ -412,8 +412,10 @@ def cky_chart(chart):
       # figure out all items that could have been used to complete this rule
       if split_len != 1:
         assert split_len == 2
+        prodlist = list(chart[pitem])
+        symbol = prodlist[0][0].outside_symbol, prodlist[0][0].outside_nt_index
         production = [x[1] for x in chart[pitem]]
-        real_productions.append(production)
+        real_productions[symbol] = production
 
       # move down the chain
       pitem = lefts.pop()
@@ -493,29 +495,6 @@ def output_carmel(charts, grammar, prefix):
 
       print >>ofile, format_inner('START')
 
-
-def chart_to_tiburon(chart):
-  def start_stringifier(rhs_item):
-    return 'START -> %s # 1.0' % rhs_item.uniq_str()
-
-  def nt_stringifier(item, rhs):
-    nrhs = ' '.join([i for i in item.rule.string if i[0] == '#'])
-    # strip indices
-    nrhs = re.sub(r'\[\d+\]', '', nrhs)
-    for ritem in rhs:
-      # replace only one occurrence, in case we have a repeated NT symbol
-      nrhs = re.sub('#' + ritem.rule.symbol, ritem.uniq_str(), nrhs, count=1)
-    nrhs = '%s(%d(%s))' % (item.rule.symbol, item.rule.rule_id, nrhs)
-    return '%s -> %s # %f' % (item.uniq_str(), nrhs, item.rule.weight)
-
-  def t_stringifier(item):
-    return '%s -> %s(%d) # %f' % (item.uniq_str(), item.rule.symbol,
-        item.rule.rule_id, item.rule.weight)
-  
-  rules = ['START'] + strings_for_items(chart, start_stringifier,
-            nt_stringifier, t_stringifier)
-  return rules
-    
 
 def output_tiburon(charts, grammar, prefix):
   """

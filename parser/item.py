@@ -16,50 +16,6 @@ import itertools
 # nonterminal (actually a closed chart item). Each of these steps produces a new
 # chart item.
 
-class Chart(dict):
-   
-   
-    def kbest(self, item, k):
-        """
-        Traverse all possible ways of computing the item.
-        """
-        print "DOWN" 
-        # If item does not have children, just return it and it's probability
-        
-        if item == "START":
-            rprob = 0.0
-        else: 
-            rprob = item.rule.weight
-
-        if not item in self: 
-            print "LEAF", item
-            return [(rprob, item)]
-
-        children = self[item]
-        
-
-        kbest_each_child = []
-        for c in children: # Find the k-best options for each nonterminal
-            print item, ":", c
-            kbest_each_child.append(sorted(sum([self.kbest(poss,k) for poss in c],[]), reverse = True))
-      
-        generator = itertools.product(kbest_each_child)
-
-        kbest = []
-        for i in range(k):
-            try:
-                cprobs, trees = zip(*next(generator)[0]) #unpack list of (score, chart) tuples 
-                print "###",item
-                print cprobs
-                print trees
-                prob = sum(cprobs) + rprob
-                new_chart = (item, tuple(trees))
-                kbest.append((prob, new_chart))
-            except:
-                log.warn("Less than %i derivations found." % k)
-
-        return kbest
-
 
 class HergItem():
   """
@@ -80,6 +36,9 @@ class HergItem():
     self.shifted = shifted
     self.mapping = mapping
 
+    # Store the nonterminal symbol and index of the previous complete 
+    # on this item so we can rebuild the derivation easily
+
     triples = rule.rhs1.triples()
     self.outside_symbol = None
     if size < len(triples):
@@ -94,6 +53,7 @@ class HergItem():
         #self.outside_symbol = str(self.outside_triple[1])
         #self.outside_symbol = self.outside_symbol[1:].split('[')[0]
         self.outside_symbol = self.outside_triple[1].label
+        self.outside_nt_index = self.outside_triple[1].index
     else:
       # this item is closed
       self.outside_triple = None
@@ -129,7 +89,7 @@ class HergItem():
     return '%d__%s' % (self.rule.rule_id, ','.join(sorted(list(edges))))
 
   def __repr__(self):
-    return 'HergItem(%d, %d)' % (self.rule.rule_id, self.size)
+    return 'HergItem(%d, %d, %s)' % (self.rule.rule_id, self.size, self.rule.symbol)
 
   def __str__(self):
     return '[%s, %d/%d, %s, {%d}]' % (self.rule,
@@ -247,7 +207,8 @@ class HergItem():
       ntail = new_item.rule.rhs1.rev_external_nodes[i]
       new_mapping[otail] = new_item.mapping[ntail]
 
-    return HergItem(self.rule, new_size, new_shifted, new_mapping)
+    new = HergItem(self.rule, new_size, new_shifted, new_mapping)
+    return new
 
 class CfgItem():
   """
@@ -496,3 +457,98 @@ class CfgHergItem:
     citem = self.cfg_item.complete(new_item.cfg_item)
     hitem = self.herg_item.complete(new_item.herg_item)
     return CfgHergItem(self.rule, citem, hitem)
+
+
+class Chart(dict):
+    """
+    A CKY style parse chart
+    """
+
+    def kbest(self, item, k, logprob = False):
+        """
+        Find all 
+        """
+
+        if item == "START":
+            rprob = 0.0 if logprob else 1.0
+        else: 
+            rprob = item.rule.weight
+
+        # If item is a leaf, just return it and it's probability    
+        if not item in self: 
+            return [(rprob, item)]
+
+        # Find the k-best options for each child
+        nts = []
+        kbest_each_child = []
+        for nt in self[item]: 
+            nts.append(nt)
+            kbest_each_child.append(sorted(sum([self.kbest(poss,k, logprob) for poss in self[item][nt]],[]), reverse = True)[:k])
+
+        # Compute cartesian product of possibilities among children. Evaluated lazily.
+        generator = itertools.product(*kbest_each_child)
+
+        # Select k-best and compute score
+        kbest = [] 
+        for i in range(k):
+            try:
+                cprobs, trees = zip(*next(generator)) #unpack list of (score, chart) tuples 
+                if logprob:
+                    prob = sum(cprobs) + rprob
+                else:
+                    prob = rprob
+                    for p in cprobs: 
+                        prob = prob * p 
+
+                new_tree = (item, dict(zip(nts,trees)))
+                kbest.append((prob, new_tree))
+            except StopIteration, e:
+                break
+
+        if item == "START" and i+1<k:
+                log.info("K-best did not find %i derivations. Returning best %i." % (k, i))
+            
+        return kbest
+
+#    def format_tiburon(chart):
+#      def start_stringifier(rhs_item):
+#        return 'START -> %s # 1.0' % rhs_item.uniq_str()
+#
+#      def nt_stringifier(item, rhs):
+#       
+#     
+#        nrhs = '%s(%d(%s))' % (lhs, item.rule.rule_id, children)
+#        return '%s -> %s # %f' % (item., nrhs, item.rule.weight)
+#
+#      def t_stringifier(item):
+#        return '%s # %f' % (item.rule.rule_id, item.rule.weight)
+#      
+#      rules = ['START'] + chart.strings_for_items(start_stringifier,
+#                nt_stringifier, t_stringifier)
+#      return "\n".join(rules)
+#        
+#    def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
+#      strings = []
+#      stack = ['START']
+#      visited = set()
+#      while stack:
+#        item = stack.pop()
+#        if item in visited:
+#          continue
+#        visited.add(item)
+#        if item in chart:
+#          for rhs in chart[item]:
+#            if item == 'START':
+#              assert len(rhs) == 1
+#              strings.append(start_stringifier(rhs[0]))
+#              stack.append(rhs[0])
+#            else:
+#              strings.append(nt_stringifier(item, rhs))
+#              for ritem in rhs:
+#                assert ritem.rule.is_terminal or ritem in chart
+#                stack.append(ritem)
+#        else:
+#          assert item.rule.is_terminal
+#          strings.append(t_stringifier(item))
+#
+#      return strings

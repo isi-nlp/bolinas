@@ -442,7 +442,7 @@ class Dag(defaultdict):
         Retrieve all nonterminal labels from the DAG.
         """
         return [t for t in self.triples() if isinstance(t[1], NonterminalLabel)]
-    
+   
     def get_external_nodes(self):
         """
         Retrieve the list of external nodes of this dag fragment.
@@ -732,7 +732,7 @@ class Dag(defaultdict):
         leaves = dag.find_leaves()
         external = new_dag.get_external_nodes()
         assert len(external) == len(leaves)
-        boundary_map = dict(zip(external, leaves))
+        boundary_map = dict([(x, leaves[external[x]]) for x in external])
         dagroots = dag.find_roots() if not dag.roots else dag.roots
         assert len(dagroots) == len(new_dag.roots)
         for i in range(len(dagroots)):
@@ -746,15 +746,14 @@ class Dag(defaultdict):
 
         # and add the remaining edges, fusing boundary nodes
         for par, rel, child in new_dag.triples(): 
-            
+                
             new_par = boundary_map[par] if par in boundary_map else par
-
+            
             if type(child) is tuple: #Hyperedge case
                 new_child = tuple([boundary_map[c] if c in boundary_map else c for c in child])
             else:            
                 new_child = boundary_map[child] if child in boundary_map else child
             res_dag._add_triple(new_par, rel, new_child)
-
         return res_dag
 
     def find_external_nodes(self, dag):

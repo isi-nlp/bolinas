@@ -6,13 +6,13 @@ from lib import log
 from argparse import ArgumentParser
 from config import config
 import pprint
+from lib.amr.amr import Amr
 
 #Import bolinas modules
 from parser.parser import Parser
-from parser.parser import chart_to_tiburon
 from parser.rule import Grammar, Rule
 from parser_td.parser_td import ParserTD
-from lib.amr.amr import Amr
+from lib import output
 
 if __name__ == "__main__":
 
@@ -37,9 +37,11 @@ if __name__ == "__main__":
     weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
     weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights to sum to 1.0 for all rules with the same LHS.") 
     weights.add_argument("-t","--train", default=False, action="store_true", help="Use EM to train weights for the grammar using the input. Initialize with the weights in the grammar file or random weights if none are provided.")
-    argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
+    argparser.add_argument("-m", "--weight-type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
     argparser.add_argument("-p","--parser", default="laut", help="Specify which parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'laut' uses the Lautemann parser. 'cky' use a native CKY parser instead of the HRG parser if the input is a tree.")
+    argparser.add_argument("-e","--edge-labels", action="store_true", default="False", help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes in synchronous grammars.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
+    argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
     
     args = argparser.parse_args()
@@ -56,6 +58,13 @@ if __name__ == "__main__":
         log.err("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
         sys.exit(1)
     
+    if not config.weight_type in ['prob', 'logprob']:
+        log.err("Weight type (-m) must be either 'prob'or 'logprob'.")
+
+    if config.output_type == "forest" and not config.output_file:
+        log.err("Need to provide '-o FILE_PREFIX' with output type 'forest'.")
+        sys.exit(1)
+    
     if not config.parser in ['td', 'laut', 'cky']:
         log.err("Parser (-p) must be either 'td', 'laut', or 'cky'.")
         sys.exit(1)
@@ -68,37 +77,51 @@ if __name__ == "__main__":
         log.err("Invalid verbosity level, must be 0-4.")
         sys.exit(1)
    
-
+    # Definition of verbosity levels 
     log.LOG = {0:{log.err},
                1:{log.err, log.warn},
                2:{log.err, log.warn, log.info},
                3:{log.err, log.warn, log.info, log.chatter},
                4:{log.err, log.warn, log.chatter, log.info, log.debug}
               }[config.verbose]
-
-    if config.output_file:
-        output_file = open(config.output_file,'wa')
-    else:
-        output_file = sys.stdout        
-            
-
-    if config.parser == "laut":
-        # Run the non-TD HRG parser 
-        with open(config.grammar_file,'ra') as grammar_file:
-            grammar = Grammar.load_from_file(grammar_file, config.backward)                
-            log.info("Loaded %s%s grammar with %i rules."\
-                 % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
     
-            parser = Parser(grammar)
-            if config.input_file:
-                for chart in parser.parse_graphs((Amr.from_string(x) for x in fileinput.input(config.input_file))):
-                    #print >>output_file, chart 
-                    print chart.kbest('START', config.k)
+    # Direct output to stdout if no filename is provided
+    if config.output_type is not "derivation":
+        if config.output_file:
+            output_file = open(config.output_file,'wa')
+        else:
+            output_file = sys.stdout        
 
-    elif config.parser == "td":
-        # Run the tree decomposition HRG parser
-        pass
-    elif config.parser == "cky":
-        # Run native CKY parser for TSG
-        pass
+    # Run the selected parser                
+    parser_class = {
+             'laut': Parser,
+             'td': None,
+             'cky':None
+             }[config.parser]
+
+    with open(config.grammar_file,'ra') as grammar_file:
+        grammar = Grammar.load_from_file(grammar_file, config.backward)                
+        log.info("Loaded %s%s grammar with %i rules."\
+            % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
     
+        parser = parser_class(grammar)
+        if config.input_file:
+            count = 1
+            # Run the parser for each graph in the input
+            for chart in parser.parse_graphs((Amr.from_string(x) for x in fileinput.input(config.input_file))):
+                if config.output_type == "forest":
+                    output_file = open("%s_%i.rtg" % (config.output_file, count), 'wa')
+                    output_file.write(chart.format_tiburon())
+                    output_file.close()
+                elif config.output_type == "derivation":                    
+                    for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
+                        output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), score))
+                    output_file.write("\n")
+                elif config.output_type == "derived":
+                    for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
+                        output_file.write("%s\t#%f\n" % (output.apply_derivation(derivation).to_string(newline = False), score))
+                    output_file.write("\n")
+
+
+
+

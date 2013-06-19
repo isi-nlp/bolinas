@@ -8,6 +8,7 @@ Abstract Meaning Representation
 
 from dag import Dag, SpecialValue, Literal, StrLiteral, Quantity
 from collections import defaultdict
+from lib.cfg import NonterminalLabel
 import unittest
 import re
 import sys
@@ -420,9 +421,9 @@ class Amr(Dag):
                 new.edge_alignments[(node_map[par] if par in node_map else par, rel, tuple([(node_map[c] if c in node_map else c) for c in child]))] = self.edge_alignments[(par, rel, child)]
             else: 
                 new.edge_alignments[(node_map[par] if par in node_map else par, rel, node_map[child] if child in node_map else child)] = self.edge_alignments[(par, rel, child)]
-        
+      
         new.external_nodes = dict((node_map[x], self.external_nodes[x]) for x in self.external_nodes)
-        new.rev_external_nodes = dict((self.rev_external_nodes[x], node_map[x]) for x in self.rev_external_nodes)
+        new.rev_external_nodes = dict((self.external_nodes[x], node_map[x]) for x in self.external_nodes)
         for par, rel, child in self.triples(instances = False):
             if type(child) is tuple:                 
                 new._add_triple(node_map[par], rel, tuple([node_map[c] for c in child]))
@@ -449,6 +450,64 @@ class Amr(Dag):
                 new.node_to_concepts[node] = self.node_to_concepts[node]
         return new
         
+
+    def find_nt_edge(self, label, index):       
+        for p,r,c in self.triples():
+            if type(r) is NonterminalLabel:
+                if r.label == label and r.index == index:
+                    return p,r,c    
+        for edge in self.nonterminal_edges():
+            print edge
+        print str(self)
+
+
+
+    def remove_fragment(self, dag):
+        """
+        Remove a collection of hyperedges from the DAG.
+        """
+        res_dag = Amr.from_triples([edge for edge in self.triples() if not dag.has_edge(*edge)], dag.node_to_concepts)
+        res_dag.roots = [r for r in self.roots if r in res_dag]
+        res_dag.external_nodes = [n for n in self.external_nodes if n in res_dag]
+        return res_dag
+
+    def replace_fragment(self, dag, new_dag, partial_boundary_map = {}):
+        """
+        Replace a collection of hyperedges in the DAG with another collection of edges. 
+        """
+        # First get a mapping of boundary nodes in the new fragment to 
+        # boundary nodes in the fragment to be replaced
+        leaves = dag.find_leaves()
+        external = new_dag.get_external_nodes()
+        assert len(external) == len(leaves)
+        boundary_map = dict([(x, leaves[external[x]]) for x in external])
+        dagroots = dag.find_roots() if not dag.roots else dag.roots
+        assert len(dagroots) == len(new_dag.roots)
+        for i in range(len(dagroots)):
+            boundary_map[new_dag.roots[i]] = dagroots[i]
+        boundary_map.update(partial_boundary_map)
+
+        # now remove the old fragment
+        res_dag = self.remove_fragment(dag)
+        res_dag.roots = [boundary_map[x] if x in boundary_map else x for x in self.roots]
+        res_dag.external_nodes = [boundary_map[x] if x in boundary_map else x for x in self.external_nodes]
+
+        # and add the remaining edges, fusing boundary nodes
+        for par, rel, child in new_dag.triples(): 
+           
+
+            new_par = boundary_map[par] if par in boundary_map else par
+            
+            if type(child) is tuple: #Hyperedge case
+                new_child = tuple([boundary_map[c] if c in boundary_map else c for c in child])
+            else:            
+                new_child = boundary_map[child] if child in boundary_map else child
+            res_dag._add_triple(new_par, rel, new_child)
+        res_dag.node_to_concepts.update(new_dag.node_to_concepts)
+        return res_dag
+
+
+
 if __name__ == "__main__":
 
     import doctest
