@@ -1,5 +1,5 @@
-from lib.amr.dag import Dag, NonterminalLabel
-from lib.amr.graph_description_parser import ParserError, LexerError
+from lib.hgraph.hgraph import Hgraph, NonterminalLabel
+from lib.hgraph.new_graph_description_parser import ParserError, LexerError
 from lib.tree import Tree
 from lib import log
 from lib.exceptions import InputFormatException, BinarizationException 
@@ -65,7 +65,7 @@ class Rule:
         symbol = symbol[1:]
       weight = float(weight)
       try:
-        amr = Dag.from_string(amr_str)
+        amr = Amr.from_string(amr_str)
       except (ParserError, LexerError), e:
         raise InputFormatException, "Invalid graph RHS: %s" % amr_str
 

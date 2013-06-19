@@ -2,8 +2,7 @@ from collections import defaultdict
 import unittest
 import re
 import sys
-from dag import Dag, SpecialValue, StrLiteral, Quantity, Literal, NonterminalLabel
-from amr import Amr
+from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal, NonterminalLabel
 
 """
 A deterministic, linear time parser for Penman-style graph/meaning 
@@ -111,17 +110,14 @@ class GraphDescriptionParser(object):
         """
         Parse the string s and return a new abstract meaning representation.
 
-        @concepts if True, method returns an L{Amr} object containing concept labels. 
+        @concepts if True, method returns an L{Hgraph} object containing concept labels. 
         """
 
         PNODE = 1
         CNODE = 2
         EDGE = 3
 
-        if concepts: 
-            amr = Amr()
-        else: 
-            amr = Dag()
+        amr = Hgraph()
         stack = []
         state = 0
 
@@ -340,8 +336,8 @@ if __name__ == "__main__":
     #t = timeit.Timer(stmt = s, setup = """from graph_description_parser import GraphDescriptionParser\nlines = open(sys.argv[1],'r').readlines()\nparser = GraphDescriptionParser()""")
     #print t.timeit(number = 1)
     #s2 = """for line in lines: 
-    #         Amr.from_string(line)"""
-    #t2 = timeit.Timer(stmt = s2, setup = """from amr import Amr\nlines = open(sys.argv[1],'r').readlines()""")
+    #         Hgraph.from_string(line)"""
+    #t2 = timeit.Timer(stmt = s2, setup = """from amr import Hgraph\nlines = open(sys.argv[1],'r').readlines()""")
     #print t2.timeit(number = 1)
 
     parser = GraphDescriptionParser()

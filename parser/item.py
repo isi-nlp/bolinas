@@ -1,4 +1,4 @@
-from lib.amr.dag import NonterminalLabel
+from lib.hgraph.hgraph import NonterminalLabel
 from lib import log
 import itertools
 

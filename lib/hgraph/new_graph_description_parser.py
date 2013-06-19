@@ -3,8 +3,7 @@ from collections import defaultdict
 
 import re
 
-from dag import Dag, SpecialValue, StrLiteral, Quantity, Literal
-from amr import Amr
+from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal
 from lib.cfg import NonterminalLabel
 
 """
@@ -160,7 +159,7 @@ class GraphDescriptionParser(object):
         CNODE = 2 # Child node
         EDGE = 3  # Hyperedge 
 
-        amr = Amr()
+        amr = Hgraph()
         
         stack = []
         state = 0

@@ -6,7 +6,7 @@ from lib import log
 from argparse import ArgumentParser
 from config import config
 import pprint
-from lib.amr.amr import Amr
+from lib.hgraph.hgraph import Hgraph
 
 #Import bolinas modules
 from parser.parser import Parser
@@ -61,9 +61,13 @@ if __name__ == "__main__":
     if not config.weight_type in ['prob', 'logprob']:
         log.err("Weight type (-m) must be either 'prob'or 'logprob'.")
 
-    if config.output_type == "forest" and not config.output_file:
-        log.err("Need to provide '-o FILE_PREFIX' with output type 'forest'.")
-        sys.exit(1)
+    if config.output_type == "forest":
+
+        if not config.output_file:       
+            log.err("Need to provide '-o FILE_PREFIX' with output type 'forest'.")
+            sys.exit(1)
+        if config.k:
+            log.warn("Ignoring -k command line option because output type is 'forest'.")    
     
     if not config.parser in ['td', 'laut', 'cky']:
         log.err("Parser (-p) must be either 'td', 'laut', or 'cky'.")
@@ -108,11 +112,12 @@ if __name__ == "__main__":
         if config.input_file:
             count = 1
             # Run the parser for each graph in the input
-            for chart in parser.parse_graphs((Amr.from_string(x) for x in fileinput.input(config.input_file))):
+            for chart in parser.parse_graphs((Hgraph.from_string(x) for x in fileinput.input(config.input_file))):
                 if config.output_type == "forest":
                     output_file = open("%s_%i.rtg" % (config.output_file, count), 'wa')
-                    output_file.write(chart.format_tiburon())
+                    output_file.write(output.format_tiburon(chart))
                     output_file.close()
+                    count = count + 1
                 elif config.output_type == "derivation":                    
                     for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
                         output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), score))

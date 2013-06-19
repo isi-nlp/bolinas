@@ -8,7 +8,7 @@ import re
 import math
 
 from lib.exceptions import InvocationException, InputFormatException
-from lib.amr.dag import Dag
+from lib.hgraph.hgraph import Hgraph
 
 from item import Item, BoundaryItem
 from rule import Rule
@@ -42,7 +42,7 @@ def parse_corpus(grammar, input_path):
   graphs = []
   with open(input_path) as graph_file:
     for line in graph_file.readlines():
-      graphs.append(Dag.from_string(line))
+      graphs.append(Hgraph.from_string(line))
 
   start_time = time.clock()
   charts = []
@@ -176,7 +176,7 @@ def check_format(path):
   with open(path) as f:
     line = f.readline().strip()
     try:
-      Dag.from_string(line)
+      Hgraph.from_string(line)
       return True
     except ParseException:
       return False

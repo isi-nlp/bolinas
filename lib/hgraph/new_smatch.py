@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
-from amr import Amr
-from dag import Dag
+from hgraph import Hgraph
 from collections import defaultdict
 import itertools
 import math
@@ -174,8 +173,8 @@ def compute_smatch_hill_climbing(amr1in, amr2in, starts = 10, method = get_rando
     """
     Run hill climbing search in the space of variable mappings to find the smatch score between two AMRs.
 
-    >>> amr1 = Amr.from_string("(a / amr-unknown :domain-of (x1 / population-quantity) :quant-of (x0 / people :loc-of (b / state :name (x2 / name :op0 (washington / washington) ))))")
-    >>> amr2 = Amr.from_string("(t / amr-unknown :domain-of (x11 / density-quantity) :loc (x60 / state :name (x13 / name :op0 (x12 / washington) )))")
+    >>> amr1 = Hgraph.from_string("(a / amr-unknown :domain-of (x1 / population-quantity) :quant-of (x0 / people :loc-of (b / state :name (x2 / name :op0 (washington / washington) ))))")
+    >>> amr2 = Hgraph.from_string("(t / amr-unknown :domain-of (x11 / density-quantity) :loc (x60 / state :name (x13 / name :op0 (x12 / washington) )))")
     >>> compute_smatch_hill_climbing(amr1,amr2, starts = 10) 
     (0.6666666666666666, 0.8, 0.7272727272727272)
     """
@@ -276,10 +275,10 @@ def compute_smatch_batch(gold_filename, test_filename, starts, method ,
             if gold:  
                 try:
                     if concept_edges: # rebuild normal AMR with concepts attached to nodes.
-                        amr_gold = Dag.from_string(gold)
-                        amr_gold = Amr.from_concept_edge_labels(amr_gold) 
+                        amr_gold = Hgraph.from_string(gold)
+                        amr_gold = Hgraph.from_concept_edge_labels(amr_gold) 
                     else:
-                        amr_gold = Amr.from_string(gold)
+                        amr_gold = Hgraph.from_string(gold)
                     l = len(amr_gold.triples())    
                 except Exception as e:     
                     print >>sys.stderr, e
@@ -288,11 +287,11 @@ def compute_smatch_batch(gold_filename, test_filename, starts, method ,
 
                 if test and not test.startswith("#"): 
                     try:
-                        amr_test = Dag.from_string(test)
+                        amr_test = Hgraph.from_string(test)
                         if concept_edges: # rebuild normal AMR with concepts attached to nodes.
-                            amr_test = Amr.from_concept_edge_labels(amr_test)
+                            amr_test = Hgraph.from_concept_edge_labels(amr_test)
                         else:
-                            amr_test = Amr.from_string(test)
+                            amr_test = Hgraph.from_string(test)
                         
                         if precise:
                             p,r,f = compute_smatch_precise(amr_gold, amr_test)
@@ -335,7 +334,7 @@ def compute_smatch_batch(gold_filename, test_filename, starts, method ,
      print "MEAN SMATCH: P:%f R:%f F:%f " % (avgp, avgr, avgf)
 
 
-#amr1 = Amr.from_string("""
+#amr1 = Hgraph.from_string("""
 #        (s / say-01 :ARG0 (p2 / professor :location (c2 / college :mod (m / 
 #medicine) :poss (u2 / university :name (u3 / name :op1 "University" :op2 
 #"of" :op3 "Vermont"))) :mod (p / pathology) :name (b / name :op1 
@@ -348,7 +347,7 @@ def compute_smatch_batch(gold_filename, test_filename, starts, method ,
 #:polarity -) :ARG1-of (i3 / include-91 :ARG2 (n3 / nation :ARG1-of (i / 
 #industrialize-01) ) :ARG3 (f / few) ))))""")
 
-#amr2 = Amr.from_string("""
+#amr2 = Hgraph.from_string("""
 #        (v0 / say-01 :ARG0 (v1 / professor :location (v3 / college) :mod (v2 / 
 #pathology :mod (v4 / medicine :op1 (v11 / "university") :op2 (v12 / 
 #"of") :op3 (v13 / "vermont") ) :poss (v5 / university :name (v6 / name) 

@@ -1,7 +1,6 @@
-from lib.amr.dag import Dag
 from lib.cfg import NonterminalLabel
-from lib.amr.amr import Amr
-from lib.amr.new_graph_description_parser import ParserError, LexerError
+from lib.hgraph.hgraph import Hgraph
+from lib.hgraph.new_graph_description_parser import ParserError, LexerError
 from lib.tree import Tree
 from lib import log
 from lib.exceptions import InputFormatException, BinarizationException, GrammarError
@@ -78,7 +77,7 @@ class Grammar(dict):
                         rhs2 = None                               
                     
                     try:    # If the first graph in the file cannot be parsed, assume it's a string
-                        r1  = Amr.from_string(rhs1)
+                        r1  = Hgraph.from_string(rhs1)
                         r1_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r1.nonterminal_edges()])
                         if not rhs1_type:
                             rhs1_type = GRAPH_FORMAT
@@ -94,7 +93,7 @@ class Grammar(dict):
   
                     if is_synchronous: 
                         try:    # If the first graph in the file cannot be parsed, assume it's a string
-                            r2  = Amr.from_string(rhs2)
+                            r2  = Hgraph.from_string(rhs2)
                             r2_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r2.nonterminal_edges()])
                             if not rhs2_type:
                                 rhs2_type = GRAPH_FORMAT
@@ -260,7 +259,7 @@ class Rule(object):
 
     # Set default visit order: canonical order of hyperedges or string tokens left-to-right
     # Also determine if this RHS is a terminal
-    if type(rhs1) is Amr:
+    if type(rhs1) is Hgraph:
         assert len(rhs1.roots) == 1
         self.is_terminal = not any(rhs1.nonterminal_edges())
         self.rhs1_visit_order = rhs1_visit_order if rhs1_visit_order is not None else range(len(rhs1.triples()))
@@ -269,7 +268,7 @@ class Rule(object):
         self.rhs1_visit_order = rhs1_visit_order if rhs1_visit_order is not None else range(len(rhs1)) 
 
     if self.rhs2 is not None:
-        if type(rhs2) is Amr:
+        if type(rhs2) is Hgraph:
             self.rhs2_visit_order = rhs2_visit_order if rhs2_visit_order is not None else range(len(rhs2.triples()))
         else: 
             self.rhs2_visit_order = rhs2_visit_order if rhs2_visit_order is not None else range(len(rhs2)) 
@@ -411,7 +410,7 @@ class Rule(object):
       if not attached_terminals:
         continue
 
-      rule_amr = Dag.from_triples({nt} | attached_terminals)
+      rule_amr = Hgraph.from_triples({nt} | attached_terminals)
       rule_tree = str(nt[1])
 
       assert len(rule_amr.roots) == 1
@@ -472,7 +471,7 @@ class Rule(object):
       rule_string = string[slice_from:slice_to]
       nt_edge_l = [e for e in amr.triples() if str(e[1]) == nt]
       assert len(nt_edge_l) == 1
-      rule_amr = Dag.from_triples(nt_edge_l)
+      rule_amr = Hgraph.from_triples(nt_edge_l)
 
       # hallucinate a tree with acceptable structure for make_rule
       fictitious_tree = self.make_fictitious_tree(string, rule_string)
@@ -514,7 +513,7 @@ class Rule(object):
         continue
 
       # can merge, so reduce
-      rule_amr = Dag.from_triples([stack_top_triple, next_tok_triple])
+      rule_amr = Hgraph.from_triples([stack_top_triple, next_tok_triple])
       assert len(rule_amr.roots) == 1
 
       rule_string = [stack_top, next_tok]
@@ -560,7 +559,7 @@ class Rule(object):
       rule_tree = max(collapsible_subtrees, key=lambda x: x.height())
       terminals = [t for t in rule_tree.leaves() if t[0] == '#']
       rule_edge_l = [t for t in amr.triples() if str(t[1]) in terminals]
-      rule_amr = Dag.from_triples(rule_edge_l)
+      rule_amr = Hgraph.from_triples(rule_edge_l)
       # if the induced graph is disconnected, this rule isn't binarizable
       if len(rule_amr.roots) != 1:
         raise BinarizationException

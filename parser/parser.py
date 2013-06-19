@@ -8,7 +8,7 @@ import re
 import math
 
 from lib.exceptions import InvocationException, InputFormatException
-from lib.amr.dag import Dag
+from lib.hgraph.hgraph import Hgraph
 
 from item import CfgItem, HergItem, CfgHergItem, Chart
 from rule import Rule
@@ -44,7 +44,7 @@ def get_format(path):
   with open(path) as f:
     line = f.readline().strip()
     try:
-      Dag.from_string(line)
+      Hgraph.from_string(line)
       return IFORMAT_GRAPH
     except ParseException:
       pass
@@ -89,7 +89,7 @@ def get_format(path):
 #  if parse_graph:
 #    with open(graph_input_path) as gf:
 #      for line in gf.readlines():
-#        graphs.append(Dag.from_string(line))
+#        graphs.append(Hgraph.from_string(line))
 #
 #  # parse!
 #  start_time = time.clock()

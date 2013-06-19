@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
-from amr import Amr
-from dag import Dag 
+from hgraph import Hgraph
 
 import nltk.tree
 import re
@@ -10,7 +9,7 @@ from collections import defaultdict as ddict
 
 def format_amr(l):
   amr_s = ' '.join(l)
-  amr_g = Amr.from_string(amr_s)
+  amr_g = Hgraph.from_string(amr_s)
   return amr_g
 
 def read_to_empty(f):
@@ -49,7 +48,7 @@ def aligned_corpus(f):
         tagged = format_tagged(f.readline())
         l = f.readline()
         alignments = format_alignments(read_to_empty(f), amr)
-        p = SentenceWithAmr(sent_id, sent_id,  amr, tagged, None, alignments)   
+        p = SentenceWithHgraph(sent_id, sent_id,  amr, tagged, None, alignments)   
         yield p
 
 if __name__ == "__main__":
