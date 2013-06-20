@@ -5,7 +5,6 @@ import fileinput
 from lib import log
 from argparse import ArgumentParser
 from config import config
-import pprint
 from lib.hgraph.hgraph import Hgraph
 
 #Import bolinas modules
@@ -37,9 +36,9 @@ if __name__ == "__main__":
     weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
     weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights to sum to 1.0 for all rules with the same LHS.") 
     weights.add_argument("-t","--train", default=False, action="store_true", help="Use EM to train weights for the grammar using the input. Initialize with the weights in the grammar file or random weights if none are provided.")
-    argparser.add_argument("-m", "--weight-type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
+    argparser.add_argument("-m", "--weight_type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
     argparser.add_argument("-p","--parser", default="laut", help="Specify which parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'laut' uses the Lautemann parser. 'cky' use a native CKY parser instead of the HRG parser if the input is a tree.")
-    argparser.add_argument("-e","--edge-labels", action="store_true", default="False", help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes in synchronous grammars.")
+    argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes in synchronous grammars.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
     argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
@@ -49,7 +48,8 @@ if __name__ == "__main__":
     # If a configuration file was specified read in the configuration
     if args.config:
         config.load_config(file(args.config,'r'))
-    
+   
+
     # Otherwise just store configuration in the global configuration object
     config.__dict__.update(vars(args))
 
@@ -81,6 +81,7 @@ if __name__ == "__main__":
         log.err("Invalid verbosity level, must be 0-4.")
         sys.exit(1)
    
+
     # Definition of verbosity levels 
     log.LOG = {0:{log.err},
                1:{log.err, log.warn},
@@ -104,10 +105,10 @@ if __name__ == "__main__":
              }[config.parser]
 
     with open(config.grammar_file,'ra') as grammar_file:
-        grammar = Grammar.load_from_file(grammar_file, config.backward)                
+        grammar = Grammar.load_from_file(grammar_file, config.backward, nodelabels = (not config.edge_labels)) 
         log.info("Loaded %s%s grammar with %i rules."\
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
-    
+   
         parser = parser_class(grammar)
         if config.input_file:
             count = 1

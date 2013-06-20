@@ -22,7 +22,7 @@ class HergItem():
   Chart item for a HERG parse.
   """
 
-  def __init__(self, rule, size=None, shifted=None, mapping=None):
+  def __init__(self, rule, size=None, shifted=None, mapping=None, nodelabels=False):
     # by default start empty, with no part of the graph consumed
     if size == None:
       size = 0
@@ -36,10 +36,12 @@ class HergItem():
     self.shifted = shifted
     self.mapping = mapping
 
+    self.nodelabels = nodelabels
+
     # Store the nonterminal symbol and index of the previous complete 
     # on this item so we can rebuild the derivation easily
 
-    triples = rule.rhs1.triples()
+    triples = rule.rhs1.triples(nodelabels = nodelabels)
     self.outside_symbol = None
     if size < len(triples):
       # this item is not closed
@@ -116,18 +118,34 @@ class HergItem():
       return False
     # make sure new_edge preserves a consistent mapping between the nodes of the
     # graph and the nodes of the rule
-    o1 = self.outside_triple[0]
-    n1 = new_edge[0]
+    if self.nodelabels:
+        o1, o1_label = self.outside_triple[0]
+        n1, n1_label = new_edge[0]
+        if o1_label != n1_label:
+            return False
+    else:
+        o1 = self.outside_triple[0]
+        n1 = new_edge[0]
+
     if o1 in self.mapping and self.mapping[o1] != n1:
       return False
-    o2 = self.outside_triple[2]
-    n2 = new_edge[2]
-    # DB (2012-10-15): Changed to allow terminal hyperedges. 
-    if not len(o2) == len(n2):
-      return False
-    for i in range(len(o2)): 
-        if o2[i] in self.mapping and self.mapping[o2[i]] != n2[i]:
+
+    if self.nodelabels:
+        o2, o2_labels = zip(*self.outside_triple[2])
+        n2, n2_labels = zip(*new_edge[2])
+        if o2_labels != n2_labels:
+            return False 
+    else:        
+        o2 = self.outside_triple[2]
+        n2 = new_edge[2]
+
+        if len(o2) != len(n2):
             return False
+            
+        for i in range(len(o2)): 
+            if o2[i] in self.mapping and self.mapping[o2[i]] != n2[i]:
+                return False
+
     return True
 
   def shift(self, new_edge):
@@ -135,9 +153,14 @@ class HergItem():
     Creates the chart item resulting from a shift of new_edge. Assumes
     can_shift returned true.
     """
-    o1, olabel, o2 = self.outside_triple
-    n1, nlabel, n2 = new_edge
-    # DB (2012-10-15): Changed to allow terminal hyperedges.
+    olabel = self.outside_triple[1]
+    o1 = self.outside_triple[0][0] if self.nodelabels else self.outside_triple[0]
+    o2 = tuple(x[0] for x in self.outside_triple[2]) if self.nodelabels else self.outside_triple[2] 
+    
+    nlabel = new_edge[1]
+    n1 = new_edge[0][0] if self.nodelabels else new_edge[0]
+    n2 = tuple(x[0] for x in new_edge[2]) if self.nodelabels else new_edge[2] 
+
     assert len(o2) == len(n2) 
     new_size = self.size + 1
     new_shifted = frozenset(self.shifted | set([new_edge]))
@@ -146,7 +169,7 @@ class HergItem():
     for i in range(len(o2)):
         new_mapping[o2[i]] = n2[i]
 
-    return HergItem(self.rule, new_size, new_shifted, new_mapping)
+    return HergItem(self.rule, new_size, new_shifted, new_mapping, self.nodelabels)
 
   def can_complete(self, new_item):
     """
@@ -166,18 +189,32 @@ class HergItem():
     if not self.outside_is_nonterminal:
       #log.debug('fail bc outside terminal')
       return False
-    # TODO should be able to check boundary only
+
+    #Make sure items are disjunct. THIS CAN BE SOLVED BY ALGORITHM 1 IN ACL PAPER.
+    # TODO should be able to check boundary only 
     if any(edge in self.shifted for edge in new_item.shifted):
       #log.debug('fail bc overlap')
       return False
 
     # make sure mappings agree
-    o1 = self.outside_triple[0]
-    o2 = self.outside_triple[2]
+    if self.nodelabels:
+        o1, o1label = self.outside_triple[0]
+        if self.outside_triple[2]:
+            o2, o2labels = zip(*self.outside_triple[2])
+        else: 
+            o2, o2labels = [],[]
+    else: 
+        o1 = self.outside_triple[0]
+        o2 = self.outside_triple[2]
 
     if len(o2) != len(new_item.rule.rhs1.external_nodes):
       #log.debug('fail bc hyperedge type mismatch')
       return False
+
+    nroot = list(new_item.rule.rhs1.roots)[0]
+    if self.nodelabels and o1label != new_item.rule.rhs1.node_to_concepts[nroot]:
+            return False
+
     if o1 in self.mapping and self.mapping[o1] != \
         new_item.mapping[list(new_item.rule.rhs1.roots)[0]]:
       #log.debug('fail bc mismapping')
@@ -185,6 +222,8 @@ class HergItem():
     for i in range(len(o2)):
       otail = o2[i]
       ntail = new_item.rule.rhs1.rev_external_nodes[i]
+      if self.nodelabels and o2labels[i] != new_item.rule.rhs1.node_to_concepts[ntail]:
+        return False
       if otail in self.mapping and self.mapping[otail] != new_item.mapping[ntail]:
         #log.debug('fail bc bad mapping in tail')
         return False
@@ -196,7 +235,9 @@ class HergItem():
     Creates the chart item resulting from a complete of new_item. Assumes
     can_shift returned true.
     """
-    o1, olabel, o2 = self.outside_triple
+    olabel = self.outside_triple[1]
+    o1 = self.outside_triple[0][0] if self.nodelabels else self.outside_triple[0]
+    o2 = tuple(x[0] for x in self.outside_triple[2]) if self.nodelabels else self.outside_triple[2] 
     
     new_size = self.size + 1
     new_shifted = frozenset(self.shifted | new_item.shifted)
@@ -207,7 +248,7 @@ class HergItem():
       ntail = new_item.rule.rhs1.rev_external_nodes[i]
       new_mapping[otail] = new_item.mapping[ntail]
 
-    new = HergItem(self.rule, new_size, new_shifted, new_mapping)
+    new = HergItem(self.rule, new_size, new_shifted, new_mapping, self.nodelabels)
     return new
 
 class CfgItem():
@@ -504,8 +545,8 @@ class Chart(dict):
                 kbest.append((prob, new_tree))
             except StopIteration, e:
                 break
-
-        if item == "START" and i+1<k:
+        
+        if item == "START" and i<k:
                 log.info("K-best did not find %i derivations. Returning best %i." % (k, i))
             
         return kbest

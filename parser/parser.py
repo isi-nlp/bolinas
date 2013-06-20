@@ -110,7 +110,7 @@ class Parser:
 
   def __init__(self, grammar):
     self.grammar = grammar
-    pass
+    self.nodelabels = grammar.nodelabels 
 
   @classmethod 
   def help(cls):
@@ -205,7 +205,7 @@ class Parser:
       else:
         string_size = -1
       if graph:
-        graph_size = len(graph.triples())
+        graph_size = len(graph.triples(nodelabels = self.nodelabels))
       else:
         graph_size = -1
 
@@ -228,10 +228,10 @@ class Parser:
           word_terminal_lookup[string[i]].add(i)
       if graph:
         edge_terminal_lookup = ddict(set) # mapping from edge labels to graph edges
-        for edge in graph.triples():
+        for edge in graph.triples(nodelabels = self.nodelabels):
           edge_terminal_lookup[edge[1]].add(edge)
       for rule in pgrammar:
-        axiom = axiom_class(rule)
+        axiom = axiom_class(rule, nodelabels = self.nodelabels)
         queue.append(axiom)
         pending.add(axiom)
         if axiom.outside_is_nonterminal:

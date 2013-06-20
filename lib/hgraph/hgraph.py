@@ -131,6 +131,7 @@ class Hgraph(defaultdict):
 
         self.__cached_triples = None
         self.__cached_depth = None
+        self.__nodelabels = False
 
         self.node_alignments = {} 
         self.edge_alignments = {}
@@ -695,12 +696,12 @@ class Hgraph(defaultdict):
 
         return [rec_step(node, 0) for node in self.roots]
 
-    def triples(self, instances =  False, start_node = None, refresh = False):
+    def triples(self, instances =  False, start_node = None, refresh = False, nodelabels = False):
         """
         Retrieve a list of (parent, edge-label, tails) triples. 
         """
 
-        if (not (refresh or start_node)) and self.__cached_triples:
+        if (not (refresh or start_node or nodelabels!=self.__nodelabels)) and self.__cached_triples:
             return self.__cached_triples
 
         triple_to_depth = {}
@@ -716,7 +717,13 @@ class Hgraph(defaultdict):
             if not node in tabu:
                 tabu.add(node)
                 for rel, child in sorted(self[node].items(), key=itemgetter(0)):
-                    t = (node, rel, child)
+                    if nodelabels:
+                        newchild = tuple([(n,self.node_to_concepts[n]) for n in child])
+                        newnode = (node, self.node_to_concepts[node])
+                        t = (newnode, rel, newchild)
+                    else:
+                        t = (node, rel, child)
+
                     triples.append(t) 
                     triple_to_depth[t] = depth
                     if type(child) is tuple:                            
@@ -727,15 +734,16 @@ class Hgraph(defaultdict):
                         if not child in tabu: 
                             queue.append((child, depth+1))
 
-        if  instances: 
-            if instances:
-                for node, concept in self.node_to_concepts.items():
-                    triples.append((node, 'instance', concept))
-            self.__cached_triples = res                        
+        #if  instances: 
+        #    if instances:
+        #        for node, concept in self.node_to_concepts.items():
+        #            triples.append((node, 'instance', concept))
+        #    self.__cached_triples = res                        
         
         if not start_node:
             self.__cached_triples = triples
             self.__cached_depth = triple_to_depth
+            self.__nodelabels = nodelabels
 
         return triples 
 
