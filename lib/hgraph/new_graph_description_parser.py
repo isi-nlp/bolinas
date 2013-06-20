@@ -108,6 +108,7 @@ class GraphDescriptionParser(object):
         self.lexer = Lexer(lex_rules)
 
         self.id_count = 0
+        self.nt_id_count = 0
         self.ext_id_count = 0
         self.explicit_ext_ids = False
 
@@ -165,6 +166,7 @@ class GraphDescriptionParser(object):
         state = 0
 
         self.id_count = 0
+        self.nt_id_count = 0
         self.ext_id_count = 0
         self.seen_nodes = set()
         self.explicit_ext_ids = False                 
@@ -214,6 +216,9 @@ class GraphDescriptionParser(object):
                 
                 if "$" in edgelabel: # this is a nonterminal Edge 
                     new_edge = NonterminalLabel.from_string(edgelabel)
+                    if not new_edge.index:
+                        new_edge.index = "_%i" %self.nt_id_count
+                        self.nt_id_count = self.nt_id_count + 1
                 else: 
                     new_edge = edgelabel
                 ident, label, ext_id = parentnode

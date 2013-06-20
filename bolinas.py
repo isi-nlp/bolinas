@@ -6,6 +6,7 @@ from lib import log
 from argparse import ArgumentParser
 from config import config
 from lib.hgraph.hgraph import Hgraph
+from lib.exceptions import DerivationException
 
 #Import bolinas modules
 from parser.parser import Parser
@@ -125,7 +126,10 @@ if __name__ == "__main__":
                     output_file.write("\n")
                 elif config.output_type == "derived":
                     for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
-                        output_file.write("%s\t#%f\n" % (output.apply_derivation(derivation).to_string(newline = False), score))
+                        try:
+                            output_file.write("%s\t#%f\n" % (output.apply_derivation(derivation).to_string(newline = False), score))
+                        except DerivationException:
+                            log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
                     output_file.write("\n")
 
 

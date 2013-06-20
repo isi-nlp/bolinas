@@ -9,3 +9,6 @@ class BinarizationException(Exception):
 
 class GrammarError(Exception):
     pass
+
+class DerivationException(Exception):
+    pass

@@ -7,12 +7,13 @@ Hypergraph representation.
 '''
 
 from collections import defaultdict
-from lib.cfg import NonterminalLabel
 import unittest
 import re
 import sys
 import copy
 from operator import itemgetter
+from lib.cfg import NonterminalLabel
+from lib.exceptions import DerivationException
 
 _graphics = False
 def require_graphics():
@@ -919,33 +920,11 @@ class Hgraph(defaultdict):
                new.node_to_concepts[n] = self.node_to_concepts[n]
         return new
         
-#    def apply_herg_rule(self, symbol, amr): 
-#        """
-#        Apply a hyperedge replacement grammar rule to this DAG.
-#        """
-#    
-#        #Find hyperedge to replace 
-#        for p, r, c in self.nonterminal_edges(): 
-#            if r.label == symbol:
-#                par, rel, child = p, r, c
-#                break
-#        repl_fragment = Dag.from_triples([(par,rel,child)])
-#        repl_fragment.roots = [par]
-#        #Replace it with the new fragment               
-#        new_amr = amr.clone_canonical(prefix = str(self.replace_count))        
-#        res_dag = self.replace_fragment(repl_fragment, new_amr)
-#        # Keep track of prefix for new canonical node IDs               
-#        res_dag.replace_count = self.replace_count + 1
-#        return res_dag
-# 
     def find_nt_edge(self, label, index):       
         for p,r,c in self.triples():
             if type(r) is NonterminalLabel:
                 if r.label == label and r.index == index:
                     return p,r,c    
-        for edge in self.nonterminal_edges():
-            print edge
-        print str(self)
 
     def remove_fragment(self, dag):
         """
@@ -971,6 +950,11 @@ class Hgraph(defaultdict):
         for i in range(len(dagroots)):
             boundary_map[new_dag.roots[i]] = dagroots[i]
         boundary_map.update(partial_boundary_map)
+
+        # Make sure node labels agree
+        for x in boundary_map: 
+            if new_dag.node_to_concepts[x] != dag.node_to_concepts[boundary_map[x]]:
+                raise DerivationException, "Derivation produces contradictory node labels."         
 
         # now remove the old fragment
         res_dag = self.remove_fragment(dag)
