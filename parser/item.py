@@ -546,8 +546,8 @@ class Chart(dict):
             except StopIteration, e:
                 break
         
-        if item == "START" and i<k:
-                log.info("K-best did not find %i derivations. Returning best %i." % (k, i))
+        if item == "START" and len(kbest)<k:
+                log.info("K-best did not find %i derivations. Returning best %i." % (k, len(kbest)))
             
         return kbest
 
