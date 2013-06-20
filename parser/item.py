@@ -517,7 +517,11 @@ class Chart(dict):
 
         # If item is a leaf, just return it and it's probability    
         if not item in self: 
-            return [(rprob, item)]
+            if item == "START":
+                log.info("No derivations.")
+                return []
+            else:
+                return [(rprob, item)]
 
         # Find the k-best options for each child
         nts = []
@@ -542,13 +546,13 @@ class Chart(dict):
                         prob = prob * p 
 
                 new_tree = (item, dict(zip(nts,trees)))
-                kbest.append((prob, new_tree))
+                if new_tree:
+                    kbest.append((prob, new_tree))
             except StopIteration, e:
                 break
         
         if item == "START" and len(kbest)<k:
                 log.info("K-best did not find %i derivations. Returning best %i." % (k, len(kbest)))
-            
         return kbest
 
 #    def format_tiburon(chart):
