@@ -919,27 +919,25 @@ class Hgraph(defaultdict):
                new.node_to_concepts[n] = self.node_to_concepts[n]
         return new
         
-    def apply_herg_rule(self, symbol, amr): 
-        """
-        Apply a hyperedge replacement grammar rule to this DAG.
-        """
-    
-        #Find hyperedge to replace 
-        for p, r, c in self.nonterminal_edges(): 
-            if r.label == symbol:
-                par, rel, child = p, r, c
-                break
-        repl_fragment = Dag.from_triples([(par,rel,child)])
-        repl_fragment.roots = [par]
-        #Replace it with the new fragment               
-        new_amr = amr.clone_canonical(prefix = str(self.replace_count))        
-        res_dag = self.replace_fragment(repl_fragment, new_amr)
-        # Keep track of prefix for new canonical node IDs               
-        res_dag.replace_count = self.replace_count + 1
-        return res_dag
- 
-        
-
+#    def apply_herg_rule(self, symbol, amr): 
+#        """
+#        Apply a hyperedge replacement grammar rule to this DAG.
+#        """
+#    
+#        #Find hyperedge to replace 
+#        for p, r, c in self.nonterminal_edges(): 
+#            if r.label == symbol:
+#                par, rel, child = p, r, c
+#                break
+#        repl_fragment = Dag.from_triples([(par,rel,child)])
+#        repl_fragment.roots = [par]
+#        #Replace it with the new fragment               
+#        new_amr = amr.clone_canonical(prefix = str(self.replace_count))        
+#        res_dag = self.replace_fragment(repl_fragment, new_amr)
+#        # Keep track of prefix for new canonical node IDs               
+#        res_dag.replace_count = self.replace_count + 1
+#        return res_dag
+# 
     def find_nt_edge(self, label, index):       
         for p,r,c in self.triples():
             if type(r) is NonterminalLabel:
@@ -948,8 +946,6 @@ class Hgraph(defaultdict):
         for edge in self.nonterminal_edges():
             print edge
         print str(self)
-
-
 
     def remove_fragment(self, dag):
         """
@@ -983,7 +979,6 @@ class Hgraph(defaultdict):
 
         # and add the remaining edges, fusing boundary nodes
         for par, rel, child in new_dag.triples(): 
-           
 
             new_par = boundary_map[par] if par in boundary_map else par
             

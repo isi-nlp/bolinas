@@ -196,6 +196,8 @@ class HergItem():
       #log.debug('fail bc overlap')
       return False
 
+    rev_omap = dict([(val, key) for key, val in self.mapping.items()])
+    
     # make sure mappings agree
     if self.nodelabels:
         o1, o1label = self.outside_triple[0]
@@ -219,6 +221,13 @@ class HergItem():
         new_item.mapping[list(new_item.rule.rhs1.roots)[0]]:
       #log.debug('fail bc mismapping')
       return False
+
+    real_nroot = new_item.mapping[nroot]
+    # Prevent completions when the source node has been used already unless it's a reentrency
+    #if real_nroot in rev_omap and rev_omap[real_nroot] != o1:
+    #    return False
+
+    real_ntail = None
     for i in range(len(o2)):
       otail = o2[i]
       ntail = new_item.rule.rhs1.rev_external_nodes[i]
@@ -227,6 +236,16 @@ class HergItem():
       if otail in self.mapping and self.mapping[otail] != new_item.mapping[ntail]:
         #log.debug('fail bc bad mapping in tail')
         return False
+      # Prevent completions when a tail node has been used already unless it's a reentrency
+      #real_ntail = new_item.mapping[ntail]  
+      #if real_ntail in rev_omap and rev_omap[real_ntail] != otail:
+      #  return False
+   
+    for node in new_item.mapping.values():
+        if node in rev_omap:
+            onode =  rev_omap[node]
+            if not (onode == o1 or onode in o2):
+                return False
 
     return True
 
