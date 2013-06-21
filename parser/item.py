@@ -277,7 +277,7 @@ class CfgItem():
 
   def __init__(self, rule, size=None, i=None, j=None, nodelabels = False):
     # until this item is associated with some span in the sentence, let i and j
-    # (the left and right boundaries) be 0
+    # (the left and right boundaries) be -1
     if size == None:
       size = 0
     if i == None:
@@ -327,7 +327,7 @@ class CfgItem():
         other.size == self.size
 
   def __repr__(self):
-    return 'CfgItem(%d, %d)' % (self.rule.rule_id, self.size)
+    return 'CfgItem(%d, %d, %s, (%d, %d))' % (self.rule.rule_id, self.size, str(self.closed), self.i, self.j)
 
   def __str__(self):
     return '[%s, %d/%d, (%d,%d)]' % (self.rule,
@@ -382,7 +382,7 @@ class CfgItem():
     if self.outside_symbol != new_item.rule.symbol:
       return False
 
-    return self.i == -1 or new_item.i == self.j or new_item.j == self.i
+    return self.i == -1 or new_item.i == self.j #or new_item.j == self.i
 
   def complete(self, new_item):
     """
@@ -502,8 +502,6 @@ class CfgHergItem:
     HERG item.
     """
 
-    #print '  cfg:', self.cfg_item.can_complete(new_item.cfg_item)
-    #print '  herg:', self.herg_item.can_complete(new_item.herg_item)
     if not (self.cfg_item.can_complete(new_item.cfg_item) and
             self.herg_item.can_complete(new_item.herg_item)):
       return False
