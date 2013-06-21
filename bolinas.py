@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # Parse all the command line arguments, figure out what to do and dispatch to the appropriate modules. 
    
     # Initialize the command line argument parser 
-    argparser = ArgumentParser(description = "Bolinas is a synchronous hyperedge replacement grammar toolkit.")
+    argparser = ArgumentParser(description = "Bolinas is a toolkit for synchronous hyperedge replacement grammars.")
 
     argparser.add_argument("grammar_file", help="A hyperedge replacement grammar (HRG) or synchronous HRG (SHRG).")
     argparser.add_argument("input_file", nargs="?", help="Input file containing one object per line or pairs of objects. Use - to read from stdin.")
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     weights.add_argument("-t","--train", default=5, help="Use TRAIN iterations of EM to train weights for the grammar using the input (graph, string, or pairs of objects in alternating lines). Initialize with the weights in the grammar file or with uniform weights if none are provided. Writes a grammar file with trained weights to the output.")
     argparser.add_argument("-m", "--weight_type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
     argparser.add_argument("-p","--parser", default="laut", help="Specify which parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'laut' uses the Lautemann parser. 'cky' use a native CKY parser instead of the HRG parser if the input is a tree.")
-    argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes in synchronous grammars.")
+    argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes on the target side of a synchronous grammar.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
     argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
@@ -93,34 +93,65 @@ if __name__ == "__main__":
     parser_class = {
              'laut': Parser,
              'td': None,
-             'cky':None
+             'cky': Parser
              }[args.parser]
 
     with open(args.grammar_file,'ra') as grammar_file:
         grammar = Grammar.load_from_file(grammar_file, args.backward, nodelabels = (not args.edge_labels)) 
         log.info("Loaded %s%s grammar with %i rules."\
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
-   
+ 
+        if grammar.rhs2_type is None and args.output_type == "derived":
+            log.err("Can only build derived objects (-ot derived) with synchronous grammars.") 
+            sys.exit(1)
+         
         parser = parser_class(grammar)
+
+        if grammar.rhs1_type == "string":
+            if parser_class == "td":
+                log.err("Parser class needs to be 'laut' or 'cky' to parse strings.")
+                sys.exit(1)
+            else: 
+                parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(args.input_file))
+        else: 
+            if parser_class == "cky":
+                log.err("Need to use 'laut' or 'td' parser to parse hypergraphs.'")
+                sys.exit(1)
+            parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(args.input_file))
+         
+
         if args.input_file:
             count = 1
             # Run the parser for each graph in the input
-            for chart in parser.parse_graphs((Hgraph.from_string(x) for x in fileinput.input(args.input_file))):
+            for chart in parse_generator:
+                # Produce Tiburon format derivation forests
                 if args.output_type == "forest":
                     output_file = open("%s_%i.rtg" % (args.output_file, count), 'wa')
                     output_file.write(output.format_tiburon(chart))
                     output_file.close()
                     count = count + 1
+
+                # Produce k-best derivations
                 elif args.output_type == "derivation":                    
                     for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
                         output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), score))
                     output_file.write("\n")
+
+                # Produce k-best derived graphs/strings
                 elif args.output_type == "derived":
-                    for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
-                        try:
-                            output_file.write("%s\t#%f\n" % (output.apply_derivation(derivation).to_string(newline = False), score))
-                        except DerivationException:
-                            log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
+                    if grammar.rhs2_type == "graph":
+                        for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
+                            try:
+                                output_file.write("%s\t#%f\n" % (output.apply__graph_derivation(derivation).to_string(newline = False), score))
+                            except DerivationException:
+                                log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
+                    elif grammar.rhs1_type == "string":
+                        for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
+                            try:
+                                output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))
+                            except DerivationException:
+                                log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
+        
                     output_file.write("\n")
 
 

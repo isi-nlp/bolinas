@@ -13,7 +13,18 @@ import StringIO
 
 def parse_string(s):
     tokens = s.strip().split()
-    return [NonterminalLabel.from_string(t) if "$" in t else t for t in tokens]
+    res = []
+    nt_index = 0
+    for t in tokens:
+        if "$" in t: 
+            new_token = NonterminalLabel.from_string(t)
+            if not new_token.index:
+                new_token.index = "_%i" % nt_index
+                nt_index = nt_index + 1
+        else: 
+            new_token = t
+        res.append(new_token)
+    return res            
 
 class Grammar(dict):
 
@@ -159,11 +170,12 @@ class Rule(object):
     #if isinstance(rhs2, Tree):
     #  self.string = rhs2.leaves()
     #else:
-    #  self.string = [rhs2]
+    if isinstance(rhs1, list):
+        self.string = rhs1 
 
     # Set default visit order: canonical order of hyperedges or string tokens left-to-right
     # Also determine if this RHS is a terminal
-    if type(rhs1) is Hgraph:
+    if isinstance(rhs1, Hgraph):
         assert len(rhs1.roots) == 1
         self.is_terminal = not any(rhs1.nonterminal_edges())
         self.rhs1_visit_order = rhs1_visit_order if rhs1_visit_order is not None else range(len(rhs1.triples(nodelabels = nodelabels)))
@@ -172,7 +184,7 @@ class Rule(object):
         self.rhs1_visit_order = rhs1_visit_order if rhs1_visit_order is not None else range(len(rhs1)) 
 
     if self.rhs2 is not None:
-        if type(rhs2) is Hgraph:
+        if isinstance(rhs2, Hgraph):
             self.rhs2_visit_order = rhs2_visit_order if rhs2_visit_order is not None else range(len(rhs2.triples(nodelabels = nodelabels)))
         else: 
             self.rhs2_visit_order = rhs2_visit_order if rhs2_visit_order is not None else range(len(rhs2)) 

@@ -117,49 +117,49 @@ class Parser:
     return 'Usage: bolinas parse <grammar> <input1> [input2] ' + \
         '<output_prefix> <format>'
 
-  def main(self, *args):
-    """
-    Parses (or biparses) the given input, and writes the resulting charts into
-    files specified by the given output prefix and format.
-    """
-    # determine input format
-    if len(args) == 4:
-      grammar_path, i1_path, output_prefix, output_format = args
-      i2_path = None
-    elif len(args) == 5:
-      grammar_path, i1_path, i2_path, output_prefix, output_format = args
-    else:
-      raise InvocationException()
-    i1_format = get_format(i1_path)
-    i2_format = get_format(i2_path)
-
-    # determine output format
-    if output_format not in OFORMATS:
-      raise InputFormatException("output_format must be one of carmel, " + \
-          "tiburon, bolinas or cdec")
-    o_format = OFORMATS[output_format]
-
-    grammar = Rule.load_from_file(grammar_path)
-
-    # parse corpus
-    # RTG parsing isn't supported yet
-    if i2_path:
-      if i1_format == IFORMAT_STRING and i2_format == IFORMAT_GRAPH:
-        charts = parse_corpus(grammar, i1_path, i2_path)
-      else:
-        raise InputFormatException("If biparsing, must give [string, graph]" + \
-            " as input.")
-    else:
-      if i1_format == IFORMAT_STRING:
-        charts = parse_corpus(grammar, string_input_path=i1_path)
-      elif i1_format == IFORMAT_GRAPH:
-        charts = parse_corpus(grammar, graph_input_path=i1_path)
-      else:
-        raise InputFormatException("Must give one of string or graph " + \
-            "as input.")
-
-    # write output
-    OUTPUT_METHODS[o_format](charts, grammar, output_prefix)
+#  def main(self, *args):
+#    """
+#    Parses (or biparses) the given input, and writes the resulting charts into
+#    files specified by the given output prefix and format.
+#    """
+#    # determine input format
+#    if len(args) == 4:
+#      grammar_path, i1_path, output_prefix, output_format = args
+#      i2_path = None
+#    elif len(args) == 5:
+#      grammar_path, i1_path, i2_path, output_prefix, output_format = args
+#    else:
+#      raise InvocationException()
+#    i1_format = get_format(i1_path)
+#    i2_format = get_format(i2_path)
+#
+#    # determine output format
+#    if output_format not in OFORMATS:
+#      raise InputFormatException("output_format must be one of carmel, " + \
+#          "tiburon, bolinas or cdec")
+#    o_format = OFORMATS[output_format]
+#
+#    grammar = Rule.load_from_file(grammar_path)
+#
+#    # parse corpus
+#    # RTG parsing isn't supported yet
+#    if i2_path:
+#      if i1_format == IFORMAT_STRING and i2_format == IFORMAT_GRAPH:
+#        charts = parse_corpus(grammar, i1_path, i2_path)
+#      else:
+#        raise InputFormatException("If biparsing, must give [string, graph]" + \
+#            " as input.")
+#    else:
+#      if i1_format == IFORMAT_STRING:
+#        charts = parse_corpus(grammar, string_input_path=i1_path)
+#      elif i1_format == IFORMAT_GRAPH:
+#        charts = parse_corpus(grammar, graph_input_path=i1_path)
+#      else:
+#        raise InputFormatException("Must give one of string or graph " + \
+#            "as input.")
+#
+#    # write output
+#    OUTPUT_METHODS[o_format](charts, grammar, output_prefix)
 
   def parse_graphs(self, graph_iterator):
       """
@@ -170,8 +170,18 @@ class Parser:
       for graph in graph_iterator: 
           raw_chart = self.parse(None, graph, filter_cache)
           # The raw chart contains parser operations, need to decode the parse forest from this 
-          chart = cky_chart(raw_chart)
-          yield chart
+          yield cky_chart(raw_chart)
+
+  def parse_strings(self, string_iterator):
+    """
+    Parse all strings in the string iterator.
+    This is a generator.
+    """
+    filter_cache = make_string_filter_cache()
+    for string in string_iterator:
+        raw_chart = self.parse(string, None, filter_cache)
+        # The raw chart contains parser operations, need to decode the parse forest from this 
+        yield cky_chart(raw_chart)
 
   def parse(self, string, graph, filter_cache):
       """

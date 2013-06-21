@@ -275,7 +275,7 @@ class CfgItem():
   Chart item for a CFG parse.
   """
 
-  def __init__(self, rule, size=None, i=None, j=None):
+  def __init__(self, rule, size=None, i=None, j=None, nodelabels = False):
     # until this item is associated with some span in the sentence, let i and j
     # (the left and right boundaries) be 0
     if size == None:
@@ -290,24 +290,25 @@ class CfgItem():
     self.j = j
     self.size = size
 
+    self.shifted = []
     assert len(rule.string) != 0
 
     if size == 0:
       assert i == -1
       assert j == -1
       self.closed = False
-      self.outside_word = rule.string[rule.string_visit_order[0]]
+      self.outside_word = rule.string[rule.rhs1_visit_order[0]]
     elif size < len(rule.string):
       self.closed = False
-      self.outside_word = rule.string[rule.string_visit_order[self.size]]
+      self.outside_word = rule.string[rule.rhs1_visit_order[self.size]]
     else:
       self.closed = True
       self.outside_word = None
 
-    if self.outside_word and self.outside_word[0] == '#':
+    if self.outside_word and isinstance(self.outside_word, NonterminalLabel):
       self.outside_is_nonterminal = True
-      # strip leading pound sign and NT index from label
-      self.outside_symbol = self.outside_word[1:].split('[')[0]
+      self.outside_symbol = self.outside_word.label
+      self.outside_nt_index = self.outside_word.index
     else:
       self.outside_is_nonterminal = False
 

@@ -3,7 +3,9 @@ Methods to format Bolinas output.
 """
 
 from lib.hgraph.hgraph import Hgraph
+from lib.cfg import NonterminalLabel
 from parser.item import HergItem
+from lib import log 
  
 def walk_derivation(derivation, combiner, leaf):
     """
@@ -12,6 +14,8 @@ def walk_derivation(derivation, combiner, leaf):
     all child items.
     """
     if type(derivation) is not tuple: 
+        if derivation == "START":
+            return None
         return leaf(derivation)
     else: 
         item, children = derivation[0], derivation[1]        
@@ -42,7 +46,7 @@ def format_derivation(derivation):
         
     return walk_derivation(derivation, combiner, leaf)
 
-def apply_derivation(derivation):
+def apply_graph_derivation(derivation):
     """
     Assemble a derived graph by executing the operations specified in the derivation (as produced by 
     parser.item.Chart.kbest)
@@ -65,6 +69,25 @@ def apply_derivation(derivation):
 
     return walk_derivation(derivation, combiner, leaf) 
 
+def apply_string_derivation(derivation):
+    """
+    Assemble a derived string by executing the operations specified in the derivation (as produced by 
+    parser.item.Chart.kbest)
+    """
+    
+    def leaf(item):
+        return item.rule.rhs2
+    
+    def combiner(item, childobjs):
+        result = []
+        for t in item.rule.rhs2:
+            if isinstance(t, NonterminalLabel):
+                result.extend(childobjs[t.label, t.index])
+            else: 
+                result.append(t)
+        return result
+         
+    return walk_derivation(derivation, combiner, leaf)
 
 def format_tiburon(chart):
     """
