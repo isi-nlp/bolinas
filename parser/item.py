@@ -190,8 +190,8 @@ class HergItem():
       #log.debug('fail bc outside terminal')
       return False
 
-    #Make sure items are disjunct. THIS CAN BE SOLVED BY ALGORITHM 1 IN ACL PAPER.
-    # TODO should be able to check boundary only 
+    #Make sure items are disjoint
+    # TODO implement boundary node-based disjoiness check
     if any(edge in self.shifted for edge in new_item.shifted):
       #log.debug('fail bc overlap')
       return False

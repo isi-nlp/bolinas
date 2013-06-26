@@ -1,21 +1,25 @@
-from collections import defaultdict
-import unittest
-import re
 import sys
-from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal, NonterminalLabel
+from collections import defaultdict
+
+import re
+
+from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal
+from lib.cfg import NonterminalLabel
+from lib.exceptions import LexerError, ParserError
 
 """
-A deterministic, linear time parser for Penman-style graph/meaning 
-representation descriptions. 
+A deterministic, linear time parser for hypergraph descriptions.
 The graph format is described here...
 
+@author Daniel Bauer (bauer@cs.columbia.edu)
+@date 2013-06-10
 """
 
-# Error definitions
-class LexerError(Exception):
-    pass
-class ParserError(Exception):
-    pass
+# This is essentially a finite state machine with a single stack and 
+# semantic actions on each transition.
+# Input symbols are provided by a lexer. 
+# This hand-written implementation is MUCH faster than pyparsing or 
+# automatically generated parsers. 
 
 # Lexer
 class Lexer(object):
@@ -40,7 +44,7 @@ class Lexer(object):
 
     def lex(self, s):
         """
-        Perform the lexical scanning on a string and yield a (type, token, position)
+        Perform lexical scanning on a string and yield a (type, token, position)
         triple at a time. Whitespaces are skipped automatically.  
         This is a generator, so lexing is performed lazily. 
         """
@@ -58,8 +62,9 @@ class Lexer(object):
                 raise LexerError, "Could not tokenize '%s'" % re.escape(s[position:])
             position = match.end()
             token = match.group(match.lastgroup)
-            type = match.lastgroup
-            yield type, token, position
+            typ = match.lastgroup
+            yield typ, token, position
+
 
 class LexTypes:
     """
@@ -68,280 +73,243 @@ class LexTypes:
     LPAR = "LPAR" 
     RPAR = "RPAR"
     COMMA = "COMMA" 
-    SLASH = "SLASH" 
+    NODE= "NODE" 
+    EQUALS= "EQUALS" 
     EDGELABEL = "EDGELABEL" 
     STRLITERAL = "STRLITERAL" 
     IDENTIFIER = "IDENTIFIER" 
     LITERAL =  "LITERAL"
     QUANTITY = "QUANTITY"
 
+
 # Parser
 class GraphDescriptionParser(object):
     """
-    A deterministic, linear time parser for Penman-style graph descriptions. 
+    A deterministic, linear time parser for hypergraph descriptions. 
+    See documentation for hypergraph format.
 
     >>> parser = GraphDescriptionParser()
-    >>> x = parser.parse_string('''(x :foo (a /c1 :bar (b / c2 :#FOO (d :blubb "HI") ,@c :value 10))) (y :foo (d :size 'small))''')
-    >>> x
-    DAG{ (x :foo (a / c1 :bar (b / c2 :#FOO @c ,(d :blubb "HI" :size 'small) :value 10))) (y :foo d) }
-    >>> x.external_nodes
-    ['c']
-    >>> x.roots
-    ['x', 'y']
-    >>> parser.parse_string('''(x :foo (a /c1 :bar (b / c2 :#FOO (d :blubb "HI") ,@c :value 10))) (y :foo (d :size 'small))''', concepts = False)
-    DAG{ (x :foo (a :bar (b :#FOO @c, (d :blubb "HI" :size 'small) :value 10))) (y :foo d) }
     """
     def __init__(self):
         # Lexical 
         lex_rules = [
             (LexTypes.LPAR, '\('),
             (LexTypes.RPAR,'\)'),
-            (LexTypes.COMMA,','), 
-            (LexTypes.SLASH,'/'),
-            (LexTypes.EDGELABEL,":[^\s\)]+"),
-            (LexTypes.STRLITERAL,'"[^"]+"'),
-            (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*"),
-            (LexTypes.LITERAL,"'[^\s(),]+"),
-            (LexTypes.IDENTIFIER,"[^\s(),]+")
+            (LexTypes.EDGELABEL,':[^\s\)]*'),
+            (LexTypes.NODE,'[^\s(),.]*\.?[^\s(),.]*')
         ] 
+        self.node_re = re.compile('([^\s(),.*]*)(\.?)([^\s(),.*]*)(\*?([0-9]*))')
         self.lexer = Lexer(lex_rules)
+
+        self.id_count = 0
+        self.nt_id_count = 0
+        self.ext_id_count = 0
+        self.explicit_ext_ids = False
+
+    def parse_node(self, token):
+        """
+        Parse an individual node of the format [id].[label][*[id]] or just a label.
+        """
+        match = self.node_re.match(token)
+        groups = match.groups()
+        
+        
+        if not groups[1]:    #This node is only a label
+            label = groups[0]
+            ident = "_%i" % self.id_count
+            self.id_count += 1       
+        else:               
+            label = groups[2]
+            if not groups[0]: # Found a . but no explicit id
+                ident = "_%i" % self.id_count
+                self.id_count += 1       
+            else: 
+                ident = groups[0] 
+        
+        if groups[3]:       #Check if node is an external node
+            if groups[4]:   #Get external node ID
+                ext_id = int(groups[4]) 
+                if not self.explicit_ext_ids and self.ext_id_count >= 1:
+                    raise LexerError, "Must specify explicit external node IDs for all or none of the external nodes."
+                self.explicit_ext_ids = True
+            else:
+                if self.explicit_ext_ids:
+                    raise LexerError, "Must specify explicit external node IDs for all or none of the external nodes."
+                if not ident in self.seen_nodes: #UGLY
+                    self.seen_nodes.add(ident)
+                    ext_id = self.ext_id_count
+                    self.ext_id_count += 1
+        else:
+            ext_id = None
+
+        return ident, label, ext_id 
 
     def parse_string(self, s, concepts = True):
         """
-        Parse the string s and return a new abstract meaning representation.
-
-        @concepts if True, method returns an L{Hgraph} object containing concept labels. 
+        Parse the string s and return a new hypergraph. 
         """
 
-        PNODE = 1
-        CNODE = 2
-        EDGE = 3
+        # Constants to identify items on the stack
+        PNODE = 1 # Parent node
+        CNODE = 2 # Child node
+        EDGE = 3  # Hyperedge 
 
-        amr = Hgraph()
+        hgraph = Hgraph()
+        
         stack = []
         state = 0
 
-        #0, top leve
-        #1, expecting source nodename
-        #2, expecting concept name or edge label
-        #3, lexpecting concept name 
-        #4, expecting edge label
-        #5, expecting expression, node name or literal string, quantity or special symbol   
-        #6, expecting right paren or more target nodes
-        #7, expecting right paren
+        self.id_count = 0
+        self.nt_id_count = 0
+        self.ext_id_count = 0
+        self.seen_nodes = set()
+        self.explicit_ext_ids = False                 
+ 
+        # States of the finite state parser
+        #0, top level
+        #1, expecting head nodename
+        #2, expecting edge label or node
+        #3, expecting further child nodes or right paren
+        #4, expecting saw edge label, expecting child node, edge label, right paren 
 
-        for type, token, pos in self.lexer.lex(s):
+        def insert_node(node, root=False):
+            # Insert a node into the AMR
+            ident, label, ext_id = node                              
+            ignoreme = hgraph[ident] #Initialize dictionary for this node
+            hgraph.node_to_concepts[ident] = label
+            if ext_id is not None:                
+                if ident in hgraph.external_nodes and hgraph.external_nodes[ident] != ext_id:
+                    raise ParserError, "Incompatible external node IDs for node %s." % ident
+                hgraph.external_nodes[ident] = ext_id
+                hgraph.rev_external_nodes[ext_id] = ident
+            if root: 
+                hgraph.roots.append(ident)
+                
+        def pop_and_transition():
+            # Create all edges in a group from the stack, attach them to the 
+            # graph and then transition to the appropriate state in the FSA
+            edges = []
+            while stack[-1][0] != PNODE: # Pop all edges
+                children = []
+                while stack[-1][0] == CNODE: # Pop all nodes in hyperedge
+                    itemtype, node = stack.pop()
+                    insert_node(node) 
+                    children.append(node)
+                assert stack[-1][0] == EDGE 
+                itemtype, edgelabel = stack.pop()
+                edges.append((edgelabel, children))
+              
+            # Construct the hyperedge 
+            itemtype, parentnode = stack.pop()
+            for edgelabel, children in edges: 
+                hypertarget = [] # build hyperedge tail 
+                for ident, label, ext_id in children:
+                    hypertarget.append(ident) 
+                hypertarget.reverse()
+                hyperchild = tuple(hypertarget)    
+                
+                if "$" in edgelabel: # this is a nonterminal Edge 
+                    new_edge = NonterminalLabel.from_string(edgelabel)
+                    if not new_edge.index:
+                        new_edge.index = "_%i" %self.nt_id_count
+                        self.nt_id_count = self.nt_id_count + 1
+                else: 
+                    new_edge = edgelabel
+                ident, label, ext_id = parentnode
+                hgraph._add_triple(ident, new_edge, hyperchild) 
+               
+            if stack:
+                insert_node(parentnode)
+                stack.append((CNODE, parentnode))
+                state = 4
+            else:    
+                insert_node(parentnode, root = True)
+                state = 5
+
+        # Parser transitions start here
+        for typ, token, pos in self.lexer.lex(s):
 
             if state == 0:
-                if type == LexTypes.LPAR:
+                if typ == LexTypes.LPAR:
                     state = 1
+                elif typ == LexTypes.NODE:
+                    insert_node(self.parse_node(token), root=True)               
+                    state = 5
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-
-            elif state == 1:
-                if type == LexTypes.IDENTIFIER:
-                    stack.append((PNODE, token, None)) # Push source node
+             
+            elif state == 1: 
+                if typ == LexTypes.NODE:
+                    stack.append((PNODE, self.parse_node(token))) # Push head node
                     state = 2
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
 
             elif state == 2:
-                if type == LexTypes.SLASH:
-                    state = 3
-                elif type == LexTypes.EDGELABEL:
+                if typ == LexTypes.EDGELABEL:
                     stack.append((EDGE, token[1:]))
-                    state = 5
-                elif type == LexTypes.RPAR:
-                    forgetme, parentnodelabel, parentconcept = stack.pop()
-                    assert forgetme == PNODE
-                    if parentnodelabel[0] == '@': 
-                        parentnodelabel = parentnodelabel[1:]
-                        amr.external_nodes.append(parentnodelabel)
-                    foo =  amr[parentnodelabel] # add only the node
+                    state = 4
+                elif typ == LexTypes.NODE:
+                    stack.append((EDGE, "")) # No edge specified, assume empty label
+                    stack.append((CNODE, self.parse_node(token))) 
+                    state = 3
+                elif typ == LexTypes.LPAR:
+                    stack.append((EDGE, "")) # No edge specified, assume empty label
+                    state = 1
+                elif typ == LexTypes.RPAR:
+                    itemtype, node  = stack.pop()
+                    assert itemtype == PNODE
                     if stack:
-                        stack.append((CNODE, parentnodelabel, parentconcept))
-                        state = 6
+                        insert_node(node)
+                        stack.append((CNODE, node))
+                        state = 3
                     else:    
-                        amr.roots.append(parentnodelabel)
-                        state = 0
-
+                        insert_node(node, root = True)
+                        state = 5
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
 
             elif state == 3:
-                if type == LexTypes.IDENTIFIER:
-                    assert stack[-1][0] == PNODE
-                    nodelabel = stack.pop()[1]
-                    stack.append((PNODE, nodelabel, token)) # Push new source node with concept label
+                if typ == LexTypes.RPAR: # Pop from stack and add edges
+                    pop_and_transition(); 
+                elif typ == LexTypes.NODE:
+                    stack.append((CNODE, self.parse_node(token)))
+                    state = 3
+                elif typ == LexTypes.EDGELABEL:
+                    stack.append((EDGE, token[1:]))
                     state = 4
+                elif typ == LexTypes.LPAR:
+                    state = 1
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
 
             elif state == 4:
-                if type == LexTypes.EDGELABEL:
+                if typ == LexTypes.LPAR:
+                    state = 1
+                elif typ == LexTypes.NODE:
+                    stack.append((CNODE, self.parse_node(token))) 
+                    state = 3
+                elif typ == LexTypes.EDGELABEL:
                     stack.append((EDGE, token[1:]))
-                    state = 5
-                elif type == LexTypes.RPAR:
-                    forgetme, parentnodelabel, parentconcept = stack.pop()
-                    assert forgetme == PNODE
-                    if parentnodelabel[0] == '@': 
-                        parentnodelabel = parentnodelabel[1:]
-                        amr.external_nodes.append(parentnodelabel)
-                    foo = amr[parentnodelabel] # add only the node
-                    if concepts and (not parentnodelabel in amr.node_to_concepts or parentnodelabel is not None): 
-                        amr.node_to_concepts[parentnodelabel] = parentconcept    
-                    if stack: 
-                        stack.append((CNODE, parentnodelabel, parentconcept))
-                        state = 6
-                    else:    
-                        amr.roots.append(parentnodelabel)
-                        state = 0
+                elif typ == LexTypes.RPAR: # Pop from stack and add edges
+                    pop_and_transition(); 
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-
+            
             elif state == 5:
-                if type == LexTypes.LPAR:
-                    state = 1
-                elif type == LexTypes.QUANTITY:
-                    stack.append((CNODE, Quantity(token), None))
-                    state = 6
-                elif type == LexTypes.STRLITERAL:
-                    stack.append((CNODE, StrLiteral(token[1:-1]), None))
-                    state = 6
-                elif type == LexTypes.LITERAL:
-                    stack.append((CNODE, Literal(token[1:]), None)) 
-                    state = 6
-                elif type == LexTypes.IDENTIFIER: 
-                    stack.append((CNODE, token, None)) # Push new source node with concept label
-                    state = 6
-                elif type == LexTypes.EDGELABEL:  # Unary edge
-                    stack.append((CNODE, None, None))
-                    stack.append((EDGE, token[1:]))
-                    state = 5
-                        
-                elif type == LexTypes.RPAR: # Unary edge
-                    stack.append((CNODE, None, None))             
-                    edges = []
-                    while stack[-1][0] != PNODE: # Pop all edges
-                        children = []
-                        while stack[-1][0] == CNODE: # Pop all external nodes for hyperedge
-                            forgetme, childnodelabel, childconcept = stack.pop()
-                            if childnodelabel is not None and childnodelabel[0] == '@': #child is external node
-                                childnodelabel = childnodelabel[1:]
-                                amr.external_nodes.append(childnodelabel)
-                            children.append((childnodelabel, childconcept))
+                raise ParserError, "Unexpected token %s at position %i." % (token, pos)
 
-                        assert stack[-1][0] == EDGE 
-                        forgetme, edgelabel = stack.pop()
-                        edges.append((edgelabel, children))
-                   
-                    forgetme, parentnodelabel, parentconcept = stack.pop()
-                    if concepts and (not parentnodelabel in amr.node_to_concepts or parentconcept is not None): 
-                        amr.node_to_concepts[parentnodelabel] = parentconcept
-                    if parentnodelabel[0] == '@': #parent is external node
-                        parentnodelabel = parentnodelabel[1:]
-                        amr.external_nodes.append(parentnodelabel)
-                    for edgelabel, children in edges: 
-
-                        hypertarget =[] # build hyperedge destination
-                        for node, concept in children:
-                            if node is not None:
-                                if concepts and (not node in amr.node_to_concepts or concept is not None):
-                                    amr.node_to_concepts[node] = concept
-                                hypertarget.append(node) 
-                        hyperchild = tuple(hypertarget)    
-                        
-                        if edgelabel[0] == '#': # this is a nonterminal Edge 
-                            edgelabel = NonterminalLabel(edgelabel[1:])
-
-                        amr._add_triple(parentnodelabel, edgelabel, hyperchild)
-
-                    if stack:
-                        state = 6
-                        stack.append((CNODE, parentnodelabel, parentconcept))
-                    else: 
-                        state = 0 
-                        amr.roots.append(parentnodelabel)
-                     
-                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-
-            elif state == 6:
-                if type == LexTypes.RPAR: # Pop from stack and add edges
-
-                    edges = []
-                    
-                    while stack[-1][0] != PNODE: # Pop all edges
-                        children = []
-                        while stack[-1][0] == CNODE: # Pop all external nodes for hyperedge
-                            forgetme, childnodelabel, childconcept = stack.pop()
-                            if childnodelabel is not None and childnodelabel[0] == '@': #child is external node
-                                childnodelabel = childnodelabel[1:]
-                                amr.external_nodes.append(childnodelabel)
-                            children.append((childnodelabel, childconcept))
-
-                        assert stack[-1][0] == EDGE 
-                        forgetme, edgelabel = stack.pop()
-                        edges.append((edgelabel, children))
-                   
-                    forgetme, parentnodelabel, parentconcept = stack.pop()
-                    if concepts and (not parentnodelabel in amr.node_to_concepts or parentconcept is not None): 
-                        amr.node_to_concepts[parentnodelabel] = parentconcept
-                    if parentnodelabel[0] == '@': #parent is external node
-                        parentnodelabel = parentnodelabel[1:]
-                        amr.external_nodes.append(parentnodelabel)
-                    for edgelabel, children in edges: 
-
-                        hypertarget =[] # build hyperedge destination
-                        for node, concept in children:
-                            if node is not None: 
-                                if concepts and (not node in amr.node_to_concepts or concept is not None):
-                                    amr.node_to_concepts[node] = concept
-                                hypertarget.append(node) 
-                        hyperchild = tuple(hypertarget)    
-                        
-                        if edgelabel[0] == '#': # this is a nonterminal Edge 
-                            edgelabel = NonterminalLabel(edgelabel[1:])
-                        amr._add_triple(parentnodelabel, edgelabel, hyperchild)
-
-                    if stack:
-                        state = 6
-                        stack.append((CNODE, parentnodelabel, parentconcept))
-                    else: 
-                        state = 0 
-                        amr.roots.append(parentnodelabel)
-                        
-                elif type == LexTypes.COMMA:
-                    state = 7
-
-                elif type == LexTypes.EDGELABEL: 
-                    stack.append((EDGE, token[1:]))
-                    state = 5
-
-                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-
-            elif state == 7: 
-                if type == LexTypes.IDENTIFIER:
-                    stack.append((CNODE, token, None)) # Push new source node with concept label
-                    state = 6
-                elif type== LexTypes.LPAR:
-                    state = 1
-                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
-
-        return amr
+        # Normalize external nodes
+        new_ext_nodes = {}
+        new_rev_ext_nodes = {}
+        i = 0
+        for node, index in sorted(hgraph.external_nodes.items(), key = lambda (n, i): i):
+            new_ext_nodes[node] = i 
+            new_rev_ext_nodes[i] = node
+            i = i + 1       
+ 
+        hgraph.external_nodes = new_ext_nodes
+        hgraph.rev_external_nodes = new_rev_ext_nodes
+        return hgraph
 
 if __name__ == "__main__":
-    #import doctest
-    #doctest.testmod()
-
-
-    #import timeit
-    #
-    #s = """for line in lines: 
-    #         parser.parse_string(line)"""
-    #t = timeit.Timer(stmt = s, setup = """from graph_description_parser import GraphDescriptionParser\nlines = open(sys.argv[1],'r').readlines()\nparser = GraphDescriptionParser()""")
-    #print t.timeit(number = 1)
-    #s2 = """for line in lines: 
-    #         Hgraph.from_string(line)"""
-    #t2 = timeit.Timer(stmt = s2, setup = """from amr import Hgraph\nlines = open(sys.argv[1],'r').readlines()""")
-    #print t2.timeit(number = 1)
+    # Just test the module
+    import doctest
+    doctest.testmod()
 
     parser = GraphDescriptionParser()
-    with open(sys.argv[1]) as in_file:
-        for line in in_file:
-            print parser.parse_string(line).to_string(newline= False)
-

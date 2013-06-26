@@ -7,8 +7,16 @@ class InputFormatException(Exception):
 class BinarizationException(Exception):
     pass
 
-class GrammarError(Exception):
-    pass
 
 class DerivationException(Exception):
+    pass
+
+# Graph Parser
+class LexerError(Exception):
+    pass
+class ParserError(Exception):
+    pass
+
+# Grammar
+class GrammarError(Exception):
     pass

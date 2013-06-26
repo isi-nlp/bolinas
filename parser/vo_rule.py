@@ -3,161 +3,17 @@ from lib.hgraph.hgraph import Hgraph
 from lib.hgraph.new_graph_description_parser import ParserError, LexerError
 from lib.tree import Tree
 from lib import log
-from lib.exceptions import InputFormatException, BinarizationException, GrammarError
-#from lib import util
+from common.rule import Rule
 import sys
 import cPickle as pickle
 from collections import defaultdict as ddict
 import re
 import StringIO
 
-def parse_string(s):
-    tokens = s.strip().split()
-    res = []
-    nt_index = 0
-    for t in tokens:
-        if "$" in t: 
-            new_token = NonterminalLabel.from_string(t)
-            if not new_token.index:
-                new_token.index = "_%i" % nt_index
-                nt_index = nt_index + 1
-        else: 
-            new_token = t
-        res.append(new_token)
-    return res            
-
-class Grammar(dict):
-
-
-    def __init__(self, nodelabels = False):
-        self.nodelabels = nodelabels  
- 
-    @classmethod
-    def load_from_file(cls, in_file, reverse = False, nodelabels = False):
-        """
-        Loads a SHRG grammar from the given prefix. 
-        See documentation for format details.
-        """    
-
-        output = Grammar(nodelabels = nodelabels)
-
-        rule_count = 1
-        line_count = 0
-        is_synchronous = False
-
-        rhs1_type = None
-        rhs2_type = None
-        GRAPH_FORMAT = "hypergraph" 
-        STRING_FORMAT = "string"
-        TREE_FORMAT = "tree"
-
-        buf = StringIO.StringIO() 
-
-        for line in in_file: 
-            line_count += 1
-            l = line.strip()
-            if l:
-                if "#" in l: 
-                    content, comment = l.split("#",1)
-                else: 
-                    content = l
-                buf.write(content.strip())
-                if ";" in content:
-                    rulestring = buf.getvalue()
-                    try:
-                        content, weights = rulestring.split(";",1)
-                        weight = 1.0 if not weights else float(weights)
-                    except:
-                        raise GrammarError, \
-            "Line %i, Rule %i: Error near end of line." % (line_count, rule_count)
-                    
-                    lhs, rhsstring = content.split("->")
-                    lhs = lhs.strip()
-                    if "|" in rhsstring:
-                        if not is_synchronous and rule_count > 1:
-                            raise GrammarError,\
-           "Line %i, Rule %i: All or none of the rules need to have two RHSs." % (line_count, rule_count)
-                        is_synchronous = True
-                        try:
-                            rhs1,rhs2 = rhsstring.split("|")
-                        except:
-                            raise GrammarError,"Only up to two RHSs are allowed in grammar file."
-                    else: 
-                        if is_synchronous and rule_count > 0:
-                            raise ParserError,\
-            "Line %i, Rule %i: All or none of the rules need to have two RHSs." % (line_count, rule_count)
-                        is_synchronous = False
-                        rhs1 = rhsstring
-                        rhs2 = None                               
-                    
-                    try:    # If the first graph in the file cannot be parsed, assume it's a string
-                        r1  = Hgraph.from_string(rhs1)
-                        r1_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r1.nonterminal_edges()])
-                        if not rhs1_type:
-                            rhs1_type = GRAPH_FORMAT
-                    except ParserError, e: 
-                        if rhs1_type == GRAPH_FORMAT:
-                           raise ParserError,\
-            "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
-                        else:
-                           r1 = parse_string(rhs1) 
-                           nts = [t for t in r1 if type(t) is NonterminalLabel]
-                           r1_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
-                           rhs1_type = STRING_FORMAT
-  
-                    if is_synchronous: 
-                        try:    # If the first graph in the file cannot be parsed, assume it's a string
-                            r2  = Hgraph.from_string(rhs2)
-                            r2_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r2.nonterminal_edges()])
-                            if not rhs2_type:
-                                rhs2_type = GRAPH_FORMAT
-                        except ParserError, e: 
-                            if rhs2_type == GRAPH_FORMAT:
-                               raise ParserError,\
-                "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
-                            else:
-                               r2 = parse_string(rhs2) 
-                               nts = [t for t in r2 if type(t) is NonterminalLabel]
-                               r2_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
-                               rhs2_type = STRING_FORMAT
-
-                        # Verify that nonterminals match up
-                        if not r1_nts == r2_nts:
-                            raise GrammarError, \
-            "Line %i, Rule %i: Nonterminals do not match between RHSs." % (line_count, rule_count)
-                    else: 
-                        r2 = None
-                    if is_synchronous and reverse: 
-                        output[rule_count] = Rule(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels) 
-                    else: 
-                        output[rule_count] = Rule(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels) 
-                    buf = StringIO.StringIO() 
-                    rule_count += 1
-        output.is_synchronous = is_synchronous
-        if is_synchronous and reverse:
-            output.rhs1_type, output.rhs2_type = rhs2_type, rhs1_type
-        else: 
-            output.rhs1_type, output.rhs2_type = rhs1_type, rhs2_type
-
-        return output 
-
-
-class Rule(object):
-
-  @classmethod
-  def normalize_weights(cls, grammar):
-    """
-    Reweights the given grammar _conditionally_, so that the weights of all
-    rules with the same right hand side sum to 1.
-    """
-    norms = ddict(lambda:0.0)
-    for rule in grammar.values():
-      norms[rule.symbol] += rule.weight
-    ngrammar = {}
-    for rule_id, rule in grammar.items():
-      nrule = rule.reweight(rule.weight / norms[rule.symbol])
-      ngrammar[rule_id] = nrule
-    return ngrammar
+class VoRule(Rule):
+  """
+  A rule that stores a simple visit order for the graph.
+  """
 
   def __init__(self, rule_id, symbol, weight, rhs1, rhs2, rhs1_visit_order =
       None, rhs2_visit_order = None, original_index = None, nodelabels = False):
@@ -194,22 +50,22 @@ class Rule(object):
 
 
   def reweight(self, nweight):
-    return Rule(self.rule_id, self.symbol, nweight, self.rhs1, self.parse, \
+    return VoRule(self.rule_id, self.symbol, nweight, self.rhs1, self.parse, \
         self.rhs1_visit_order, self.rhs2_visit_order)
 
   def canonicalize_amr(self):
-    return Rule(self.rule_id, self.symbol, self.weight,
+    return VoRule(self.rule_id, self.symbol, self.weight,
         self.amr.clone_canonical(), self.parse, self.rhs1_visit_order,
         self.rhs2_visit_order)
 
   def __repr__(self):
-    return 'Rule(%d,%s)' % (self.rule_id, self.symbol)
+    return 'VoRule(%d,%s)' % (self.rule_id, self.symbol)
 
   def __hash__(self):
     return self.rule_id
 
   def __eq__(self, other):
-    return isinstance(other, Rule) and self.rule_id == other.rule_id
+    return isinstance(other, VoRule) and self.rule_id == other.rule_id
 
   def binarize(self, next_id):
     oid = next_id
@@ -218,7 +74,7 @@ class Rule(object):
 
     # handle all-terminal rules
     if not any(s[0] == '#' for s in tree.leaves()):
-      return [Rule(next_id, self.symbol, self.weight, self.amr, self.parse,
+      return [VoRule(next_id, self.symbol, self.weight, self.amr, self.parse,
         self.rhs1_visit_order, self.rhs2_visit_order)], next_id + 1
 
     # handle rules containing nonterminals
@@ -244,7 +100,7 @@ class Rule(object):
     # sanity check---did we completely binarize the rule?
     assert len(string) == 1
     assert len(amr.triples()) == 1
-    rules.append(Rule(next_id + 1, self.symbol, self.weight, amr, string[0]))
+    rules.append(VoRule(next_id + 1, self.symbol, self.weight, amr, string[0]))
     return rules, next_id + 2
 
   def binarize_tree(self, next_id):
@@ -254,7 +110,7 @@ class Rule(object):
 
     # handle all-terminal rules
     if not any(s[0] == '#' for s in tree.leaves()):
-      return [Rule(next_id, self.symbol, self.weight, self.amr, self.parse,
+      return [VoRule(next_id, self.symbol, self.weight, self.amr, self.parse,
         self.rhs1_visit_order, self.rhs2_visit_order)], next_id + 1
 
     # handle rules containing nonterminals
@@ -273,7 +129,7 @@ class Rule(object):
     # sanity check as above
     assert isinstance(tree, str)
     assert len(amr.triples()) == 1
-    rules.append(Rule(next_id + 1, self.symbol, self.weight, amr, tree))
+    rules.append(VoRule(next_id + 1, self.symbol, self.weight, amr, tree))
     return rules, next_id + 2
 
   def terminal_search(self, root, triples):
@@ -544,7 +400,7 @@ class Rule(object):
     rule_amr.external_nodes = external
 
     # create new rule
-    new_rule = Rule(new_rule_id, new_symbol, 1, rule_amr, rule_tree,
+    new_rule = VoRule(new_rule_id, new_symbol, 1, rule_amr, rule_tree,
         rhs1_visit_order, rhs2_visit_order)
 
     # unapply new rule

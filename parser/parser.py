@@ -1,5 +1,4 @@
 from lib.tree import Tree
-from lib.pyparsing import ParseException
 from lib import log
 import time
 from collections import defaultdict as ddict, deque
@@ -7,168 +6,32 @@ import itertools
 import re
 import math
 
-from lib.exceptions import InvocationException, InputFormatException
 from lib.hgraph.hgraph import Hgraph
 
 from item import CfgItem, HergItem, CfgHergItem, Chart
 from rule import Rule
 
-import pprint
-
-# input corpus formats
-IFORMAT_STRING = 0
-IFORMAT_TREE = 1
-IFORMAT_GRAPH = 2
-
-# output chart formats
-OFORMAT_BOLINAS = 0
-OFORMAT_CARMEL = 1
-OFORMAT_TIBURON = 2
-OFORMAT_CDEC = 3
-
-# mappings from format names to constants
-OFORMATS = {
-  'bolinas': OFORMAT_BOLINAS,
-  'carmel': OFORMAT_CARMEL,
-  'tiburon': OFORMAT_TIBURON,
-  'cdec': OFORMAT_CDEC
-}
-
-# OUTPUT_METHODS (mappings from formats to printing functions) at bottom of file
-def get_format(path):
-  """
-  Determines the format (string, tree or graph) of the file at path.
-  """
-  if path == None:
-    return None
-  with open(path) as f:
-    line = f.readline().strip()
-    try:
-      Hgraph.from_string(line)
-      return IFORMAT_GRAPH
-    except ParseException:
-      pass
-    try:
-      Tree(line)
-      return IFORMAT_TREE
-    except ValueError as e:
-      pass
-    return IFORMAT_STRING
-
-
-#def parse_corpus(string_input_path=None, graph_input_path=None):
-#  """
-#  Finds derivation forests for all the examples in the corpus specified by one
-#  or both of the input_paths.
-#  """
-#  parse_string = True if string_input_path else False
-#  parse_graph = True if graph_input_path else False
-#  assert parse_string or parse_graph
-#  modes = []
-#  if parse_string:
-#    modes.append('string')
-#  if parse_graph:
-#    modes.append('graph')
-#  log.info('Parsing %s.' % ' and '.join(modes))
-#
-#  # for more efficient filtering of rules, precompute a fast lookup of terminals
-#  if parse_string and parse_graph:
-#    filter_cache = make_synch_filter_cache()
-#  elif parse_string:
-#    filter_cache = make_string_filter_cache()
-#  else:
-#    filter_cache = make_graph_filter_cache()
-#
-#  # get all of the input data into machine-readable format
-#  strings = []
-#  graphs = []
-#  if parse_string:
-#    with open(string_input_path) as sf:
-#      for line in sf.readlines():
-#        strings.append(line.strip().split())
-#  if parse_graph:
-#    with open(graph_input_path) as gf:
-#      for line in gf.readlines():
-#        graphs.append(Hgraph.from_string(line))
-#
-#  # parse!
-#  start_time = time.clock()
-#  charts = []
-#  for i in range(max(len(strings), len(graphs))):
-#    string = strings[i] if parse_string else None
-#    graph = graphs[i] if parse_graph else None
-#    raw_chart = parse(grammar, string, graph, filter_cache)
-#    chart = cky_chart(raw_chart)
-#    charts.append(chart)
-#
-#  etime = time.clock() - start_time
-#  log.info('Parsed %s sentences in %.2fs' % (len(graphs), etime))
-#
-#  return charts
-
 class Parser:
+  """
+  A deductive style parser for hypergraphs and strings that matches parts
+  of the input hypergraph according to an arbitrary visit order for edges.
+  (or left-to-right for strings, in which case this is essentially
+  a CKY parser).
+  """
 
   def __init__(self, grammar):
     self.grammar = grammar
     self.nodelabels = grammar.nodelabels 
-
-  @classmethod 
-  def help(cls):
-    return 'Usage: bolinas parse <grammar> <input1> [input2] ' + \
-        '<output_prefix> <format>'
-
-#  def main(self, *args):
-#    """
-#    Parses (or biparses) the given input, and writes the resulting charts into
-#    files specified by the given output prefix and format.
-#    """
-#    # determine input format
-#    if len(args) == 4:
-#      grammar_path, i1_path, output_prefix, output_format = args
-#      i2_path = None
-#    elif len(args) == 5:
-#      grammar_path, i1_path, i2_path, output_prefix, output_format = args
-#    else:
-#      raise InvocationException()
-#    i1_format = get_format(i1_path)
-#    i2_format = get_format(i2_path)
-#
-#    # determine output format
-#    if output_format not in OFORMATS:
-#      raise InputFormatException("output_format must be one of carmel, " + \
-#          "tiburon, bolinas or cdec")
-#    o_format = OFORMATS[output_format]
-#
-#    grammar = Rule.load_from_file(grammar_path)
-#
-#    # parse corpus
-#    # RTG parsing isn't supported yet
-#    if i2_path:
-#      if i1_format == IFORMAT_STRING and i2_format == IFORMAT_GRAPH:
-#        charts = parse_corpus(grammar, i1_path, i2_path)
-#      else:
-#        raise InputFormatException("If biparsing, must give [string, graph]" + \
-#            " as input.")
-#    else:
-#      if i1_format == IFORMAT_STRING:
-#        charts = parse_corpus(grammar, string_input_path=i1_path)
-#      elif i1_format == IFORMAT_GRAPH:
-#        charts = parse_corpus(grammar, graph_input_path=i1_path)
-#      else:
-#        raise InputFormatException("Must give one of string or graph " + \
-#            "as input.")
-#
-#    # write output
-#    OUTPUT_METHODS[o_format](charts, grammar, output_prefix)
 
   def parse_graphs(self, graph_iterator):
       """
       Parse all the graphs in graph_iterator.
       This is a generator.
       """
-      filter_cache = make_graph_filter_cache()
+      #filter_cache = make_graph_filter_cache()
+
       for graph in graph_iterator: 
-          raw_chart = self.parse(None, graph, filter_cache)
+          raw_chart = self.parse(None, graph)
           # The raw chart contains parser operations, need to decode the parse forest from this 
           yield cky_chart(raw_chart)
 
@@ -183,7 +46,7 @@ class Parser:
         # The raw chart contains parser operations, need to decode the parse forest from this 
         yield cky_chart(raw_chart)
 
-  def parse(self, string, graph, filter_cache):
+  def parse(self, string, graph):
       """
       Parses the given string and/or graph.
       """
@@ -260,7 +123,7 @@ class Parser:
         if item.closed:
           log.debug('  is closed.')
           # check if it's a complete derivation
-          if successful_parse(string, graph, item, string_size, graph_size):
+          if self.successful_parse(string, graph, item, string_size, graph_size):
               chart['START'].add((item,))
               success = True
 
@@ -336,36 +199,34 @@ class Parser:
       # TODO return partial chart
       return chart
 
+  def successful_parse(self, string, graph, item, string_size, graph_size):
+      """
+      Determines whether the given item represents a complete derivation of the
+      object(s) being parsed.
+      """
+      # make sure the right start symbol is used
+      if self.grammar.start_symbol != item.rule.symbol:
+        return False
+        
 
+      # make sure the item spans the whole object
+      if string and graph:
+        whole_string = item.cfg_item.j - item.cfg_item.i == string_size
+        whole_graph = len(item.herg_item.shifted) == graph_size
+        return whole_string and whole_graph
+      elif string:
+        return item.j - item.i == string_size
+      else: # graph
+        return len(item.shifted) == graph_size
 
-def successful_parse(string, graph, item, string_size, graph_size):
-  """
-  Determines whether the given item represents a complete derivation of the
-  object(s) being parsed.
-  """
-  # make sure the right start symbol is used
-  if 's' not in item.rule.symbol.lower():
-    return False
-    
-
-  # make sure the item spans the whole object
-  if string and graph:
-    whole_string = item.cfg_item.j - item.cfg_item.i == string_size
-    whole_graph = len(item.herg_item.shifted) == graph_size
-    return whole_string and whole_graph
-  elif string:
-    return item.j - item.i == string_size
-  else: # graph
-    return len(item.shifted) == graph_size
-
-def make_synch_filter_cache():
-  pass
-
-def make_string_filter_cache():
-  pass
-
-def make_graph_filter_cache():
-  pass
+#def make_synch_filter_cache():
+#  pass
+#
+#def make_string_filter_cache():
+#  pass
+#
+#def make_graph_filter_cache():
+#  pass
 
 def cky_chart(chart):
   stack = ['START']
@@ -590,10 +451,3 @@ def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
 
   return strings
 
-# here so the relevant methods are in namespace when we create this dictionary
-OUTPUT_METHODS = {
-  OFORMAT_BOLINAS: output_bolinas,
-  OFORMAT_CARMEL: output_carmel,
-  OFORMAT_TIBURON: output_tiburon,
-  OFORMAT_CDEC: output_cdec
-}

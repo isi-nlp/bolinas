@@ -332,7 +332,7 @@ class Hgraph(defaultdict):
         Initialize a new abstract meaning representation from a Pennman style string.
         """
         if not cls._parser_singleton: # Initialize the AMR parser only once
-            from new_graph_description_parser import GraphDescriptionParser, LexerError, ParserError 
+            from graph_description_parser import GraphDescriptionParser, LexerError, ParserError 
             _parser_singleton = GraphDescriptionParser() 
             amr = _parser_singleton.parse_string(amr_string)
             return amr
