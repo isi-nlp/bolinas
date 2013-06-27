@@ -8,9 +8,12 @@ from argparse import ArgumentParser
 from lib.hgraph.hgraph import Hgraph
 from lib.exceptions import DerivationException
 
+from common.grammar import Grammar
+
 #Import bolinas modules
 from parser.parser import Parser
-from parser.rule import Grammar, Rule
+from parser.vo_rule import VoRule
+from parser_td.td_rule import TdRule
 from parser_td.parser_td import ParserTD
 from lib import output
 
@@ -37,7 +40,7 @@ if __name__ == "__main__":
     weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights to sum to 1.0 for all rules with the same LHS.") 
     weights.add_argument("-t","--train", default=5, help="Use TRAIN iterations of EM to train weights for the grammar using the input (graph, string, or pairs of objects in alternating lines). Initialize with the weights in the grammar file or with uniform weights if none are provided. Writes a grammar file with trained weights to the output.")
     argparser.add_argument("-m", "--weight_type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
-    argparser.add_argument("-p","--parser", default="laut", help="Specify which parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'laut' uses the Lautemann parser. 'cky' use a native CKY parser instead of the HRG parser if the input is a tree.")
+    argparser.add_argument("-p","--parser", default="basic", help="Specify which graph parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'basic': a basic generalization of CKY that matches rules according to an arbitrary visit order on edges (less efficient).")
     argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes on the target side of a synchronous grammar.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
     argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
@@ -61,8 +64,8 @@ if __name__ == "__main__":
         if args.k:
             log.warn("Ignoring -k command line option because output type is 'forest'.")    
     
-    if not args.parser in ['td', 'laut', 'cky']:
-        log.err("Parser (-p) must be either 'td', 'laut', or 'cky'.")
+    if not args.parser in ['td', 'basic']:
+        log.err("Parser (-p) must be either 'td' or 'basic'.")
         sys.exit(1)
 
     if args.k > config.maxk:
@@ -73,7 +76,6 @@ if __name__ == "__main__":
         log.err("Invalid verbosity level, must be 0-4.")
         sys.exit(1)
    
-
     # Definition of verbosity levels 
     log.LOG = {0:{log.err},
                1:{log.err, log.warn},
@@ -89,15 +91,22 @@ if __name__ == "__main__":
         else:
             output_file = sys.stdout        
 
-    # Run the selected parser                
-    parser_class = {
-             'laut': Parser,
-             'td': None,
-             'cky': Parser
-             }[args.parser]
-
     with open(args.grammar_file,'ra') as grammar_file:
-        grammar = Grammar.load_from_file(grammar_file, args.backward, nodelabels = (not args.edge_labels)) 
+
+        # Run the selected parser                
+        if args.parser == 'td':
+            parser_class = ParserTD 
+            rule_class = TdRule
+        elif args.parser == 'basic':
+            parser_class = Parser
+            rule_class = VoRule
+
+        # Read the grammar
+        grammar = Grammar.load_from_file(grammar_file, rule_class, args.backward, nodelabels = (not args.edge_labels)) 
+        if len(grammar) == 0:
+            log.err("Unable to load grammar from file.")
+            sys.exit(1)
+
         log.info("Loaded %s%s grammar with %i rules."\
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
  
@@ -109,17 +118,14 @@ if __name__ == "__main__":
 
         if grammar.rhs1_type == "string":
             if parser_class == "td":
-                log.err("Parser class needs to be 'laut' or 'cky' to parse strings.")
+                log.err("Parser class needs to be 'basic' to parse strings.")
                 sys.exit(1)
             else: 
                 parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(args.input_file))
         else: 
-            if parser_class == "cky":
-                log.err("Need to use 'laut' or 'td' parser to parse hypergraphs.'")
-                sys.exit(1)
             parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(args.input_file))
-         
-
+        
+        # Process input (if any) and produce desired output 
         if args.input_file:
             count = 1
             # Run the parser for each graph in the input
@@ -139,13 +145,13 @@ if __name__ == "__main__":
 
                 # Produce k-best derived graphs/strings
                 elif args.output_type == "derived":
-                    if grammar.rhs2_type == "graph":
+                    if grammar.rhs2_type == "hypergraph":
                         for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
                             try:
-                                output_file.write("%s\t#%f\n" % (output.apply__graph_derivation(derivation).to_string(newline = False), score))
+                                output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), score))
                             except DerivationException:
                                 log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
-                    elif grammar.rhs1_type == "string":
+                    elif grammar.rhs2_type == "string":
                         for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
                             try:
                                 output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))

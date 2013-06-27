@@ -518,60 +518,7 @@ class CfgHergItem:
     return CfgHergItem(self.rule, citem, hitem)
 
 
-class Chart(dict):
-    """
-    A CKY style parse chart
-    """
 
-    def kbest(self, item, k, logprob = False):
-        """
-        Find all 
-        """
-
-        if item == "START":
-            rprob = 0.0 if logprob else 1.0
-        else: 
-            rprob = item.rule.weight
-
-        # If item is a leaf, just return it and it's probability    
-        if not item in self: 
-            if item == "START":
-                log.info("No derivations.")
-                return []
-            else:
-                return [(rprob, item)]
-
-        # Find the k-best options for each child
-        nts = []
-        kbest_each_child = []
-        for nt in self[item]: 
-            nts.append(nt)
-            kbest_each_child.append(sorted(sum([self.kbest(poss,k, logprob) for poss in self[item][nt]],[]), reverse = True)[:k])
-
-        # Compute cartesian product of possibilities among children. Evaluated lazily.
-        generator = itertools.product(*kbest_each_child)
-
-        # Select k-best and compute score
-        kbest = [] 
-        for i in range(k):
-            try:
-                cprobs, trees = zip(*next(generator)) #unpack list of (score, chart) tuples 
-                if logprob:
-                    prob = sum(cprobs) + rprob
-                else:
-                    prob = rprob
-                    for p in cprobs: 
-                        prob = prob * p 
-
-                new_tree = (item, dict(zip(nts,trees)))
-                if new_tree:
-                    kbest.append((prob, new_tree))
-            except StopIteration, e:
-                break
-        
-        if item == "START" and len(kbest)<k:
-                log.info("K-best did not find %i derivations. Returning best %i." % (k, len(kbest)))
-        return kbest
 
 #    def format_tiburon(chart):
 #      def start_stringifier(rhs_item):

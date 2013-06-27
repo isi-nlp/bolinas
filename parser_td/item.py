@@ -3,13 +3,13 @@ from lib import log
 import sys
 from collections import defaultdict as ddict
 
-class Subgraph:
+class Subgraph(object):
   """
   Represents a boundary-induced subgraph, for fast union computation.
   """
   def __init__(self, boundary_nodes, boundary_edges, size):
     self.boundary_nodes = frozenset(boundary_nodes)
-    self.boundary_edges = ddict(frozenset, boundary_edges)
+    self.boundary_edges = ddict(frozenset, boundary_edges) # maps boundary nodes to their edges
     self.size = size
 
     self.hedges = frozenset([(k,boundary_edges[k]) for k in boundary_edges])
@@ -22,6 +22,10 @@ class Subgraph:
     return isinstance(other, Subgraph) and \
         self.boundary_nodes == other.boundary_nodes and \
         self.hedges == other.hedges
+        # Need to check boundary edges too?
+
+  def __repr__(self):
+    return "[%s, %d]" %(self.boundary_nodes, self.size)
 
   def is_member(self, node, graph):
     """
@@ -66,13 +70,14 @@ class Item:
     self.rule = rule
     self.tree_node = tree_node
     self.graph = graph
+    self.closed = False
 
     # tree_node specifies the subtree of the tree decomposition which has
     # *already* been recognized
 
     # Every node of the tree decomposition will be one of
     # 1. A leaf
-    # 2. A node introducing a single edge
+    # 2. A node introducing a single edge (either terminal or nonterminal)
     # 3. A binary node
     # The action taken by the parser on an item is determined by that item's
     # parent in the tree. If there is no parent, we've recognized the whole rule
@@ -92,6 +97,7 @@ class Item:
       self.self_key = (self.rule.rule_id, self.tree_node)
     elif tree_node not in self.rule.tree_to_parent:
       self.target = Item.ROOT
+      self.closed = True
       self.self_key = self.rule.symbol
     elif tree_node in self.rule.tree_to_sibling:
       self.target = Item.BINARY
@@ -102,6 +108,8 @@ class Item:
       if isinstance(search_edge[1], NonterminalLabel):
         self.target = Item.NONTERMINAL
         self.next_key = search_edge[1].label
+        self.outside_symbol = search_edge[1].label
+        self.outside_index = search_edge[1].index
       else:
         self.target = Item.TERMINAL
         self.next_key = search_edge[1]
@@ -128,8 +136,8 @@ class Item:
            23 * hash(self.subgraph)
 
   def __repr__(self):
-    return '[%d, %s, %d, {%d}]' % (self.rule.rule_id, self.rule.symbol, \
-        self.tree_node, len(self.subgraph))
+    return '[%d, %s, %d, {%d/%d}, (%d)]' % (self.rule.rule_id, self.rule.symbol, \
+        self.tree_node, len(self.subgraph), len(self.rule.rhs1.triples()), self.target)
 
   ## BEGIN EXPLICIT REPR
 
@@ -150,7 +158,8 @@ class Item:
 
   def check_subgraph_overlap(self, oitem):
     """
-    Determines whether this item and oitem recognize non-disjoint subgraphs.
+    Determines whether this item and oitem recognize disjoint subgraphs.
+    If so, returns the union of both subgraphs.
     """
     for edge in oitem.subgraph:
       if edge in self.subgraph:
@@ -161,6 +170,7 @@ class Item:
   def check_edge_overlap(self, edge):
     """
     Determines whether edge overlaps with this item's recognized subgraph.
+    If so, return the union of the subgraph and edge.
     """
     if edge in self.subgraph:
       return None
@@ -200,7 +210,7 @@ class Item:
     # now repeat that procedure for every tail node
     for i in range(len(self.next_key_edge[2])):
       mynode = self.next_key_edge[2][i]
-      onode = oitem.rule.boundary_nodes[i]
+      onode = oitem.rule.rhs1.rev_external_nodes[i]
       graph_node = oitem.mapping[onode]
       if mynode in self.mapping and self.mapping[mynode] != graph_node:
         return None
@@ -249,9 +259,10 @@ class Item:
 
   def terminal(self, edge):
     """
-    Attempts to apply the Terminal rule and consume edge. Returns the resulting
+    Attempts to apply the (unary) Terminal rule and consume edge. Returns the resulting
     item, if the attempt succeeded.
     """
+    # This is essentially the "shift" operation
     if self.target != Item.TERMINAL:
       return None
     if edge[1] != self.next_key:
@@ -277,30 +288,37 @@ class Item:
 
   def nonterminal(self, oitem):
     """
-    Attempts to apply the Nonterminal rule and consume oitem, returning the
+    Attempts to apply the (unary) Nonterminal rule and consume oitem, returning the
     result if successful.
     """
     if self.target != Item.NONTERMINAL:
-      #print 'I am not NT'
+      log.debug('I am not NT')
       return None
     if oitem.target != Item.ROOT:
-      #print 'other is not root'
+      log.debug('other is not root')
       return None
     if oitem.rule.symbol != self.next_key:
-      #print 'symbol mismatch'
+      log.debug('symbol mismatch')
       return None
     oboundary = oitem.rule.tree_to_boundary_nodes[oitem.tree_node]
-    if len(oboundary) != len(self.next_key_edge[2]) + 1:
-      #print 'boundary mismatch'
-      return None
+    
+    # No, only need to match external nodes, not the full boundary
+    #if len(oboundary) != len(self.next_key_edge[2]) + 1:
+    #  log.debug('boundary mismatch')
+    #  return None
+
+    if len(oitem.rule.rhs1.external_nodes) != len(self.next_key_edge[2]):
+        log.debug('hyperedge type mismatch')
+        return None
 
     nsubgraph = self.check_subgraph_overlap(oitem)
     if not nsubgraph:
-      #print 'overlap'
+      log.debug('overlap')
       return None
+
     nmapping = self.check_mapping_bijection_nonterminal(oitem)
     if not nmapping:
-      #print 'bijection'
+      log.debug('bijection')
       return None
 
     return self.__class__(self.rule,
@@ -318,7 +336,7 @@ class Item:
       return None
     if oitem.target != Item.NONE:
       return None
-    if self.rule.tree_to_sibling[self.tree_node] != oitem.tree_node:
+    if self.rule.tree_to_sibling[self.tree_node] != oitem.tree_node: 
       return None
 
     nsubgraph = self.check_subgraph_overlap(oitem)
@@ -362,7 +380,7 @@ class BoundaryItem(Item):
   def union(self, osubgraph):
     """
     Computes the subgraph formed of the union between my subgraph and osubgraph.
-    (Algorithm 3 in the paper.)
+    (Algorithm 1 in 3.1 in the ACL 2013 paper.)
     """
     nboundary_nodes = set()
     nboundary_edges = dict()
@@ -371,7 +389,7 @@ class BoundaryItem(Item):
       edges = self.subgraph.boundary_edges[node] | \
           osubgraph.boundary_edges[node]
       if node not in osubgraph.boundary_nodes or \
-          edges != self.graph.star(node):
+          edges != self.graph.star(node): # graph.star returns all adjacent edges
         nboundary_nodes.add(node)
         nboundary_edges[node] = frozenset(edges)
 
@@ -385,7 +403,7 @@ class BoundaryItem(Item):
     return Subgraph(nboundary_nodes, nboundary_edges, self.subgraph.size +
         osubgraph.size)
 
-  ## BEGIN EXPLICIT REPR
+  ## BEGIN BOUNDARY NODE REPR
 
   # overrides the necessary pieces of the item class
 
@@ -394,7 +412,6 @@ class BoundaryItem(Item):
 
   def matches_whole_graph(self):
     return self.subgraph.size == len(self.graph.triples())
-    print self.subgraph.size
 
   def check_subgraph_overlap(self, oitem):
     if not self.is_disjoint(oitem.subgraph):

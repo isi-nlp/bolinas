@@ -1,16 +1,49 @@
-from lib.exceptions import InputFormatException, BinarizationException, GrammarError
+from lib.exceptions import InputFormatException, BinarizationException, GrammarError, ParserError
+from lib.hgraph.hgraph import Hgraph
+from lib.cfg import NonterminalLabel
+from common.rule import Rule
+from parser.vo_rule import VoRule
+from parser_td.td_rule import TdRule
+import StringIO 
+
+def parse_string(s):
+    """
+    Parse the RHS of a CFG rule.
+    """
+    tokens = s.strip().split()
+    res = []
+    nt_index = 0
+    for t in tokens:
+        if "$" in t: 
+            new_token = NonterminalLabel.from_string(t)
+            if not new_token.index:
+                new_token.index = "_%i" % nt_index
+                nt_index = nt_index + 1
+        else: 
+            new_token = t
+        res.append(new_token)
+    return res    
 
 class Grammar(dict):
+    """
+    Represents a set of rules as a mapping from rule IDs to rules and defines
+    operations to be performed on the entire grammar.
+    """
 
     def __init__(self, nodelabels = False):
         self.nodelabels = nodelabels  
- 
+        self.start_symbol = "truth" 
+
     @classmethod
-    def load_from_file(cls, in_file, reverse = False, nodelabels = False):
+    def load_from_file(cls, in_file, rule_class = VoRule, reverse = False, nodelabels = False):
         """
         Loads a SHRG grammar from the given file. 
         See documentation for format details.
-        """    
+        
+        rule_class specifies the type of rule to use. VoRule is a subclass using an arbitrary graph
+        visit order (also used for strings). TdRule computes a tree decomposition on the first RHS
+        when initialized.
+        """
 
         output = Grammar(nodelabels = nodelabels)
 
@@ -46,6 +79,8 @@ class Grammar(dict):
                     
                     lhs, rhsstring = content.split("->")
                     lhs = lhs.strip()
+                    if rule_count == 1:
+                        output.start_symbol = lhs
                     if "|" in rhsstring:
                         if not is_synchronous and rule_count > 1:
                             raise GrammarError,\
@@ -68,7 +103,7 @@ class Grammar(dict):
                         r1_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r1.nonterminal_edges()])
                         if not rhs1_type:
                             rhs1_type = GRAPH_FORMAT
-                    except ParserError, e: 
+                    except (ParserError, IndexError), e: 
                         if rhs1_type == GRAPH_FORMAT:
                            raise ParserError,\
             "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
@@ -84,7 +119,7 @@ class Grammar(dict):
                             r2_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r2.nonterminal_edges()])
                             if not rhs2_type:
                                 rhs2_type = GRAPH_FORMAT
-                        except ParserError, e: 
+                        except (ParserError, IndexError), e: 
                             if rhs2_type == GRAPH_FORMAT:
                                raise ParserError,\
                 "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
@@ -101,11 +136,12 @@ class Grammar(dict):
                     else: 
                         r2 = None
                     if is_synchronous and reverse: 
-                        output[rule_count] = Rule(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels) 
+                        output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels) 
                     else: 
-                        output[rule_count] = Rule(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels) 
+                        output[rule_count] = rule_class(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels) 
                     buf = StringIO.StringIO() 
                     rule_count += 1
+
         output.is_synchronous = is_synchronous
         if is_synchronous and reverse:
             output.rhs1_type, output.rhs2_type = rhs2_type, rhs1_type
@@ -113,4 +149,21 @@ class Grammar(dict):
             output.rhs1_type, output.rhs2_type = rhs1_type, rhs2_type
 
         return output 
+
+    def normalize_weights(self):
+      """
+      Reweights the given grammar _conditionally_, so that the weights of all
+      rules with the same right hand side sum to 1.
+      """
+
+      norms = ddict(float)
+      for rule in self.values():
+        norms[rule.symbol] += rule.weight
+
+      ngrammar = Grammar(nodelabels = self.nodelabels)
+      for rule_id, rule in self.items():
+        nrule = rule.reweight(rule.weight / norms[rule.symbol])
+        ngrammar[rule_id] = nrule
+      return ngrammar
+
 
