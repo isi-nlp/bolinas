@@ -76,7 +76,8 @@ class HergItem():
     return isinstance(other, HergItem) and \
         other.rule == self.rule and \
         other.size == self.size and \
-        other.shifted == self.shifted
+        other.shifted == self.shifted and \
+        other.mapping == self.mapping
 
   def uniq_str(self):
     """
@@ -91,7 +92,7 @@ class HergItem():
     return '%d__%s' % (self.rule.rule_id, ','.join(sorted(list(edges))))
 
   def __repr__(self):
-    return 'HergItem(%d, %d, %s)' % (self.rule.rule_id, self.size, self.rule.symbol)
+    return 'HergItem(%d, %d, %s, [%s])' % (self.rule.rule_id, self.size, self.rule.symbol, [x[1] for x in self.shifted])
 
   def __str__(self):
     return '[%s, %d/%d, %s, {%d}]' % (self.rule,
@@ -223,9 +224,6 @@ class HergItem():
       return False
 
     real_nroot = new_item.mapping[nroot]
-    # Prevent completions when the source node has been used already unless it's a reentrency
-    #if real_nroot in rev_omap and rev_omap[real_nroot] != o1:
-    #    return False
 
     real_ntail = None
     for i in range(len(o2)):
@@ -236,10 +234,6 @@ class HergItem():
       if otail in self.mapping and self.mapping[otail] != new_item.mapping[ntail]:
         #log.debug('fail bc bad mapping in tail')
         return False
-      # Prevent completions when a tail node has been used already unless it's a reentrency
-      #real_ntail = new_item.mapping[ntail]  
-      #if real_ntail in rev_omap and rev_omap[real_ntail] != otail:
-      #  return False
    
     for node in new_item.mapping.values():
         if node in rev_omap:

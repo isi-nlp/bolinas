@@ -29,9 +29,9 @@ class TdRule(Rule):
         self.root_node = rhs1.roots[0]
         self.boundary_nodes = rhs1.external_nodes
 
-        # These tables record the structure of the tree decomposition (rather than
-        # making every item carry around a copy of a complete subtree). See the item
-        # class for a description of how they are used.
+        # These tables record the structure of the tree decomposition in the rule 
+        # (rather than making every chart item carry around a copy of a complete subtree).
+        # See the item class for a description of how they are used.
         self.tree_to_sibling = {}
         self.tree_to_parent = {}
         self.tree_to_edge = {}

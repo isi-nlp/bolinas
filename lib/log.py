@@ -6,7 +6,7 @@ def pe(parts, color=None):
 
 def debug(*message):
   if debug in LOG:
-    pe(message, 'blue')
+    pe(message, 'green')
 
 def chatter(*message):
   if chatter in LOG:

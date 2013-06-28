@@ -6,15 +6,14 @@ from collections import defaultdict as ddict, deque
 import itertools
 import re
 import math
-import pprint
 
 from lib.cfg import Chart
 
 from lib.exceptions import InvocationException, InputFormatException
 from lib.hgraph.hgraph import Hgraph
 
-from item import Item, BoundaryItem
-from rule import TdRule
+from td_item import Item, BoundaryItem
+from td_rule import TdRule
 
 ITEM_CLASS = Item #BoundaryItem
 
@@ -36,7 +35,7 @@ class ParserTD:
         for graph in graph_iterator: 
             raw_chart = self.parse(graph)
             # The raw chart contains parser operations, need to decode the parse forest from this 
-            yield cky_chart(raw_chart)
+            yield td_chart_to_cky_chart(raw_chart)
 
     def parse_strings(self, string_iterator):
         """
@@ -88,7 +87,7 @@ class ParserTD:
         item = queue.popleft()
         pending.remove(item)
         visited.add(item)
-        log.debug('handling', item)
+        log.debug('handling', item, item.subgraph)
 
         if item.target == Item.NONE:
           log.debug('  none')
@@ -142,7 +141,7 @@ class ParserTD:
             if (item, oitem) in attempted:
               continue
             attempted.add((item, oitem))
-            log.debug('  try', oitem)
+            log.debug('  try', oitem, oitem.subgraph)
             nitem = action(item, oitem)
             if not nitem:
               continue
@@ -165,7 +164,7 @@ class ParserTD:
        
        return item.matches_whole_graph()
 
-def cky_chart(chart):
+def td_chart_to_cky_chart(chart):
     stack = ['START']
     visit_items = set()
     while stack:
@@ -180,7 +179,7 @@ def cky_chart(chart):
     cky_chart = Chart() 
     for item in visit_items:
       # we only care about complete steps, so only add closed items to the chart
-      if not (item == 'START' or item.target in [Item.ROOT, Item.NONE]):
+      if not (item == 'START' or item.target in [Item.ROOT]):
         continue
       # this dictionary will store the nonterminals replacements used to create this item
       real_productions = {} 
@@ -219,35 +218,27 @@ def cky_chart(chart):
         assert len(lengths) == 1
         split_len = lengths.pop()
   
-        # figure out all items that could have been used to complete this rule
-        
         #if split_len != 1:
         prodlist = list(chart[pitem])
             
-        if prodlist[0][0].target in [Item.NONTERMINAL]:
+        if prodlist[0][0].target == Item.NONTERMINAL:
             assert split_len == 2
             symbol = prodlist[0][0].outside_symbol, prodlist[0][0].outside_index
             production = [x[1] for x in chart[pitem]]
             real_productions[symbol] = production
-            # move down 
+            assert prodlist[0][1].target == Item.ROOT
+            # move down.
             todo.append(prodlist[0][0])
-        
     
         elif prodlist[0][0].target == Item.BINARY:
             assert split_len == 2
-            assert len(prodlist) == 1
-            todo.extend(prodlist[0])
-       
-         
-        
+            for x in prodlist: 
+                assert len(x) == 2
+                todo.append(x[0])
+                todo.append(x[1])
                  
-      # realize all possible splits represented by this chart item
-      #all_productions = list(itertools.product(*real_productions))
-      #if all_productions != [()]:
-      #  cky_chart[item] = all_productions
       if real_productions:
           cky_chart[item] = real_productions 
-  
     return cky_chart
 
 

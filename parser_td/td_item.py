@@ -3,7 +3,7 @@ from lib import log
 import sys
 from collections import defaultdict as ddict
 
-class Subgraph(object):
+class BoundarySubgraph(object):
   """
   Represents a boundary-induced subgraph, for fast union computation.
   """
@@ -30,7 +30,6 @@ class Subgraph(object):
   def is_member(self, node, graph):
     """
     Tests if node is a member of this subgraph.
-    (Algorithm 1 in the paper.)
     """
     if node in self.boundary_nodes:
       return True
@@ -52,6 +51,38 @@ class Subgraph(object):
   def __len__(self):
     return self.size
 
+
+class ExplicitSubgraph(object): 
+  """
+  A subgraph that is represented by an explicit list of nodes and hyperedges.
+  """
+  def __init__(self, nodes, edges):
+    self.nodes = frozenset(nodes)
+    self.edges = frozenset(edges)
+
+    self.saved_hash = 17 * hash(self.nodes) + 23 * hash(self.edges)
+
+  def __hash__(self):
+    return self.saved_hash
+
+  def __eq__(self, other):
+    return isinstance(other, ExplicitSubgraph) and \
+        self.nodes == other.nodes and \
+        self.edges == other.edges
+
+  def __repr__(self):
+    return "Subgraph[%s, %d]" %(self.nodes, len(self.edges))
+
+  def is_member(self, node):
+    """
+    Tests if node is a member of this subgraph.
+    """
+    return node in self.nodes
+    
+  def __len__(self):
+    return len(self.edges) 
+
+  
 
 class Item:
   """
@@ -128,16 +159,16 @@ class Item:
         other.rule == self.rule and \
         other.tree_node == self.tree_node and \
         other.subgraph == self.subgraph and \
-        other.mapping == self.mapping
+        other.mapping == self.mapping 
 
   def __hash__(self):
     return 13 * self.rule.rule_id + \
            17 * self.tree_node + \
-           23 * hash(self.subgraph)
+           23 * hash(self.subgraph)  
 
   def __repr__(self):
-    return '[%d, %s, %d, {%d/%d}, (%d)]' % (self.rule.rule_id, self.rule.symbol, \
-        self.tree_node, len(self.subgraph), len(self.rule.rhs1.triples()), self.target)
+    return '[%d, %s, %d, %s, {%d/%d}, (%d)]' % (self.rule.rule_id, self.rule.symbol, self.tree_node,\
+        self.next_key_edge if "next_key_edge" in self.__dict__ else None, len(self.subgraph), len(self.rule.rhs1.triples()), self.target)
 
   ## BEGIN EXPLICIT REPR
 
@@ -148,7 +179,7 @@ class Item:
     """
     Produces the object representing an empty subgraph.
     """
-    return frozenset()
+    return ExplicitSubgraph(set(), set())
 
   def matches_whole_graph(self):
     """
@@ -161,10 +192,24 @@ class Item:
     Determines whether this item and oitem recognize disjoint subgraphs.
     If so, returns the union of both subgraphs.
     """
-    for edge in oitem.subgraph:
-      if edge in self.subgraph:
+
+    # Originally this method just checked for edge overlap. This is insufficient
+    # as nodes with two adjacent edges (that are not external nodes) can be 
+    # covered twice by different rules. We need to make sure that these rules 
+    # can only combine if the node maps to an external node for one of them. 
+
+    # Get nodes corresponding to external nodes of the other item.
+    real_other_ext = [oitem.mapping[x] for x in oitem.rule.boundary_nodes]
+    real_other_ext.append(oitem.mapping[oitem.rule.root_node])
+    
+    log.debug("NOdes",self.subgraph.nodes, oitem.subgraph.nodes - set(real_other_ext))
+    if any((self.subgraph.nodes & oitem.subgraph.nodes) - set(real_other_ext)):
         return None
-    nsubgraph = frozenset(self.subgraph | oitem.subgraph)
+
+    if any(self.subgraph.edges & oitem.subgraph.edges):
+        return None
+    
+    nsubgraph = ExplicitSubgraph(self.subgraph.nodes | oitem.subgraph.nodes, self.subgraph.edges | oitem.subgraph.edges)
     return nsubgraph
 
   def check_edge_overlap(self, edge):
@@ -172,9 +217,12 @@ class Item:
     Determines whether edge overlaps with this item's recognized subgraph.
     If so, return the union of the subgraph and edge.
     """
-    if edge in self.subgraph:
+    if edge in self.subgraph.edges:
       return None
-    nsubgraph = frozenset(self.subgraph | set([edge]))
+    nodes = [edge[0]]
+    nodes.extend(edge[2])
+
+    nsubgraph = ExplicitSubgraph(self.subgraph.nodes | set(nodes), self.subgraph.edges | set([edge]))
     return nsubgraph
 
   ## END
@@ -185,7 +233,7 @@ class Item:
     form a valid bijection. (oitem is passive).  If so, returns the resulting
     map.
     """
-    # create an empty mapping
+    # create a copy of my mapping
     nmapping = dict(self.mapping)
 
     # oitem is a passive item with a different rule, so the node names in its
@@ -216,6 +264,8 @@ class Item:
         return None
       nmapping[mynode] = graph_node
 
+    if len(nmapping.keys()) != len(set(nmapping.values())):
+        return None
     return nmapping
 
   def check_mapping_bijection_binary(self, oitem):
@@ -235,6 +285,14 @@ class Item:
         if oitem.mapping[onode] != self.mapping[onode]:
           return None
       nmapping[onode] = oitem.mapping[onode]
+    
+    # Also need to make sure this is really a bijection
+    log.debug(self.subgraph, oitem.subgraph)
+    log.debug(self.mapping, oitem.mapping)
+    log.debug(nmapping)
+    if len(nmapping.keys()) != len(set(nmapping.values())):
+        return None
+
     return nmapping
 
   def check_mapping_bijection_terminal(self, edge):
@@ -255,6 +313,8 @@ class Item:
         if self.mapping[self.next_key_edge[2][i]] != edge[2][i]:
           return None
       nmapping[self.next_key_edge[2][i]] = edge[2][i]
+    if len(nmapping.keys()) != len(set(nmapping.values())):
+        return None
     return nmapping
 
   def terminal(self, edge):
