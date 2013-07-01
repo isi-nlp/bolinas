@@ -25,7 +25,7 @@ class TdRule(Rule):
         self.nodelabels = nodelabels
      
         assert len(rhs1.roots) == 1
-
+        
         self.root_node = rhs1.roots[0]
         self.boundary_nodes = rhs1.external_nodes
 
@@ -38,7 +38,7 @@ class TdRule(Rule):
         self.tree_leaves = set()
         self.tree_second_siblings = set()
         self.tree_to_boundary_nodes = {}
-        tree = tree_decomposition(rhs1)
+        tree = tree_decomposition(rhs1, nodelabels = nodelabels)
         for node in tree.nodes():
             self.tree_to_boundary_nodes[node.node_id] = node.graph_nodes
             if node.first_child:

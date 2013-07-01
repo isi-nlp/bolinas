@@ -57,7 +57,6 @@ if __name__ == "__main__":
         log.err("Weight type (-m) must be either 'prob'or 'logprob'.")
 
     if args.output_type == "forest":
-
         if not args.output_file:       
             log.err("Need to provide '-o FILE_PREFIX' with output type 'forest'.")
             sys.exit(1)
@@ -75,34 +74,36 @@ if __name__ == "__main__":
     if args.verbose < 0 or args.verbose > 4:
         log.err("Invalid verbosity level, must be 0-4.")
         sys.exit(1)
-   
+  
+    # Updat global configuration with command line args 
+    config.__dict__.update(vars(args))
+
     # Definition of verbosity levels 
     log.LOG = {0:{log.err},
                1:{log.err, log.warn},
                2:{log.err, log.warn, log.info},
                3:{log.err, log.warn, log.info, log.chatter},
                4:{log.err, log.warn, log.chatter, log.info, log.debug}
-              }[args.verbose]
+              }[config.verbose]
     
     # Direct output to stdout if no filename is provided
-    if args.output_type is not "derivation":
-        if args.output_file:
-            output_file = open(args.output_file,'wa')
+    if config.output_type is not "derivation":
+        if config.output_file:
+            output_file = open(config.output_file,'wa')
         else:
             output_file = sys.stdout        
 
-    with open(args.grammar_file,'ra') as grammar_file:
-
-        # Run the selected parser                
-        if args.parser == 'td':
+    with open(config.grammar_file,'ra') as grammar_file:
+        # Select the parser and rule class to use 
+        if config.parser == 'td':
             parser_class = ParserTD 
             rule_class = TdRule
-        elif args.parser == 'basic':
+        elif config.parser == 'basic':
             parser_class = Parser
             rule_class = VoRule
 
         # Read the grammar
-        grammar = Grammar.load_from_file(grammar_file, rule_class, args.backward, nodelabels = (not args.edge_labels)) 
+        grammar = Grammar.load_from_file(grammar_file, rule_class, config.backward, nodelabels = (not config.edge_labels)) 
         if len(grammar) == 0:
             log.err("Unable to load grammar from file.")
             sys.exit(1)
@@ -110,7 +111,7 @@ if __name__ == "__main__":
         log.info("Loaded %s%s grammar with %i rules."\
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
  
-        if grammar.rhs2_type is None and args.output_type == "derived":
+        if grammar.rhs2_type is None and config.output_type == "derived":
             log.err("Can only build derived objects (-ot derived) with synchronous grammars.") 
             sys.exit(1)
          
@@ -121,38 +122,38 @@ if __name__ == "__main__":
                 log.err("Parser class needs to be 'basic' to parse strings.")
                 sys.exit(1)
             else: 
-                parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(args.input_file))
+                parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(config.input_file))
         else: 
-            parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(args.input_file))
+            parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(config.input_file))
         
         # Process input (if any) and produce desired output 
-        if args.input_file:
+        if config.input_file:
             count = 1
             # Run the parser for each graph in the input
             for chart in parse_generator:
                 # Produce Tiburon format derivation forests
-                if args.output_type == "forest":
-                    output_file = open("%s_%i.rtg" % (args.output_file, count), 'wa')
+                if config.output_type == "forest":
+                    output_file = open("%s_%i.rtg" % (config.output_file, count), 'wa')
                     output_file.write(output.format_tiburon(chart))
                     output_file.close()
                     count = count + 1
 
                 # Produce k-best derivations
-                elif args.output_type == "derivation":                    
-                    for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
+                elif config.output_type == "derivation":                    
+                    for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
                         output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), score))
                     output_file.write("\n")
 
                 # Produce k-best derived graphs/strings
-                elif args.output_type == "derived":
+                elif config.output_type == "derived":
                     if grammar.rhs2_type == "hypergraph":
-                        for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
+                        for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
                             try:
                                 output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), score))
                             except DerivationException:
                                 log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
                     elif grammar.rhs2_type == "string":
-                        for score, derivation in chart.kbest('START', args.k, logprob = (args.weight_type == "logprob")):
+                        for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
                             try:
                                 output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))
                             except DerivationException:

@@ -13,7 +13,6 @@ from lib.exceptions import InvocationException, InputFormatException
 from lib.hgraph.hgraph import Hgraph
 
 from td_item import Item, BoundaryItem
-from td_rule import TdRule
 
 ITEM_CLASS = Item #BoundaryItem
 
@@ -25,6 +24,7 @@ class ParserTD:
     """
     def __init__(self, grammar):
         self.grammar = grammar
+        self.nodelabels = grammar.nodelabels
 
     def parse_graphs(self, graph_iterator):
         """
@@ -71,12 +71,12 @@ class ParserTD:
       passive_item_rev_lookup = ddict(set)
       tree_node_rev_lookup = ddict(set)
 
-      for edge in graph.triples():
+      for edge in graph.triples(nodelabels = self.nodelabels):
         terminal_lookup[edge[1]].add(edge)
 
       for rule in pgrammar:
         for leaf in rule.tree_leaves:
-          axiom = ITEM_CLASS(rule, leaf, graph)
+          axiom = ITEM_CLASS(rule, leaf, graph, nodelabels = self.nodelabels)
           queue.append(axiom)
           pending.add(axiom)
           assert leaf not in rule.tree_to_edge

@@ -65,24 +65,24 @@ class TreeNode:
       counter = self.second_child.number(counter)
     return counter
 
-def tree_decomposition(amr):
+def tree_decomposition(amr, nodelabels = False):
   assert len(amr.roots) == 1
   visited = set()
-  td = tree_decomposition_node(amr.roots, visited, amr)
+  td = tree_decomposition_node(amr.roots, visited, amr, nodelabels = nodelabels)
   td.add_running_intersection(amr)
   td.number()
   return td
 
-def tree_decomposition_node(graph_nodes, visited, amr):
-  visit_edges = sum([amr.out_edges(graph_node) \
+def tree_decomposition_node(graph_nodes, visited, amr, nodelabels = False):
+  visit_edges = sum([amr.out_edges(graph_node, nodelabels = nodelabels) \
                      for graph_node in graph_nodes], [])
   if graph_nodes == amr.roots:
     visit_edges.append((amr.roots[0], 'DEPENDENCY', amr.get_external_nodes()))
 
   subtrees = []
   for graph_node in graph_nodes:
-    subtrees += [tree_decomposition_edge(graph_edge, visited, amr) \
-                 for graph_edge in amr.out_edges(graph_node) \
+    subtrees += [tree_decomposition_edge(graph_edge, visited, amr, nodelabels = nodelabels) \
+                 for graph_edge in amr.out_edges(graph_node, nodelabels = nodelabels) \
                  if graph_edge not in visited]
 
   if not subtrees:
@@ -98,13 +98,25 @@ def tree_decomposition_node(graph_nodes, visited, amr):
 
   return subtrees[0]
 
-def tree_decomposition_edge(graph_edge, visited, amr):
+def tree_decomposition_edge(graph_edge, visited, amr, nodelabels = False):
   visited.add(graph_edge)
   tree_node = TreeNode()
-  tree_node.graph_nodes.add(graph_edge[0])
-  tree_node.graph_nodes |= set(graph_edge[2])
+  if nodelabels: 
+      head = graph_edge[0][0]
+      if graph_edge[2]:
+          nodes, labels = zip(*graph_edge[2])
+      else: 
+          nodes = () 
+  else:
+      head = graph_edge[0]
+      nodes = graph_edge[2]
+
+  tree_node.graph_nodes.add(head)
+  tree_node.graph_nodes |= set(nodes)
+
+
   tree_node.graph_edge = graph_edge
-  tree_node.first_child = tree_decomposition_node(graph_edge[2], visited, amr)
+  tree_node.first_child = tree_decomposition_node(nodes, visited, amr, nodelabels = nodelabels)
   return tree_node
 
 

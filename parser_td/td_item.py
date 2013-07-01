@@ -82,9 +82,8 @@ class ExplicitSubgraph(object):
   def __len__(self):
     return len(self.edges) 
 
-  
 
-class Item:
+class Item(object):
   """
   Represents a single chart item, which is fully specified by an induced
   subgraph, a rule, a node of that rule's tree decomposition, and a bijection
@@ -97,11 +96,11 @@ class Item:
   ROOT = 3
   NONE = 4
 
-  def __init__(self, rule, tree_node, graph, subgraph=None, mapping=None):
+  def __init__(self, rule, tree_node, graph, subgraph=None, mapping=None, nodelabels = False):
     self.rule = rule
     self.tree_node = tree_node
     self.graph = graph
-    self.closed = False
+    self.nodelabels = nodelabels
 
     # tree_node specifies the subtree of the tree decomposition which has
     # *already* been recognized
@@ -202,7 +201,6 @@ class Item:
     real_other_ext = [oitem.mapping[x] for x in oitem.rule.boundary_nodes]
     real_other_ext.append(oitem.mapping[oitem.rule.root_node])
     
-    log.debug("NOdes",self.subgraph.nodes, oitem.subgraph.nodes - set(real_other_ext))
     if any((self.subgraph.nodes & oitem.subgraph.nodes) - set(real_other_ext)):
         return None
 
@@ -215,14 +213,25 @@ class Item:
   def check_edge_overlap(self, edge):
     """
     Determines whether edge overlaps with this item's recognized subgraph.
-    If so, return the union of the subgraph and edge.
+    If not, return the union of the subgraph and edge.
     """
-    if edge in self.subgraph.edges:
-      return None
-    nodes = [edge[0]]
-    nodes.extend(edge[2])
+    if self.nodelabels:
+        head = edge[0][0]
+        nodes = [head]
+        for n in edge[2]:
+            nodes.append(n[0])
+        new_edge = (head, edge[1], tuple(nodes))
+    else:
+        new_edge = edge
+        if new_edge in self.subgraph.edges:
+          return None
+        nodes = [edge[0]]
+        nodes.extend(edge[2])
 
-    nsubgraph = ExplicitSubgraph(self.subgraph.nodes | set(nodes), self.subgraph.edges | set([edge]))
+    if new_edge in self.subgraph.edges:
+        return None
+
+    nsubgraph = ExplicitSubgraph(self.subgraph.nodes | set(nodes), self.subgraph.edges | set([new_edge]))
     return nsubgraph
 
   ## END
@@ -245,7 +254,10 @@ class Item:
     # to
     # myhead is NOT the root of my rule! it's the head node of the edge I'm
     # matching
-    myhead = self.next_key_edge[0]
+    if self.nodelabels:
+        myhead = self.next_key_edge[0][0]
+    else: 
+        myhead = self.next_key_edge[0]
     oroot = oitem.rule.root_node
 
     # if oitem has mapped its root, and I have mapped the corresponding head
@@ -257,7 +269,10 @@ class Item:
 
     # now repeat that procedure for every tail node
     for i in range(len(self.next_key_edge[2])):
-      mynode = self.next_key_edge[2][i]
+      if self.nodelabels:
+          mynode = self.next_key_edge[2][i][0]
+      else: 
+          mynode = self.next_key_edge[2][i]
       onode = oitem.rule.rhs1.rev_external_nodes[i]
       graph_node = oitem.mapping[onode]
       if mynode in self.mapping and self.mapping[mynode] != graph_node:
@@ -272,7 +287,7 @@ class Item:
     """
     As in check_mapping_bijection_nonterminal, but for active oitem.
     """
-    # unlike above, oitem has the same rule (and so the same node names) that I
+    # Unlike above, oitem has the same rule (and so the same node names) that I
     # do
     # I just make sure the mappings agree in both directions
     for node in self.mapping:
@@ -287,9 +302,6 @@ class Item:
       nmapping[onode] = oitem.mapping[onode]
     
     # Also need to make sure this is really a bijection
-    log.debug(self.subgraph, oitem.subgraph)
-    log.debug(self.mapping, oitem.mapping)
-    log.debug(nmapping)
     if len(nmapping.keys()) != len(set(nmapping.values())):
         return None
 
@@ -302,17 +314,29 @@ class Item:
     """
     # this time there's only one edge to worry about, so I just need to check
     # for internal consistency
-    if self.next_key_edge[0] in self.mapping:
-      if self.mapping[self.next_key_edge[0]] != edge[0]:
+
+    if self.nodelabels:
+        head = self.next_key_edge[0][0]
+        edgehead = edge[0][0]
+        tails,labels = zip(*self.next_key_edge[2])
+        edgetails,edgelabels = zip(*edge[2])
+    else:
+        head = self.next_key_edge[0]
+        edgehead = edge[0]
+        tails = self.next_key_edge[2]
+        edgetails = edge[2]
+    
+    if head in self.mapping:
+      if self.mapping[head] != edgehead:
         return None
     nmapping = dict(self.mapping)
-    nmapping[self.next_key_edge[0]] = edge[0]
+    nmapping[head] = edgehead
 
-    for i in range(len(self.next_key_edge[2])):
-      if self.next_key_edge[2][i] in self.mapping:
-        if self.mapping[self.next_key_edge[2][i]] != edge[2][i]:
+    for i in range(len(tails)):
+      if tails[i] in self.mapping:
+        if self.mapping[tails[i]] != edgetails[i]:
           return None
-      nmapping[self.next_key_edge[2][i]] = edge[2][i]
+      nmapping[tails[i]] = edgetails[i]
     if len(nmapping.keys()) != len(set(nmapping.values())):
         return None
     return nmapping
@@ -322,6 +346,7 @@ class Item:
     Attempts to apply the (unary) Terminal rule and consume edge. Returns the resulting
     item, if the attempt succeeded.
     """
+    
     # This is essentially the "shift" operation
     if self.target != Item.TERMINAL:
       return None
@@ -329,6 +354,16 @@ class Item:
       return None
     if len(edge[2]) != len(self.next_key_edge[2]):
       return None
+
+    if self.nodelabels: #make sure labels agree 
+        nhead, nheadlabel = self.next_key_edge[0]
+        oh, ohlabel = edge[0]
+        if nheadlabel != ohlabel:
+            return None
+        ntail, ntaillabels = zip(*self.next_key_edge[2])
+        otail, otaillabels = zip(*edge[2])
+        if ntaillabels != otaillabels: 
+            return None
 
     nsubgraph = self.check_edge_overlap(edge)
     if not nsubgraph:
@@ -344,7 +379,7 @@ class Item:
         self.rule.tree_to_parent[self.tree_node],
         self.graph,
         nsubgraph,
-        nmapping)
+        nmapping, nodelabels = self.nodelabels)
 
   def nonterminal(self, oitem):
     """
@@ -362,10 +397,10 @@ class Item:
       return None
     oboundary = oitem.rule.tree_to_boundary_nodes[oitem.tree_node]
     
-    # No, only need to match external nodes, not the full boundary
     #if len(oboundary) != len(self.next_key_edge[2]) + 1:
     #  log.debug('boundary mismatch')
     #  return None
+    # No, only need to match external nodes, not the full boundary
 
     if len(oitem.rule.rhs1.external_nodes) != len(self.next_key_edge[2]):
         log.debug('hyperedge type mismatch')
@@ -385,7 +420,7 @@ class Item:
         self.rule.tree_to_parent[self.tree_node],
         self.graph,
         nsubgraph,
-        nmapping)
+        nmapping, nodelabels = self.nodelabels)
 
   def binary(self, oitem):
     """
@@ -410,7 +445,7 @@ class Item:
         self.rule.tree_to_parent[self.tree_node],
         self.graph,
         nsubgraph,
-        nmapping)
+        nmapping, nodelabels = self.nodelabels)
 
 
 class BoundaryItem(Item):

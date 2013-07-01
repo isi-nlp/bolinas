@@ -444,11 +444,22 @@ class Hgraph(defaultdict):
             self.triples()
         return self.__cached_depth[triple]
 
-    def out_edges(self, node): 
+    def out_edges(self, node, nodelabels = False): 
         """
         Return outgoing edges from this node.
         """
         assert node in self
+        if nodelabels: 
+            result = []
+            nlabel = self.node_to_concepts[node]       
+            for rel, child in self[node].items():
+                if type(child) is tuple:
+                    nchild = tuple([(c, self.node_to_concepts[c]) for c in child])
+                else:
+                    nchild = (child, self.node_to_concepts[child])
+                result.append(((node, nlabel), rel, nchild))
+            return result
+
         return [(node, rel, child) for rel, child in self[node].items()]        
 
     def root_edges(self):
@@ -457,12 +468,12 @@ class Hgraph(defaultdict):
         """
         return flatten([self.out_edges(r) for r in self.roots])
 
-    def get_all_in_edges(self):
+    def get_all_in_edges(self, nodelabels = False):
         """
         Return dictionary mapping nodes to their incomping edges. 
         """
         res = defaultdict(list)
-        for node, rel, child in self.triples():
+        for node, rel, child in self.triples(nodelabels = nodelabels):
             if type(child) is tuple:
                 for c in child:
                     res[c].append((node,rel,child))
@@ -470,11 +481,11 @@ class Hgraph(defaultdict):
                 res[child].append((node,rel,child))
         return res
 
-    def in_edges(self, node):
+    def in_edges(self, node, nodelabels = False):
         """
         Return incoming edges for a single node.
         """
-        return self.get_all_in_edges()[node]
+        return self.get_all_in_edges(nodelabels)[node]
 
     def nonterminal_edges(self):
         """
