@@ -4,7 +4,6 @@ Methods to format Bolinas output.
 
 from lib.hgraph.hgraph import Hgraph
 from lib.cfg import NonterminalLabel
-from parser.item import HergItem
 from lib import log 
  
 def walk_derivation(derivation, combiner, leaf):
