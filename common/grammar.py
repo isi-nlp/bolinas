@@ -113,13 +113,15 @@ class Grammar(dict):
                            r1_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
                            rhs1_type = STRING_FORMAT
   
-                    if is_synchronous: 
+                    if is_synchronous:
                         try:    # If the first graph in the file cannot be parsed, assume it's a string
+                            if rhs2_type: 
+                                assert rhs2_type == GRAPH_FORMAT
                             r2  = Hgraph.from_string(rhs2)
                             r2_nts = set([(ntlabel.label, ntlabel.index) for h, ntlabel, t in r2.nonterminal_edges()])
                             if not rhs2_type:
                                 rhs2_type = GRAPH_FORMAT
-                        except (ParserError, IndexError), e: 
+                        except (ParserError, IndexError, AssertionError), e: 
                             if rhs2_type == GRAPH_FORMAT:
                                raise ParserError,\
                 "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
@@ -132,13 +134,17 @@ class Grammar(dict):
                         # Verify that nonterminals match up
                         if not r1_nts == r2_nts:
                             raise GrammarError, \
-            "Line %i, Rule %i: Nonterminals do not match between RHSs." % (line_count, rule_count)
+            "Line %i, Rule %i: Nonterminals do not match between RHSs: %s %s" % (line_count, rule_count, str(r1_nts), str(r2_nts))
                     else: 
                         r2 = None
-                    if is_synchronous and reverse: 
-                        output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels) 
-                    else: 
-                        output[rule_count] = rule_class(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels) 
+                    try:    
+                        if is_synchronous and reverse: 
+                            output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels) 
+                        else: 
+                            output[rule_count] = rule_class(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels) 
+                    except Exception, e:         
+                        raise GrammarError, \
+            "Line %i, Rule %i: Could not initialize rule. %s" % (line_count, rule_count, e.message)
                     buf = StringIO.StringIO() 
                     rule_count += 1
 
