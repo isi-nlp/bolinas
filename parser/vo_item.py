@@ -36,6 +36,8 @@ class HergItem():
     self.shifted = shifted
     self.mapping = mapping
 
+    self.rev_mapping = dict((val, key) for key, val in mapping.items())
+
     self.nodelabels = nodelabels
 
     # Store the nonterminal symbol and index of the previous complete 
@@ -192,13 +194,10 @@ class HergItem():
       return False
 
     #Make sure items are disjoint
-    # TODO implement boundary node-based disjoiness check
     if any(edge in self.shifted for edge in new_item.shifted):
       #log.debug('fail bc overlap')
       return False
 
-    rev_omap = dict([(val, key) for key, val in self.mapping.items()])
-    
     # make sure mappings agree
     if self.nodelabels:
         o1, o1label = self.outside_triple[0]
@@ -215,7 +214,9 @@ class HergItem():
       return False
 
     nroot = list(new_item.rule.rhs1.roots)[0]
-    if self.nodelabels and o1label != new_item.rule.rhs1.node_to_concepts[nroot]:
+
+    #Check root label
+    if self.nodelabels and o1label != new_item.rule.rhs1.node_to_concepts[nroot]: 
             return False
 
     if o1 in self.mapping and self.mapping[o1] != \
@@ -224,20 +225,20 @@ class HergItem():
       return False
 
     real_nroot = new_item.mapping[nroot]
-
     real_ntail = None
     for i in range(len(o2)):
       otail = o2[i]
       ntail = new_item.rule.rhs1.rev_external_nodes[i]
-      if self.nodelabels and o2labels[i] != new_item.rule.rhs1.node_to_concepts[ntail]:
+      #Check tail label
+      if self.nodelabels and o2labels[i] != new_item.rule.rhs1.node_to_concepts[ntail]: 
         return False
       if otail in self.mapping and self.mapping[otail] != new_item.mapping[ntail]:
         #log.debug('fail bc bad mapping in tail')
         return False
    
     for node in new_item.mapping.values():
-        if node in rev_omap:
-            onode =  rev_omap[node]
+        if node in self.rev_mapping:
+            onode =  self.rev_mapping[node]
             if not (onode == o1 or onode in o2):
                 return False
 
