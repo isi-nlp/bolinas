@@ -12,9 +12,7 @@ from lib.cfg import Chart
 from lib.exceptions import InvocationException, InputFormatException
 from lib.hgraph.hgraph import Hgraph
 
-from td_item import Item, BoundaryItem
-
-ITEM_CLASS = Item #BoundaryItem
+from td_item import Item, BoundaryItem, FasterCheckBoundaryItem
 
 class ParserTD:
     """
@@ -22,6 +20,9 @@ class ParserTD:
     in the order of its tree decomposition. The algorithm implemented here is 
     described in the ACL 2013 paper.
     """
+
+    item_class = FasterCheckBoundaryItem
+
     def __init__(self, grammar):
         self.grammar = grammar
         self.nodelabels = grammar.nodelabels
@@ -36,7 +37,7 @@ class ParserTD:
             raw_chart = self.parse(graph)
             # The raw chart contains parser operations, need to decode the parse forest from this 
             yield td_chart_to_cky_chart(raw_chart)
-
+ 
     def parse_strings(self, string_iterator):
         """
         Not supported.
@@ -76,7 +77,7 @@ class ParserTD:
 
       for rule in pgrammar:
         for leaf in rule.tree_leaves:
-          axiom = ITEM_CLASS(rule, leaf, graph, nodelabels = self.nodelabels)
+          axiom = self.item_class(rule, leaf, graph, nodelabels = self.nodelabels)
           queue.append(axiom)
           pending.add(axiom)
           assert leaf not in rule.tree_to_edge
@@ -127,12 +128,12 @@ class ParserTD:
             log.debug('  binary')
             rev_lookup = tree_node_rev_lookup
             lookup = tree_node_lookup
-            action = ITEM_CLASS.binary
+            action = self.item_class.binary
           elif item.target == Item.NONTERMINAL:
             log.debug('  nonterminal')
             rev_lookup = passive_item_rev_lookup
             lookup = passive_item_lookup
-            action = ITEM_CLASS.nonterminal
+            action = self.item_class.nonterminal
           else:
             assert False
 
@@ -224,7 +225,7 @@ def td_chart_to_cky_chart(chart):
         if prodlist[0][0].target == Item.NONTERMINAL:
             assert split_len == 2
             symbol = prodlist[0][0].outside_symbol, prodlist[0][0].outside_index
-            production = [x[1] for x in chart[pitem]]
+            production = [x[1] for x in chart[pitem] if not x[1] == item]           
             real_productions[symbol] = production
             assert prodlist[0][1].target == Item.ROOT
             # move down.
@@ -240,5 +241,3 @@ def td_chart_to_cky_chart(chart):
       if real_productions:
           cky_chart[item] = real_productions 
     return cky_chart
-
-

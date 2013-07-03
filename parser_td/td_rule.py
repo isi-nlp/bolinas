@@ -37,10 +37,10 @@ class TdRule(Rule):
         self.tree_to_edge = {}
         self.tree_leaves = set()
         self.tree_second_siblings = set()
-        self.tree_to_boundary_nodes = {}
+        #self.tree_to_boundary_nodes = {}
         tree = tree_decomposition(rhs1, nodelabels = nodelabels)
         for node in tree.nodes():
-            self.tree_to_boundary_nodes[node.node_id] = node.graph_nodes
+            #self.tree_to_boundary_nodes[node.node_id] = node.graph_nodes
             if node.first_child:
               self.tree_to_parent[node.first_child.node_id] = node.node_id
               if node.second_child:

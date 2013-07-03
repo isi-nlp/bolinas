@@ -476,9 +476,15 @@ class Hgraph(defaultdict):
         for node, rel, child in self.triples(nodelabels = nodelabels):
             if type(child) is tuple:
                 for c in child:
-                    res[c].append((node,rel,child))
+                    if nodelabels: 
+                        res[c[0]].append((node,rel,child))
+                    else: 
+                        res[c].append((node,rel,child))
             else:
-                res[child].append((node,rel,child))
+                if nodelabels: 
+                    res[child].append((node,rel,child))
+                else:
+                    res[child[0]].append((node,rel,child))
         return res
 
     def in_edges(self, node, nodelabels = False):

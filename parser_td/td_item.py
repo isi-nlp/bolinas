@@ -3,7 +3,10 @@ from lib import log
 import sys
 from collections import defaultdict as ddict
 
-class BoundarySubgraph(object):
+class Subgraph(object):
+    pass
+
+class BoundarySubgraph(Subgraph):
   """
   Represents a boundary-induced subgraph, for fast union computation.
   """
@@ -52,7 +55,7 @@ class BoundarySubgraph(object):
     return self.size
 
 
-class ExplicitSubgraph(object): 
+class ExplicitSubgraph(Subgraph): 
   """
   A subgraph that is represented by an explicit list of nodes and hyperedges.
   """
@@ -73,12 +76,6 @@ class ExplicitSubgraph(object):
   def __repr__(self):
     return "Subgraph[%s, %d]" %(self.nodes, len(self.edges))
 
-  def is_member(self, node):
-    """
-    Tests if node is a member of this subgraph.
-    """
-    return node in self.nodes
-    
   def __len__(self):
     return len(self.edges) 
 
@@ -152,6 +149,7 @@ class Item(object):
     self.mapping = mapping
     if not self.mapping:
       self.mapping = {}
+    self.rev_mapping = dict((val,key) for key, val in self.mapping.items())
 
   def __eq__(self, other):
     return isinstance(other, Item) and \
@@ -194,13 +192,12 @@ class Item(object):
 
     # Originally this method just checked for edge overlap. This is insufficient
     # as nodes with two adjacent edges (that are not external nodes) can be 
-    # covered twice by different rules. We need to make sure that these rules 
-    # can only combine if the node maps to an external node for one of them. 
+    # touched twice by different rules. We need to make sure that a rule
+    # can only apply if the shared graph node maps to an external node of the rule.
 
     # Get nodes corresponding to external nodes of the other item.
     real_other_ext = [oitem.mapping[x] for x in oitem.rule.boundary_nodes]
     real_other_ext.append(oitem.mapping[oitem.rule.root_node])
-    
     if any((self.subgraph.nodes & oitem.subgraph.nodes) - set(real_other_ext)):
         return None
 
@@ -248,7 +245,7 @@ class Item(object):
     # oitem is a passive item with a different rule, so the node names in its
     # mapping are totally irrelevant
     # we're matching it against one edge in this rule, so we need to make sure
-    # that the head and tails line up properly
+    # that the head and tails line up properly.
 
     # pull out the roots of oitem, and the piece of my rule that it corresponds
     # to
@@ -258,15 +255,16 @@ class Item(object):
         myhead = self.next_key_edge[0][0]
     else: 
         myhead = self.next_key_edge[0]
-    oroot = oitem.rule.root_node
 
     # if oitem has mapped its root, and I have mapped the corresponding head
     # node in my rule, make sure the two mappings agree
+    oroot = oitem.rule.root_node
     graph_root = oitem.mapping[oroot]
     if myhead in self.mapping and self.mapping[myhead] != graph_root:
       return None
     nmapping[myhead] = graph_root
 
+    realtails = []
     # now repeat that procedure for every tail node
     for i in range(len(self.next_key_edge[2])):
       if self.nodelabels:
@@ -275,12 +273,14 @@ class Item(object):
           mynode = self.next_key_edge[2][i]
       onode = oitem.rule.rhs1.rev_external_nodes[i]
       graph_node = oitem.mapping[onode]
+      realtails.append(self.mapping[mynode])
       if mynode in self.mapping and self.mapping[mynode] != graph_node:
         return None
       nmapping[mynode] = graph_node
-
+ 
     if len(nmapping.keys()) != len(set(nmapping.values())):
         return None
+ 
     return nmapping
 
   def check_mapping_bijection_binary(self, oitem):
@@ -386,21 +386,14 @@ class Item(object):
     Attempts to apply the (unary) Nonterminal rule and consume oitem, returning the
     result if successful.
     """
+
     if self.target != Item.NONTERMINAL:
-      log.debug('I am not NT')
-      return None
+      raise TypeError, "%s is not a nonterminal." % str(self)
     if oitem.target != Item.ROOT:
-      log.debug('other is not root')
-      return None
+      raise TypeError, "%s is not at the root of its tree decomposition." %str(oitem)
     if oitem.rule.symbol != self.next_key:
       log.debug('symbol mismatch')
       return None
-    oboundary = oitem.rule.tree_to_boundary_nodes[oitem.tree_node]
-    
-    #if len(oboundary) != len(self.next_key_edge[2]) + 1:
-    #  log.debug('boundary mismatch')
-    #  return None
-    # No, only need to match external nodes, not the full boundary
 
     if len(oitem.rule.rhs1.external_nodes) != len(self.next_key_edge[2]):
         log.debug('hyperedge type mismatch')
@@ -453,23 +446,25 @@ class BoundaryItem(Item):
   A drop-in replacement for the Item class which uses a boundary representation
   rather than a list of all the recognized edges.
   """
-
   def is_disjoint(self, osubgraph):
     """
     Checks whether my subgraph and osubgraph are disjoint.
-    (Algorithm 2 in the paper.)
     """
+    log.debug("###",self.subgraph.boundary_nodes, self.subgraph.boundary_edges)
+    log.debug("#O#", osubgraph.boundary_nodes, osubgraph.boundary_edges)
+
     for node in self.subgraph.boundary_nodes:
       if node in osubgraph.boundary_nodes:
         if len(self.subgraph.boundary_edges[node] & \
             osubgraph.boundary_edges[node]) != 0:
-          return False
-      elif osubgraph.is_member(node, self.graph):
+          return False        
+      elif osubgraph.is_member(node, self.graph): 
         return False
     for onode in osubgraph.boundary_nodes:
       if onode not in self.subgraph.boundary_nodes and \
           self.subgraph.is_member(onode, self.graph):
         return False
+
     return True
 
   def union(self, osubgraph):
@@ -494,8 +489,7 @@ class BoundaryItem(Item):
         nboundary_edges[onode] = \
             frozenset(self.subgraph.boundary_edges[onode] | \
             osubgraph.boundary_edges[onode])
-
-    return Subgraph(nboundary_nodes, nboundary_edges, self.subgraph.size +
+    return BoundarySubgraph(nboundary_nodes, nboundary_edges, self.subgraph.size +
         osubgraph.size)
 
   ## BEGIN BOUNDARY NODE REPR
@@ -503,22 +497,81 @@ class BoundaryItem(Item):
   # overrides the necessary pieces of the item class
 
   def init_subgraph(self):
-    return Subgraph(frozenset(), dict(), 0)
+    return BoundarySubgraph(frozenset(), dict(), 0)
 
   def matches_whole_graph(self):
     return self.subgraph.size == len(self.graph.triples())
 
   def check_subgraph_overlap(self, oitem):
+
     if not self.is_disjoint(oitem.subgraph):
       return None
+    
+    # If oitem is passive check that all its boundary nodes 
+    # are external nodes.
+    if oitem.target == Item.ROOT:
+        real_root = oitem.mapping[oitem.rule.rhs1.roots[0]]
+        real_ext = set(oitem.mapping[n] for n in oitem.rule.rhs1.external_nodes)
+        
+        for node in oitem.subgraph.boundary_nodes:
+            if not (node == real_root or node in real_ext):
+                return False
+
     return self.union(oitem.subgraph)
 
   def check_edge_overlap(self, edge):
-    enodes = set([edge[0]] + list(edge[2]))
+    enodes = set() 
+    
+    if self.nodelabels:
+        enodes.add(edge[0][0])
+        for n, label in edge[2]:
+            if self.graph.star(n) - set([edge]): 
+                enodes.add(n)
+    else:
+        enodes.add(edge[0])
+        for n in edge[2]:
+            if self.graph.star(n) - set([edge]): 
+                enodes.add(n)
+
     eedge = dict((n, frozenset([edge])) for n in enodes)
-    esubgraph = Subgraph(enodes, eedge, 1)
+    esubgraph = BoundarySubgraph(enodes, eedge, 1)
     if not self.is_disjoint(esubgraph):
       return None
     return self.union(esubgraph)
 
   ## END
+
+
+class FasterCheckBoundaryItem(BoundaryItem):
+  """
+  This Item class replaces the disjointness check in BoundaryItem 
+  with the faster check described in section 3.4 of the ACL 2013 paper.
+  """
+ 
+  # overrides the disjointness check of BoundaryItem
+  def is_disjoint(self, osubgraph):
+    """
+    The check from section 3.4 of the paper. As marker node we use the
+    designated root node fo the input graph. 
+    """
+    
+    # check that I and J have no boundary edges in common
+    myedges = set()
+    for edges in self.subgraph.boundary_edges.values():
+        myedges.update(edges)
+    oedges = set()
+    for edges in osubgraph.boundary_edges.values():
+        oedges.update(edges)
+    if len(myedges & oedges) != 0:
+        return False 
+    
+    # If m belongs to both I and J it must be a boundary node
+    # of both. 
+    marker = self.graph.roots[0]
+    if self.subgraph.is_member(marker, self.graph) and \
+       osubgraph.is_member(marker, self.graph) and (
+           (marker not in self.subgraph.boundary_nodes) or
+           (marker not in osubgraph.boundary_nodes)):
+               return False
+            
+    return True

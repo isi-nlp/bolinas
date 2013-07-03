@@ -8,8 +8,7 @@ class Config(dict):
         Update this Config object by reading configuration objects from file f.
         """
         #TODO
-        pass 
+        raise NotImplementedError 
 
 config = Config()
 config.maxk = 1000
-

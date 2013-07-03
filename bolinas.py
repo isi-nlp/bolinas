@@ -14,6 +14,7 @@ from common.grammar import Grammar
 from parser.parser import Parser
 from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
+from parser_td.td_item import Item
 from parser_td.parser_td import ParserTD
 from lib import output
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     argparser.add_argument("-m", "--weight_type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
     argparser.add_argument("-p","--parser", default="basic", help="Specify which graph parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'basic': a basic generalization of CKY that matches rules according to an arbitrary visit order on edges (less efficient).")
     argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes on the target side of a synchronous grammar.")
-    argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="Use the full edge representation for graph fragments instead of boundary node representation. This can provide some speedup for grammars with small rules.")
+    argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="In the tree decomposition parser, use the full representation for graph fragments instead of the compact boundary node representation. This can provide some speedup for grammars with small rules.")
     argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
     
@@ -66,6 +67,9 @@ if __name__ == "__main__":
     if not args.parser in ['td', 'basic']:
         log.err("Parser (-p) must be either 'td' or 'basic'.")
         sys.exit(1)
+    
+    if args.parser != 'td' and args.boundary_nodes: 
+        log.warn('The -bn option is only relevant for the tree decomposition parser ("-p td").')
 
     if args.k > config.maxk:
         log.err("k must be <= than %i (defined in in args.py)." % args.maxk)
@@ -75,6 +79,7 @@ if __name__ == "__main__":
         log.err("Invalid verbosity level, must be 0-4.")
         sys.exit(1)
   
+
     # Updat global configuration with command line args 
     config.__dict__.update(vars(args))
 
@@ -98,6 +103,9 @@ if __name__ == "__main__":
         if config.parser == 'td':
             parser_class = ParserTD 
             rule_class = TdRule
+            if config.boundary_nodes:
+                parser_class.item_class = Item
+
         elif config.parser == 'basic':
             parser_class = Parser
             rule_class = VoRule
