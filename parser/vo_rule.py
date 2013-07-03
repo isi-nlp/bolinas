@@ -1,6 +1,6 @@
 from lib.cfg import NonterminalLabel
 from lib.hgraph.hgraph import Hgraph
-from lib.hgraph.new_graph_description_parser import ParserError, LexerError
+from lib.hgraph.graph_description_parser import ParserError, LexerError
 from lib.tree import Tree
 from lib import log
 from common.rule import Rule
