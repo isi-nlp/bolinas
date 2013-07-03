@@ -11,7 +11,7 @@ from lib.hgraph.hgraph import Hgraph
 from lib.cfg import Chart
 
 from vo_item import CfgItem, HergItem, CfgHergItem
-from rule import Rule
+from vo_rule import VoRule
 
 class Parser:
   """
