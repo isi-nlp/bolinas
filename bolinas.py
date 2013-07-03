@@ -168,7 +168,3 @@ if __name__ == "__main__":
                                 log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
         
                     output_file.write("\n")
-
-
-
-
