@@ -42,9 +42,8 @@ class Parser:
     Parse all strings in the string iterator.
     This is a generator.
     """
-    filter_cache = make_string_filter_cache()
     for string in string_iterator:
-        raw_chart = self.parse(string, None, filter_cache)
+        raw_chart = self.parse(string, None)
         # The raw chart contains parser operations, need to decode the parse forest from this 
         yield cky_chart(raw_chart)
 
