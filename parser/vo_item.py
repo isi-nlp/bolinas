@@ -134,8 +134,12 @@ class HergItem():
       return False
 
     if self.nodelabels:
-        o2, o2_labels = zip(*self.outside_triple[2])
-        n2, n2_labels = zip(*new_edge[2])
+        if self.outside_triple[2]:
+            o2, o2_labels = zip(*self.outside_triple[2])
+        else: o2, o2_labels = [],[]
+        if new_edge[2]:
+            n2, n2_labels = zip(*new_edge[2])
+        else: n2, n2_labels = [],[]
         if o2_labels != n2_labels:
             return False 
     else:        
