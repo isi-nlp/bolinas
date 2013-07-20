@@ -1,0 +1,4 @@
+X -> (. :ball' :X$) | the X$ ball;
+X -> (. :color' (. :E$) :X$) | E$ , X$;
+X -> (. :size' (. :big')) | big;
+E -> (. :red') | red;

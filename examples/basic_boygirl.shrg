@@ -1,0 +1,10 @@
+# Example from Figure 3
+T -> (. :want' :arg0 (x. :E$) :arg1 (. :T$ x.)) | E$ wants T$ ;
+T -> (. :believe' :arg0 (. :girl') :arg1 (. :T$ .*)) | the girl to believe that T$;
+T -> (. :want' :arg1 .*) | he is wanted;
+E -> (. :boy') | the boy;
+
+#Example from Figure 4
+T -> (. :want' :arg0 (x. :E$) :arg1 (. :X$ x.)) | E$ wants X$ ;
+X -> (. :believe' :arg0 (x. :girl') :arg1 (. :Y$ x. .*)) | the girl to believe that Y$;
+Y -> (. :want' :arg0 .*2 :arg1 .*1) | he wants her;
