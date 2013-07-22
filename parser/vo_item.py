@@ -94,14 +94,14 @@ class HergItem():
     return '%d__%s' % (self.rule.rule_id, ','.join(sorted(list(edges))))
 
   def __repr__(self):
-    return 'HergItem(%d, %d, %s, [%s])' % (self.rule.rule_id, self.size, self.rule.symbol, [x[1] for x in self.shifted])
+    return 'HergItem(%d, %d, %s, %s)' % (self.rule.rule_id, self.size, self.rule.symbol, [x[1] for x in self.shifted])
 
   def __str__(self):
-    return '[%s, %d/%d, %s, {%d}]' % (self.rule,
+    return '[%d, %d/%d, %s, {%s}]' % (self.rule.rule_id,
                                   self.size,
                                   len(self.rule.rhs1.triples()),
                                   self.outside_symbol,
-                                  len(self.shifted))
+                                  str([x for x in self.shifted]))
 
   def can_shift(self, new_edge):
     """

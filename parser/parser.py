@@ -148,15 +148,15 @@ class Parser:
             reverse_lookup[item.outside_symbol].add(item)
 
             for oitem in nonterminal_lookup[item.outside_symbol]:
-              log.debug("oitem:", oitem)
+              log.debug("  oitem:", oitem)
               if (item, oitem) in attempted:
                 # don't repeat combinations we've tried before
                 continue
               attempted.add((item, oitem))
               if not item.can_complete(oitem):
-                log.debug("fail")
+                log.debug("    fail")
                 continue
-              log.debug("ok")
+              log.debug("    ok")
               nitem = item.complete(oitem)
               chart[nitem].add((item, oitem))
               if nitem not in pending and nitem not in visited:
