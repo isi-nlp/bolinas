@@ -264,7 +264,6 @@ class Item(object):
       return None
     nmapping[myhead] = graph_root
 
-    realtails = []
     # now repeat that procedure for every tail node
     for i in range(len(self.next_key_edge[2])):
       if self.nodelabels:
@@ -273,9 +272,8 @@ class Item(object):
           mynode = self.next_key_edge[2][i]
       onode = oitem.rule.rhs1.rev_external_nodes[i]
       graph_node = oitem.mapping[onode]
-      realtails.append(self.mapping[mynode])
       if mynode in self.mapping and self.mapping[mynode] != graph_node:
-        return None
+          return None
       nmapping[mynode] = graph_node
  
     if len(nmapping.keys()) != len(set(nmapping.values())):
@@ -318,8 +316,14 @@ class Item(object):
     if self.nodelabels:
         head = self.next_key_edge[0][0]
         edgehead = edge[0][0]
-        tails,labels = zip(*self.next_key_edge[2])
-        edgetails,edgelabels = zip(*edge[2])
+        if self.next_key_edge[2]:
+            tails, labels = zip(*self.next_key_edge[2])
+        else: 
+            tails, labels = [], []
+        if edge[2]:
+            edgetails, edgelabels = zip(*edge[2])
+        else:
+            edgetails, edgelabels = [], [] 
     else:
         head = self.next_key_edge[0]
         edgehead = edge[0]
@@ -360,8 +364,13 @@ class Item(object):
         oh, ohlabel = edge[0]
         if nheadlabel != ohlabel:
             return None
-        ntail, ntaillabels = zip(*self.next_key_edge[2])
-        otail, otaillabels = zip(*edge[2])
+        if self.next_key_edge[2]:
+            ntail, ntaillabels = zip(*self.next_key_edge[2])
+        else: ntail, ntaillabels = [],[]
+        if edge[2]:
+            otail, otaillabels = zip(*edge[2])
+        else: 
+            otail, otaillabels = [], []
         if ntaillabels != otaillabels: 
             return None
 
@@ -450,9 +459,6 @@ class BoundaryItem(Item):
     """
     Checks whether my subgraph and osubgraph are disjoint.
     """
-    log.debug("###",self.subgraph.boundary_nodes, self.subgraph.boundary_edges)
-    log.debug("#O#", osubgraph.boundary_nodes, osubgraph.boundary_edges)
-
     for node in self.subgraph.boundary_nodes:
       if node in osubgraph.boundary_nodes:
         if len(self.subgraph.boundary_edges[node] & \
@@ -509,19 +515,21 @@ class BoundaryItem(Item):
     
     # If oitem is passive check that all its boundary nodes 
     # are external nodes.
-    if oitem.target == Item.ROOT:
-        real_root = oitem.mapping[oitem.rule.rhs1.roots[0]]
-        real_ext = set(oitem.mapping[n] for n in oitem.rule.rhs1.external_nodes)
-        
-        for node in oitem.subgraph.boundary_nodes:
-            if not (node == real_root or node in real_ext):
-                return False
-
+    #if oitem.target == Item.ROOT:
+    #    real_root = oitem.mapping[oitem.rule.rhs1.roots[0]]
+    #    real_ext = set(oitem.mapping[n] for n in oitem.rule.rhs1.external_nodes)
+    #    
+    #    for node in oitem.subgraph.boundary_nodes:
+    #        if not (node == real_root or node in real_ext):
+    #            log.debug(node, real_root, real_ext)
+    #            log.debug("point 4")
+    #            return False
     return self.union(oitem.subgraph)
 
   def check_edge_overlap(self, edge):
     enodes = set() 
-    
+   
+    # TODO: edge needs to be stripped for node labels before being added to the subgraph 
     if self.nodelabels:
         enodes.add(edge[0][0])
         for n, label in edge[2]:
@@ -554,7 +562,6 @@ class FasterCheckBoundaryItem(BoundaryItem):
     The check from section 3.4 of the paper. As marker node we use the
     designated root node fo the input graph. 
     """
-    
     # check that I and J have no boundary edges in common
     myedges = set()
     for edges in self.subgraph.boundary_edges.values():
@@ -563,6 +570,7 @@ class FasterCheckBoundaryItem(BoundaryItem):
     for edges in osubgraph.boundary_edges.values():
         oedges.update(edges)
     if len(myedges & oedges) != 0:
+        log.debug("point 1")
         return False 
     
     # If m belongs to both I and J it must be a boundary node
@@ -572,6 +580,7 @@ class FasterCheckBoundaryItem(BoundaryItem):
        osubgraph.is_member(marker, self.graph) and (
            (marker not in self.subgraph.boundary_nodes) or
            (marker not in osubgraph.boundary_nodes)):
+               log.debug("point 2")
                return False
-            
+           
     return True

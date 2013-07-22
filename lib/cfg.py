@@ -41,7 +41,6 @@ class NonterminalLabel(object):
     def __hash__(self):
         return 83 * hash(self.label) + 17 * hash(self.index)
 
-
     @classmethod
     def from_string(cls, s):
         label, index = s.split("$") 

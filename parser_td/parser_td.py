@@ -13,6 +13,7 @@ from lib.hgraph.hgraph import Hgraph
 
 from td_item import Item, BoundaryItem, FasterCheckBoundaryItem
 
+
 class ParserTD:
     """
     A hyperedge replacement grammar parser that matches a rule's right hand side
@@ -35,7 +36,8 @@ class ParserTD:
         for graph in graph_iterator: 
             raw_chart = self.parse(graph)
             # The raw chart contains parser operations, need to decode the parse forest from this 
-            yield td_chart_to_cky_chart(raw_chart)
+            res = td_chart_to_cky_chart(raw_chart)
+            yield res
  
     def parse_strings(self, string_iterator):
         """
@@ -178,13 +180,14 @@ def td_chart_to_cky_chart(chart):
   
     cky_chart = Chart() 
     for item in visit_items:
-      # we only care about complete steps, so only add closed items to the chart
-      if not (item == 'START' or item.target in [Item.ROOT]):
+      # we only care about nonterminal steps, so only add closed items to the chart
+      if not (item == 'START' or item.target == Item.ROOT):
         continue
       # this dictionary will store the nonterminals replacements used to create this item
       real_productions = {} 
 
-      # we will search down the list of completions
+      # we will search down the list of nonterminal applications in all nodes
+      # of the tree decomposition
       pitem_history = set()
       todo = [item]
 
@@ -205,7 +208,8 @@ def td_chart_to_cky_chart(chart):
         #  for p in prod:
         #    real_productions.append([p])
         #  break
-  
+ 
+ 
         # sanity check: is the chain of derivations for this item shaped the way
         # we expect?
         lefts = set(x[0] for x in chart[pitem])
@@ -236,7 +240,12 @@ def td_chart_to_cky_chart(chart):
                 assert len(x) == 2
                 todo.append(x[0])
                 todo.append(x[1])
-                 
+        
+        elif prodlist[0][0].target == Item.TERMINAL:
+            for x in prodlist: 
+                assert len(x) == 1
+                todo.append(x[0])
+
       if real_productions:
           cky_chart[item] = real_productions 
     return cky_chart
