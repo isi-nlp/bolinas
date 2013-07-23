@@ -1,0 +1,32 @@
+Bolinas
+=======
+
+A toolkit for Synchronous Hyperedge Replacement Grammar.
+
+
+Directory Structure
+-------------------
+aligner    - implementation of the DepDep alignment algorithm (Jones et al. 2012)
+binarizer  - tool to binarize SHRG grammars
+common     - data structures and utilities used across sub-modules
+doc        - additional documentation
+examples   - example grammars and input files
+extra      - additional tools to convert input graphs and grammars
+extractor_cansem - CanSem rule extraction algorithm [1] 
+extractor_synsem - SynSem rule extraction algorithm [1] 
+lib         - libraries
+  > hgraph  - hypergraph representation and parser for hypergraph descriptions
+LICENSE.txt - USC license 
+parser      - default HRG/String parser with explicit visit order on each SHRG rule
+parser_td   - tree decomposition HRG parser [2] 
+
+
+References
+----------
+
+[1] B. Jones*, J. Andreas*, D. Bauer*, K-M. Hermann*, K. Knight (2012): 
+"Semantics-Based Machine Translation with Hyperedge Replacement Grammars", 
+COLING. [*First authorship shared. Order on publication randomized.]
+
+[2] D. Chiang, J. Andreas, D. Bauer, K-M. Hermann, B. Jones, K. Knight (2013):
+"Parsing Graphs with Hyperedge Replacement Grammars", ACL.
