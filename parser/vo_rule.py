@@ -1,19 +1,19 @@
-from lib.cfg import NonterminalLabel
-from lib.hgraph.hgraph import Hgraph
-from lib.hgraph.graph_description_parser import ParserError, LexerError
-from lib.tree import Tree
-from lib import log
-from common.rule import Rule
 import sys
-import cPickle as pickle
-from collections import defaultdict as ddict
 import re
 import StringIO
+import cPickle as pickle
+from collections import defaultdict as ddict
+from common.cfg import NonterminalLabel
+from common.hgraph.hgraph import Hgraph
+from common.hgraph.graph_description_parser import ParserError, LexerError
+from common import log
+from common.rule import Rule
+from lib.tree import Tree
 
 class VoRule(Rule):
-  """
+  ''' 
   A rule that stores a simple visit order for the graph.
-  """
+  ''' 
 
   def __init__(self, rule_id, symbol, weight, rhs1, rhs2, rhs1_visit_order =
       None, rhs2_visit_order = None, original_index = None, nodelabels = False):

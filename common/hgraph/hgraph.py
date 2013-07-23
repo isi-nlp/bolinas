@@ -12,8 +12,8 @@ import re
 import sys
 import copy
 from operator import itemgetter
-from lib.cfg import NonterminalLabel
-from lib.exceptions import DerivationException
+from common.cfg import NonterminalLabel
+from common.exceptions import DerivationException
 
 _graphics = False
 def require_graphics():

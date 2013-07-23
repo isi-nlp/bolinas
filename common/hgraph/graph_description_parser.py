@@ -1,19 +1,17 @@
 import sys
-from collections import defaultdict
-
 import re
-
+from collections import defaultdict
 from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal
-from lib.cfg import NonterminalLabel
-from lib.exceptions import LexerError, ParserError
+from common.cfg import NonterminalLabel
+from common.exceptions import LexerError, ParserError
 
-"""
+'''
 A deterministic, linear time parser for hypergraph descriptions.
-The graph format is described here...
+The hypergraph format is described in doc/hgraph_format.txt
 
 @author Daniel Bauer (bauer@cs.columbia.edu)
 @date 2013-06-10
-"""
+'''
 
 # This is essentially a finite state machine with a single stack and 
 # semantic actions on each transition.

@@ -1,7 +1,9 @@
-# The code that follows computes a nice tree decomposition for the rule's
-# graph. The decomposition computed here uses the heuristic described in the
-# ACL 2013 paper (DFS and augmenting nodes to satisfy running intersection property)
-# and provides no formal guarantees for treewidth. 
+'''
+The code that follows computes a nice tree decomposition for the rule's
+graph. The decomposition computed here uses the heuristic described in the
+ACL 2013 paper (DFS and augmenting nodes to satisfy running intersection property)
+and provides no formal guarantees for treewidth. 
+'''
 
 class TreeNode:
   def __init__(self):

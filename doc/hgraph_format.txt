@@ -1,0 +1,127 @@
+Hypergraph Format
+=================
+
+This format represents hypergraphs that are directed, rooted, unordered, optionally edge and node labelled. Unary hyperedges are allowed.
+
+The hypergraph format is designed to be
+
+    easy to read and concise to write across different use cases.
+    fully compatible with standard bracketed tree formats (treebank).
+    similar to the format for abstract meaning representations (AMR).
+
+Nodes
+-----
+
+Nodes take the format 
+
+[ID].[label]
+
+ ID is an explicit internal identifier that serves to distinguish the node from other nodes in the graph and to redefine reentrencies.
+
+IDs are C-style identifiers (i.e., strings containing letters, digits, and _, but not beginning with a digit). Node labels can either be C-style identifiers, or double-quoted arbitrary strings. In the latter case, a string containing a double quote needs to be escaped with backslash.
+
+n1."the girl"
+n2."the \"girl\""
+
+Nodes can also be defined by ID only, in which case the label is assumed to be empty.
+
+a.
+
+Nodes can also be defined by label only, in which case an implicit, unique node ID is assumed.
+."the girl"
+.n
+
+If no . is used, the identifier is interpreted as a node label. The following is equivalent to the previous example.
+
+n
+
+Finally, a node with an empty node label and implicit node ID is defined by a single dot,
+
+.
+
+To refer back to a node, the ID-only notation is used.
+
+Hyperedges
+----------
+
+A hyperedge is defined by giving it a label prefixed with :.
+
+A hyperedge label is a C-style identifier.
+
+A ternary hyperedge (one head, two tails):
+
+(A :rel B C)
+
+A unary hyperedge
+
+(A :rel B)
+
+As a special case, a hyperedge with no root node defines a new anonymous node. The following are equivalent
+
+( :relation A)
+(. :relation A)
+
+A binary hyperedge without a label:
+
+ (A : B)
+
+As a special case, : can also be skipped. 
+
+(A B C)
+
+defines a ternary unlabeled hyperedge. Since hyperedges are ordered this allows us to define trees using the hypergraph notation. The previous example is different from
+
+(A C B)
+
+Labels of nonterminal hyperedges in a HRG hypergraph fragment are suffixed with $.
+
+(A :Nonterminal$ B)
+
+In a synchronous HRG nonterminals are usually indexed. Either all or none of the nonterminal edges must be indexed. If none of them are indexed, indices for identical nonterminal labels are assumed to be in the order of specification.
+
+(A :Nonterminal$1 B C)
+
+External nodes
+--------------
+
+In a HRG hypergraph fragment,external nodes are defined by appending *.
+
+(A :rel B*)
+
+ External nodes can be indexed explicitly, starting from 1, to define in which order they are connected to the tails of a nonterminal hyperedge.
+
+(A :rel B*2 C*1)
+
+Either all or none of the external nodes must be indexed. The root node is always explicitly indexed with 0. If no explicit indices are used, indices are assumed to be in the order of specification.
+Bracketing
+
+Bracketing works almost exactly as in PTB format (and AMRs) i.e. 
+
+    a single node is a rooted hypergraph.
+    (a :relation B) is a hypergraph with root node a, where B is a list of rooted hypergraphs (whose roots are the tail nodes of the hyperedge :relation).
+    Additionally (a) is equivalent to a.
+
+Examples
+--------
+
+(node.label)
+
+node.label
+
+(node.)
+
+(label.)
+
+label
+
+(S (NP the boy) (VP likes (NP the girl)))
+
+(b0.believe :arg0 b1.boy :arg1  (w.want :arg0 g.girl :arg1 b1.))
+
+(believe :arg0 b.boy :arg1  (want :arg0 girl :arg1 b.))
+
+(. :instance believe :arg0 (b. :instance boy) :arg1  (. :instance want :arg0 girl :arg1 b.))
+
+(. :instance wants :arg0 (b. :instance boy) :arg1  (. :instance believe :arg0 (g. :instance girl) :A$ g. b. ))
+
+(. :arg0 n.* :arg1 n.)

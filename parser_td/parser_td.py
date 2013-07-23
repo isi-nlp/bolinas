@@ -1,18 +1,14 @@
 from lib.tree import Tree
-from lib import log
+from common import log
 import time
 from collections import defaultdict as ddict, deque
 import itertools
 import re
 import math
-
-from lib.cfg import Chart
-
-from lib.exceptions import InvocationException, InputFormatException
-from lib.hgraph.hgraph import Hgraph
-
+from common.cfg import Chart
+from common.exceptions import InvocationException, InputFormatException
+from common.hgraph.hgraph import Hgraph
 from td_item import Item, BoundaryItem, FasterCheckBoundaryItem
-
 
 class ParserTD:
     """

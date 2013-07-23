@@ -1,6 +1,6 @@
-from lib.exceptions import InputFormatException, BinarizationException, GrammarError, ParserError
-from lib.hgraph.hgraph import Hgraph
-from lib.cfg import NonterminalLabel
+from common.exceptions import InputFormatException, BinarizationException, GrammarError, ParserError
+from common.hgraph.hgraph import Hgraph
+from common.cfg import NonterminalLabel
 from common.rule import Rule
 from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
@@ -76,8 +76,12 @@ class Grammar(dict):
                     except:
                         raise GrammarError, \
             "Line %i, Rule %i: Error near end of line." % (line_count, rule_count)
-                    
-                    lhs, rhsstring = content.split("->")
+                   
+                    try:  
+                        lhs, rhsstring = content.split("->")
+                    except:
+                        raise GrammarError, \
+            "Line %i, Rule %i: Invalid rule format." % (line_count, rule_count)
                     lhs = lhs.strip()
                     if rule_count == 1:
                         output.start_symbol = lhs

@@ -1,5 +1,5 @@
-from lib.hgraph.hgraph import NonterminalLabel
-from lib import log
+from common.hgraph.hgraph import NonterminalLabel
+from common import log
 import sys
 from collections import defaultdict as ddict
 

@@ -1,27 +1,27 @@
 #!/usr/bin/env python2
 
+#This is the main Bolinas script that runs the parser.
+
 import sys
 import fileinput
-from config import config
-from lib import log
 from argparse import ArgumentParser
-from lib.hgraph.hgraph import Hgraph
-from lib.exceptions import DerivationException
 
+# Bolinas imports
+from config import config
+from common.hgraph.hgraph import Hgraph
+from common import log
+from common import output
+from common.exceptions import DerivationException
 from common.grammar import Grammar
-
-#Import bolinas modules
 from parser.parser import Parser
 from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
 from parser_td.td_item import Item
 from parser_td.parser_td import ParserTD
-from lib import output
 
 if __name__ == "__main__":
-
     # Parse all the command line arguments, figure out what to do and dispatch to the appropriate modules. 
-   
+    
     # Initialize the command line argument parser 
     argparser = ArgumentParser(description = "Bolinas is a toolkit for synchronous hyperedge replacement grammars.")
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     # Updat global configuration with command line args 
     config.__dict__.update(vars(args))
 
-    # Definition of verbosity levels 
+    # Definition of logger output verbosity levels 
     log.LOG = {0:{log.err},
                1:{log.err, log.warn},
                2:{log.err, log.warn, log.info},

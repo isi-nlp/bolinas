@@ -1,25 +1,22 @@
-from lib.tree import Tree
-from lib import log
+import itertools
+import math
+import re
 import time
 from collections import defaultdict as ddict, deque
-import itertools
-import re
-import math
-
-
-from lib.hgraph.hgraph import Hgraph
-from lib.cfg import Chart
-
+from lib.tree import Tree
+from common import log
+from common.hgraph.hgraph import Hgraph
+from common.cfg import Chart
 from vo_item import CfgItem, HergItem, CfgHergItem
 from vo_rule import VoRule
 
 class Parser:
-  """
+  ''' 
   A deductive style parser for hypergraphs and strings that matches parts
   of the input hypergraph according to an arbitrary visit order for edges.
   (or left-to-right for strings, in which case this is essentially
   a CKY parser).
-  """
+  '''
 
   def __init__(self, grammar):
     self.grammar = grammar

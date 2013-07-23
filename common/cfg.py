@@ -1,5 +1,5 @@
 import itertools
-from lib import log
+from common import log
 
 class NonterminalLabel(object):
     """

@@ -1,10 +1,10 @@
-"""
+'''
 Methods to format Bolinas output.
-"""
+'''
 
-from lib.hgraph.hgraph import Hgraph
-from lib.cfg import NonterminalLabel
-from lib import log 
+from common.hgraph.hgraph import Hgraph
+from common.cfg import NonterminalLabel
+from common import log 
  
 def walk_derivation(derivation, combiner, leaf):
     """
