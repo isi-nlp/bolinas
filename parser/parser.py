@@ -7,7 +7,7 @@ from lib.tree import Tree
 from common import log
 from common.hgraph.hgraph import Hgraph
 from common.cfg import Chart
-from vo_item import CfgItem, HergItem, CfgHergItem
+from vo_item import CfgItem, HergItem, SynchronousItem 
 from vo_rule import VoRule
 
 class Parser:
@@ -43,6 +43,202 @@ class Parser:
         raw_chart = self.parse(string, None)
         # The raw chart contains parser operations, need to decode the parse forest from this 
         yield cky_chart(raw_chart)
+
+  def parse_bitexts(self, pair_iterator):
+      """
+      Parse all pairs of input objects returned by the pair iterator. 
+      This is a generator.
+      """ 
+      for line1, line2 in pair_iterator:
+          if self.grammar.rhs1_type == "hypergraph":
+              obj1 = Hgraph.from_string(line1)
+          else: 
+              obj1 = line1.strip().split()
+          
+          if self.grammar.rhs2_type == "hypergraph":
+              obj2 = Hgraph.from_string(line2)
+          else: 
+              obj2 = line2.strip().split()
+
+          raw_chart = self.parse_bitext(obj1, obj2)
+          yield cky_chart(raw_chart)
+
+  def parse_bitext(self, obj1, obj2):
+      """
+      Parse a single pair of objects (two strings, two graphs, or string/graph).
+      """
+      rhs1type, rhs2type = self.grammar.rhs1_type, self.grammar.rhs2_type
+      print rhs1type, rhs2type
+      assert rhs1type in ["string","hypergraph"] and rhs2type in ["string","hypergraph"]
+
+      # Remember size of input objects and figure out Item subclass
+      if rhs1type == "string":
+          rhs1size = len(obj1) 
+          if self.grammar.rhs2_type == "hypergraph":
+              rhs2size = len(obj2.triples())
+          elif self.grammar.rhs2_type == "string":
+              rhs2size = len(obj2)
+      elif rhs1type == "hypergraph":   
+          if rhs2type == "string":
+              # when parsing graph and string always assume the string is the first RHS 
+              obj1, obj2 = obj2, obj1
+              rhs1size = len(obj1) 
+              rhs2size = len(obj2.triples())
+              rhs1type, rhs2type = "string","hypergraph"
+          elif rhs2type == "hypergraph":
+              rhs1size = len(obj1.triples())
+              rhs2size = len(obj2.triples())
+      grammar = self.grammar
+      start_time = time.clock()
+      log.chatter('parse...')
+
+      # initialize data structures and lookups
+      # we use various tables to provide constant-time lookup of fragments available
+      # for shifting, completion, etc.
+      chart = ddict(set)
+      # TODO prune
+      pgrammar = grammar.values()
+      queue = deque() # the items left to be visited
+      pending = set() # a copy of queue with constant-time lookup
+      attempted = set() # a cache of previously-attempted item combinations
+      visited = set() # a cache of already-visited items    
+      nonterminal_lookup = ddict(set) # a mapping from labels to graph edges
+      reverse_lookup = ddict(set) # a mapping from outside symbols open items
+
+      # mapping from words to string indices for each string
+      word_terminal_lookup1 = ddict(set) 
+      word_terminal_lookup2 = ddict(set) 
+
+      if rhs1type == "string":
+        for i in range(len(obj1)):
+          word_terminal_lookup1[obj1[i]].add(i)
+      
+      if rhs2type == "string":
+        for i in range(len(obj1)):
+          word_terminal_lookup2[obj1[i]].add(i)
+        
+      # mapping from edge labels to graph edges for each graph
+      edge_terminal_lookup1 = ddict(set) 
+      edge_terminal_lookup2 = ddict(set) 
+
+      if rhs1type == "hypergraph":
+        for edge in obj1.triples(nodelabels = self.nodelabels):
+          edge_terminal_lookup1[edge[1]].add(edge)
+
+      if rhs2type == "hypergraph":
+        for edge in obj2.triples(nodelabels = self.nodelabels):
+          edge_terminal_lookup2[edge[1]].add(edge)
+
+      for rule in pgrammar:
+        item1class = CfgItem if rhs1type == "string" else HergItem
+        item2class = CfgItem if rhs2type == "string" else HergItem
+        axiom = SynchronousItem(rule, item1class, item2class, nodelabels = self.nodelabels)
+        queue.append(axiom)
+        pending.add(axiom)
+        if axiom.outside_is_nonterminal:
+          reverse_lookup[axiom.outside_symbol].add(axiom)
+       
+      # keep track of whether we found any complete derivation
+      success = False
+      
+      # parse
+      while queue:
+        item = queue.popleft()
+        pending.remove(item)
+        visited.add(item)
+        log.debug('handling', item)
+
+        if item.closed:
+          log.debug('  is closed.')
+          # check if it's a complete derivation
+          if self.successful_parse(string, graph, item, string_size, graph_size):
+              chart['START'].add((item,))
+              success = True
+
+          # add to nonterminal lookup
+          nonterminal_lookup[item.rule.symbol].add(item)
+
+          # wake up any containing rules
+          # Unlike in ordinary state-space search, it's possible that we will have
+          # to re-visit items which couldn't be merged with anything the first time
+          # we saw them, and are waiting for the current item. The reverse_lookup
+          # indexes all items by their outside symbol, so we re-append to the queue
+          # all items looking for something with the current item's symbol.
+          for ritem in reverse_lookup[item.rule.symbol]:
+            if ritem not in pending:
+              queue.append(ritem)
+              pending.add(ritem)
+
+        else:
+          if item.outside_is_nonterminal:
+            # complete
+            reverse_lookup[item.outside_symbol].add(item)
+
+            for oitem in nonterminal_lookup[item.outside_symbol]:
+              log.debug("  oitem:", oitem)
+              if (item, oitem) in attempted:
+                # don't repeat combinations we've tried before
+                continue
+              attempted.add((item, oitem))
+              if not item.can_complete(oitem):
+                log.debug("    fail")
+                continue
+              log.debug("    ok")
+              nitem = item.complete(oitem)
+              chart[nitem].add((item, oitem))
+              if nitem not in pending and nitem not in visited:
+                queue.append(nitem)
+                pending.add(nitem)
+
+          else:
+            # shift ; this depends on the configuration (string, graph, or any 
+            # biparsing configuration)
+
+            if rhs1type == "string":
+              print item.item1.rule.rhs2
+              if not item.outside1_is_nonterminal: # Otherwise shift would not be called
+                new_items = [item.shift_word1(item.outside_word1, index) for index in
+                    word_terminal_lookup1[item.outside_symbol1] if
+                    item.can_shift_word1(item.outside_symbol1, index)]
+              else:
+                if rhs2type == "hypergraph": 
+                    assert not item.outside_edge2_is_nonterminal
+                    new_items = [item.shift_edge2(edge) for edge in
+                        edge_terminal_lookup2[item.outside_edge2] if
+                        item.can_shift_edge2(edge)]               
+                else:
+                    assert rhs2type == "string"
+                    assert not item.outside_word2_is_nonterminal
+                    new_items = [item.shift_word2(item.outside_word2, index) for index in
+                        word_terminal_lookup2[item.outside_word2] if
+                        item.can_shift_word2(item.outside_word2, index)]
+
+            elif rhs1type == "hypergraph":
+              if not item.outside_edge1_is_nonterminal:
+                  new_items = [item.shift_edge1(edge) for edge in
+                      edge_terminal_lookup1[item.outside_edge1] if
+                      item.can_shift1(edge)]
+              else: 
+                  assert rhs2type is "hypergraph"            
+                  assert not item.outside_edge2_is_nonterminal
+                  new_items = [item.shift_edge2(edge) for edge in
+                    edge_terminal_lookup2[item.outside_edge2] if
+                    item.can_shift_edge2(edge)]               
+
+            for nitem in new_items:
+              log.debug('  shift', nitem, nitem.shifted)
+              chart[nitem].add((item,))
+              if nitem not in pending and nitem not in visited:
+                queue.append(nitem)
+                pending.add(nitem)
+
+      if success:
+        log.chatter('  success!')
+      etime = time.clock() - start_time
+      log.chatter('done in %.2fs' % etime)
+
+      # TODO return partial chart
+      return chart
 
   def parse(self, string, graph):
       """

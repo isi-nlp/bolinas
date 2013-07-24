@@ -19,6 +19,20 @@ from parser_td.td_rule import TdRule
 from parser_td.td_item import Item
 from parser_td.parser_td import ParserTD
 
+
+def read_pairs(input):            
+    """
+    An iterator over pairs of elements in an iterator. 
+    """
+    while True: 
+        line1 = input.next()
+        try:
+            line2 = input.next()
+        except StopIteration:
+            raise IOError, "Uneven number of lines in input."
+        yield (line1, line2)
+
+
 if __name__ == "__main__":
     # Parse all the command line arguments, figure out what to do and dispatch to the appropriate modules. 
     
@@ -44,7 +58,7 @@ if __name__ == "__main__":
     argparser.add_argument("-p","--parser", default="basic", help="Specify which graph parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'basic': a basic generalization of CKY that matches rules according to an arbitrary visit order on edges (less efficient).")
     argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes on the target side of a synchronous grammar.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="In the tree decomposition parser, use the full representation for graph fragments instead of the compact boundary node representation. This can provide some speedup for grammars with small rules.")
-    argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
+    #argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
     
     args = argparser.parse_args()
@@ -79,7 +93,6 @@ if __name__ == "__main__":
         log.err("Invalid verbosity level, must be 0-4.")
         sys.exit(1)
   
-
     # Updat global configuration with command line args 
     config.__dict__.update(vars(args))
 
@@ -125,14 +138,21 @@ if __name__ == "__main__":
          
         parser = parser_class(grammar)
 
-        if grammar.rhs1_type == "string":
-            if parser_class == "td":
-                log.err("Parser class needs to be 'basic' to parse strings.")
+
+        if config.bitext:
+            if parser_class == ParserTD:
+                log.err("Bitext parsing with tree decomposition based parser is not yet implemented. Use '-p basic'.")
                 sys.exit(1)
+            parse_generator = parser.parse_bitexts(read_pairs(fileinput.input(config.input_file))) 
+        else:    
+            if grammar.rhs1_type == "string":
+                if parser_class == ParserTD:
+                    log.err("Parser class needs to be 'basic' to parse strings.")
+                    sys.exit(1)
+                else: 
+                    parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(config.input_file))
             else: 
-                parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(config.input_file))
-        else: 
-            parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(config.input_file))
+                parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(config.input_file))
         
         # Process input (if any) and produce desired output 
         if config.input_file:
@@ -162,9 +182,6 @@ if __name__ == "__main__":
                                 log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
                     elif grammar.rhs2_type == "string":
                         for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
-                            try:
-                                output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))
-                            except DerivationException:
-                                log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
+                            output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))
         
                     output_file.write("\n")
