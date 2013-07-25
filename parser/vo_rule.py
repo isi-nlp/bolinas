@@ -47,7 +47,19 @@ class VoRule(Rule):
 
     if original_index != None:
       self.original_index = original_index
+    else: 
+      self.original_index = None
 
+  def project_right(self):
+    return VoRule(self.rule_id, self.symbol, self.weight, self.rhs2, None, \
+            rhs1_visit_order = self.rhs2_visit_order, rhs2_visit_order = None,\
+            original_index = self.original_index, nodelabels = self.nodelabels)
+
+  def project_left(self):
+    return VoRule(self.rule_id, self.symbol, self.weight, self.rhs1, None, \
+            rhs1_visit_order = self.rhs1_visit_order, rhs2_visit_order = None,\
+            original_index = self.original_index, nodelabels = self.nodelabels)
+  
 
   def reweight(self, nweight):
     return VoRule(self.rule_id, self.symbol, nweight, self.rhs1, self.parse, \

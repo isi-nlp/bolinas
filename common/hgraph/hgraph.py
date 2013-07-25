@@ -913,7 +913,7 @@ class Hgraph(defaultdict):
     def apply_node_map(self, node_map):
         new = Hgraph()
         new.roots = [node_map[x] if x in node_map else x for x in self.roots ]
-        new.external_nodes = [node_map[x] if x in node_map else x for x in self.external_nodes]
+        new.external_nodes = dict([(node_map[x], self.external_nodes[x]) if x in node_map else x for x in self.external_nodes])
 
         for node in self.node_alignments:
             new.node_alignments[node_map[node]] = self.node_alignments[node]
@@ -949,7 +949,7 @@ class Hgraph(defaultdict):
         """
         res_dag = Hgraph.from_triples([edge for edge in self.triples() if not dag.has_edge(*edge)], dag.node_to_concepts)
         res_dag.roots = [r for r in self.roots if r in res_dag]
-        res_dag.external_nodes = [n for n in self.external_nodes if n in res_dag]
+        res_dag.external_nodes = dict([(n, self.external_nodes[n]) for n in self.external_nodes if n in res_dag])
         return res_dag
 
     def replace_fragment(self, dag, new_dag, partial_boundary_map = {}):
@@ -976,7 +976,7 @@ class Hgraph(defaultdict):
         # now remove the old fragment
         res_dag = self.remove_fragment(dag)
         res_dag.roots = [boundary_map[x] if x in boundary_map else x for x in self.roots]
-        res_dag.external_nodes = [boundary_map[x] if x in boundary_map else x for x in self.external_nodes]
+        res_dag.external_nodes = dict([(boundary_map[x], self.external_nodes[x]) if x in boundary_map else (x, self.external_nodes[x]) for x in self.external_nodes])
 
         # and add the remaining edges, fusing boundary nodes
         for par, rel, child in new_dag.triples(): 

@@ -44,7 +44,6 @@ class HergItem(Item):
 
     # Store the nonterminal symbol and index of the previous complete 
     # on this item so we can rebuild the derivation easily
-
     triples = rule.rhs1.triples(nodelabels = nodelabels)
     self.outside_symbol = None
     if size < len(triples):
@@ -96,7 +95,7 @@ class HergItem(Item):
     return '%d__%s' % (self.rule.rule_id, ','.join(sorted(list(edges))))
 
   def __repr__(self):
-    return 'HergItem(%d, %d, %s, %s)' % (self.rule.rule_id, self.size, self.rule.symbol, [x[1] for x in self.shifted])
+    return 'HergItem(%d, %d, %s, %s)' % (self.rule.rule_id, self.size, self.rule.symbol, len(self.shifted))
 
   def __str__(self):
     return '[%d, %d/%d, %s, {%s}]' % (self.rule.rule_id,
@@ -271,12 +270,13 @@ class HergItem(Item):
     new = HergItem(self.rule, new_size, new_shifted, new_mapping, self.nodelabels)
     return new
 
+
 class CfgItem(Item):
   """
   Chart item for a CFG parse.
   """
 
-  def __init__(self, rule, size=None, i=None, j=None, nodelabels = False, userhs2 = False):
+  def __init__(self, rule, size=None, i=None, j=None, nodelabels = False):
     # until this item is associated with some span in the sentence, let i and j
     # (the left and right boundaries) be -1
     if size == None:
@@ -407,20 +407,21 @@ class SynchronousItem(Item):
 
   def __init__(self, rule, item1class, item2class, item1 = None, item2 = None, nodelabels = False):
 
+    self.shifted = ([],[]) 
+
     self.rule = rule
     self.nodelabels = nodelabels
     self.item1class = item1class
     self.item2class = item2class
-    self.nodelabels = nodelabels
+
     if item1: 
         self.item1 = item1 
     else:
-        self.item1 = item1class(rule, nodelabels = nodelabels) 
-
+        self.item1 = item1class(rule.project_left(), nodelabels = nodelabels) 
     if item2: 
         self.item2 = item2
     else: 
-        self.item2 = item2class(rule, nodelabels = nodelabels)
+        self.item2 = item2class(rule.project_right(), nodelabels = nodelabels)
 
     if self.item1.closed and self.item2.closed: 
       self.closed = True
@@ -437,39 +438,40 @@ class SynchronousItem(Item):
 
     if item1class is CfgItem:
         self.outside1_is_nonterminal = self.item1.outside_is_nonterminal
-        self.outside_symbol1 = self.item1.outside_word
+        self.outside_object1 = self.item1.outside_word
     else:
         self.outside1_is_nonterminal = self.item1.outside_is_nonterminal
-        self.outside_symbol1 = self.item1.outside_triple[1] if \
+        self.outside_object1= self.item1.outside_triple[1] if \
             self.item1.outside_triple else None
 
     if item2class is CfgItem:
-        self.outside2_is_nonterminal = self.item1.outside_is_nonterminal
-        self.outside_symbol2 = self.item2.outside_word
+        self.outside2_is_nonterminal = self.item2.outside_is_nonterminal
+        self.outside_object2 = self.item2.outside_word
     else:
-        self.outside2_is_nonterminal = self.item1.outside_is_nonterminal
-        self.outside_symbol2 = self.item2.outside_triple[1] if \
+        self.outside2_is_nonterminal = self.item2.outside_is_nonterminal
+        self.outside_object2 = self.item2.outside_triple[1] if \
             self.item2.outside_triple else None
     
     self.outside_is_nonterminal = self.outside1_is_nonterminal and \
         self.outside2_is_nonterminal
 
     if self.outside_is_nonterminal:
-      assert self.outside_symbol1 == self.outside_symbol2
-      self.outside_symbol = self.outside_symbol1
+      assert self.outside_object1 == self.outside_object2
+      self.outside_symbol = self.item1.outside_symbol
+      self.outside_nt_index = self.item1.outside_nt_index
 
     self.__cached_hash = None
 
-  def uniq_str(self):
-    """
-    Produces a unique string representation of this item (see note on uniq_str
-    in HergItem above).
-    """
-    edges = set()
-    for head, role, tail in self.herg_item.shifted:
-      edges.add('%s:%s' % (head, ':'.join(tail)))
-    return '%d__%s__%d,%d' % (self.rule.rule_id, ','.join(sorted(list(edges))),
-        self.cfg_item.i, self.cfg_item.j)
+  #def uniq_str(self):
+  #  """
+  #  Produces a unique string representation of this item (see note on uniq_str
+  #  in HergItem above).
+  #  """
+  #  edges = set()
+  #  for head, role, tail in self.herg_item.shifted:
+  #    edges.add('%s:%s' % (head, ':'.join(tail)))
+  #  return '%d__%s__%d,%d' % (self.rule.rule_id, ','.join(sorted(list(edges))),
+  #      self.cfg_item.i, self.cfg_item.j)
 
   def __hash__(self):
     if not self.__cached_hash:
@@ -481,13 +483,7 @@ class SynchronousItem(Item):
         and other.item2 == self.item2
 
   def __repr__(self):
-    if "outside_symbol" in self.__dict__:
-        return '[%s, (%d,%d), (%s), {%d}]' % (self.rule, self.item1.i, self.item2.j,
-            self.outside_symbol,
-            len(self.herg_item.shifted))
-    else: 
-        return '[%s, (%d,%d), {%d}]' % (self.rule, self.item1.i, self.item2.j,
-         len(self.herg_item.shifted))
+    return "(%s, %s, %s, %s)" % (self.item1.__repr__(), self.item2.__repr__(), str(self.item1.closed),str(self.item2.closed))
 
   def can_shift_word1(self, word, index):
     """
@@ -509,6 +505,7 @@ class SynchronousItem(Item):
     """
     assert isinstance(self.item1, CfgItem)
     nitem = self.item1.shift(word, index)
+    self.shifted = (self.item1.shifted, self.item2.shifted)
     return SynchronousItem(self.rule, self.item1class, self.item2class, nitem, self.item2, nodelabels = self.nodelabels)
   
   def shift_word2(self, word, index):
@@ -517,6 +514,7 @@ class SynchronousItem(Item):
     """
     assert isinstance(self.item2, CfgItem)
     nitem = self.item2.shift(word, index)
+    self.shifted = (self.item1.shifted, self.item2.shifted)
     return SynchronousItem(self.rule, self.item1class, self.item2class, self.item1, nitem, nodelabels = self.nodelabels)
 
   def can_shift_edge1(self, edge):
@@ -524,6 +522,7 @@ class SynchronousItem(Item):
     Determines whether the given edge can be shifted onto the HERG item.
     """
     assert isinstance(self.item1, HergItem)
+    self.shifted = (self.item1.shifted, self.item2.shifted)
     return self.item1.can_shift(edge)
   
   def can_shift_edge2(self, edge):
@@ -531,9 +530,10 @@ class SynchronousItem(Item):
     Determines whether the given edge can be shifted onto the HERG item.
     """
     assert isinstance(self.item2, HergItem)
+    self.shifted = (self.item1.shifted, self.item2.shifted)
     return self.item2.can_shift(edge)
 
-  def shift_edge2(self, edge):
+  def shift_edge1(self, edge):
     """
     Shifts onto the HERG item.
     """
@@ -563,124 +563,3 @@ class SynchronousItem(Item):
     nitem1 = self.item1.complete(new_item.item1)
     nitem2 = self.item2.complete(new_item.item2)
     return SynchronousItem(self.rule, self.item1class, self.item2class, nitem1, nitem2, nodelabels = self.nodelabels)
-
-#class CfgHergItem:
-#  """
-#  Chart item for a synchronous CFG/HERG parse. (Just a wrapper for paired
-#  CfgItem / HergItem.)
-#  """
-#
-#  def __init__(self, rule, cfg_item=None, herg_item=None):
-#    if cfg_item == None:
-#      cfg_item = CfgItem(rule)
-#    if herg_item == None:
-#      herg_item = HergItem(rule)
-#
-#    self.rule = rule
-#    self.cfg_item = cfg_item
-#    self.herg_item = herg_item
-#
-#    if cfg_item.closed and herg_item.closed:
-#      self.closed = True
-#    else:
-#      self.closed = False
-#
-#    # Now we potentially have two outsides---one in the graph and the other in
-#    # the string. The visit order will guarantee that if we first consume all
-#    # terminals in any order, the remainder of both string and graph visit
-#    # orders will agree on the sequence in which to consume nonterminals. (See
-#    # the Rule class.) Before consuming all terminals, it might be the case that
-#    # one item has a terminal outside and the other a nonterminal; in that case
-#    # we do not want an outside nonterminal associated with this item.
-#
-#    self.outside_word_is_nonterminal = self.cfg_item.outside_is_nonterminal
-#    self.outside_edge_is_nonterminal = self.herg_item.outside_is_nonterminal
-#    self.outside_is_nonterminal = self.outside_word_is_nonterminal and \
-#        self.outside_edge_is_nonterminal
-#
-#    self.outside_word = self.cfg_item.outside_word
-#    self.outside_edge = self.herg_item.outside_triple[1] if \
-#        self.herg_item.outside_triple else None
-#
-#    if self.outside_is_nonterminal:
-#      assert cfg_item.outside_symbol == herg_item.outside_symbol
-#      self.outside_symbol = cfg_item.outside_symbol
-#
-#    self.__cached_hash = None
-#
-#  def uniq_str(self):
-#    """
-#    Produces a unique string representation of this item (see note on uniq_str
-#    in HergItem above).
-#    """
-#    edges = set()
-#    for head, role, tail in self.herg_item.shifted:
-#      edges.add('%s:%s' % (head, ':'.join(tail)))
-#    return '%d__%s__%d,%d' % (self.rule.rule_id, ','.join(sorted(list(edges))),
-#        self.cfg_item.i, self.cfg_item.j)
-#
-#  def __hash__(self):
-#    if not self.__cached_hash:
-#      self.__cached_hash = 2 * hash(self.cfg_item) + 7 * hash(self.herg_item)
-#    return self.__cached_hash
-#
-#  def __eq__(self, other):
-#    return isinstance(other, CfgHergItem) and other.cfg_item == self.cfg_item \
-#        and other.herg_item == self.herg_item
-#
-#  def __repr__(self):
-#    if "outside_symbol" in self.__dict__:
-#        return '[%s, (%d,%d), (%s), {%d}]' % (self.rule, self.cfg_item.i, self.cfg_item.j,
-#            self.outside_symbol,
-#            len(self.herg_item.shifted))
-#    else: 
-#        return '[%s, (%d,%d), {%d}]' % (self.rule, self.cfg_item.i, self.cfg_item.j,
-#         len(self.herg_item.shifted))
-#
-#  def can_shift_word(self, word, index):
-#    """
-#    Determines whether given word, index can be shifted onto the CFG item.
-#    """
-#    return self.cfg_item.can_shift(word, index)
-#
-#  def shift_word(self, word, index):
-#    """
-#    Shifts onto the CFG item.
-#    """
-#    citem = self.cfg_item.shift(word, index)
-#    return CfgHergItem(self.rule, citem, self.herg_item)
-#
-#  def can_shift_edge(self, edge):
-#    """
-#    Determines whether the given edge can be shifted onto the HERG item.
-#    """
-#    return self.herg_item.can_shift(edge)
-#
-#  def shift_edge(self, edge):
-#    """
-#    Shifts onto the HERG item.
-#    """
-#    hitem = self.herg_item.shift(edge)
-#    return CfgHergItem(self.rule, self.cfg_item, hitem)
-#
-#  def can_complete(self, new_item):
-#    """
-#    Determines whether given item can be shifted onto both the CFG item and the
-#    HERG item.
-#    """
-#
-#    if not (self.cfg_item.can_complete(new_item.cfg_item) and
-#            self.herg_item.can_complete(new_item.herg_item)):
-#      return False
-#    assert self.cfg_item.outside_word == \
-#        str(self.herg_item.outside_triple[1])
-#    return True
-#
-#  def complete(self, new_item):
-#    """
-#    Performs the synchronous completion, and gives back a new item.
-#    """
-#    citem = self.cfg_item.complete(new_item.cfg_item)
-#    hitem = self.herg_item.complete(new_item.herg_item)
-#    return CfgHergItem(self.rule, citem, hitem)
-

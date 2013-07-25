@@ -68,26 +68,17 @@ class Parser:
       Parse a single pair of objects (two strings, two graphs, or string/graph).
       """
       rhs1type, rhs2type = self.grammar.rhs1_type, self.grammar.rhs2_type
-      print rhs1type, rhs2type
       assert rhs1type in ["string","hypergraph"] and rhs2type in ["string","hypergraph"]
-
+    
       # Remember size of input objects and figure out Item subclass
       if rhs1type == "string":
-          rhs1size = len(obj1) 
-          if self.grammar.rhs2_type == "hypergraph":
-              rhs2size = len(obj2.triples())
-          elif self.grammar.rhs2_type == "string":
-              rhs2size = len(obj2)
+          obj1size = len(obj1) 
       elif rhs1type == "hypergraph":   
-          if rhs2type == "string":
-              # when parsing graph and string always assume the string is the first RHS 
-              obj1, obj2 = obj2, obj1
-              rhs1size = len(obj1) 
-              rhs2size = len(obj2.triples())
-              rhs1type, rhs2type = "string","hypergraph"
-          elif rhs2type == "hypergraph":
-              rhs1size = len(obj1.triples())
-              rhs2size = len(obj2.triples())
+          obj1size = len(obj1.triples())
+      if rhs2type == "string":
+          obj2size = len(obj2)
+      elif rhs2type == "hypergraph":
+          obj2size = len(obj2.triples())
       grammar = self.grammar
       start_time = time.clock()
       log.chatter('parse...')
@@ -103,7 +94,7 @@ class Parser:
       attempted = set() # a cache of previously-attempted item combinations
       visited = set() # a cache of already-visited items    
       nonterminal_lookup = ddict(set) # a mapping from labels to graph edges
-      reverse_lookup = ddict(set) # a mapping from outside symbols open items
+      reverse_lookup = ddict(set) # a mapping from outside symbols to open items
 
       # mapping from words to string indices for each string
       word_terminal_lookup1 = ddict(set) 
@@ -114,8 +105,8 @@ class Parser:
           word_terminal_lookup1[obj1[i]].add(i)
       
       if rhs2type == "string":
-        for i in range(len(obj1)):
-          word_terminal_lookup2[obj1[i]].add(i)
+        for i in range(len(obj2)):
+          word_terminal_lookup2[obj2[i]].add(i)
         
       # mapping from edge labels to graph edges for each graph
       edge_terminal_lookup1 = ddict(set) 
@@ -151,7 +142,7 @@ class Parser:
         if item.closed:
           log.debug('  is closed.')
           # check if it's a complete derivation
-          if self.successful_parse(string, graph, item, string_size, graph_size):
+          if self.successful_biparse(obj1, obj2, item, obj1size, obj2size):
               chart['START'].add((item,))
               success = True
 
@@ -191,46 +182,37 @@ class Parser:
                 pending.add(nitem)
 
           else:
-            # shift ; this depends on the configuration (string, graph, or any 
-            # biparsing configuration)
-
-            if rhs1type == "string":
-              print item.item1.rule.rhs2
-              if not item.outside1_is_nonterminal: # Otherwise shift would not be called
-                new_items = [item.shift_word1(item.outside_word1, index) for index in
-                    word_terminal_lookup1[item.outside_symbol1] if
-                    item.can_shift_word1(item.outside_symbol1, index)]
+               # shift ; this depends on the configuration (string/graph -> string/graph)
+              if not item.outside1_is_nonterminal and not item.item1.closed: 
+                    log.debug('  side1 %s' % item.outside_object1)
+                    if rhs1type == "string":
+                        new_items = [item.shift_word1(item.outside_object1, index) for index in
+                        word_terminal_lookup1[item.outside_object1] if
+                        item.can_shift_word1(item.outside_object1, index)]
+                    else:
+                        assert rhs1type is "hypergraph"
+                        new_items = [item.shift_edge1(edge) for edge in
+                          edge_terminal_lookup1[item.outside_object1] if
+                          item.can_shift_edge1(edge)]
               else:
-                if rhs2type == "hypergraph": 
-                    assert not item.outside_edge2_is_nonterminal
-                    new_items = [item.shift_edge2(edge) for edge in
-                        edge_terminal_lookup2[item.outside_edge2] if
-                        item.can_shift_edge2(edge)]               
-                else:
-                    assert rhs2type == "string"
-                    assert not item.outside_word2_is_nonterminal
-                    new_items = [item.shift_word2(item.outside_word2, index) for index in
-                        word_terminal_lookup2[item.outside_word2] if
-                        item.can_shift_word2(item.outside_word2, index)]
+                    log.debug('  side2 %s' % item.outside_object2)
+                    assert not item.outside2_is_nonterminal # Otherwise shift would not be called
+                    if rhs2type == "string":
+                        new_items = [item.shift_word2(item.outside_object2, index) for index in
+                            word_terminal_lookup2[item.outside_object2] if
+                            item.can_shift_word2(item.outside_object2, index)]
+                    else: 
+                        assert rhs2type is "hypergraph"
+                        new_items = [item.shift_edge2(edge) for edge in
+                            edge_terminal_lookup2[item.outside_object2] if
+                            item.can_shift_edge2(edge)]
 
-            elif rhs1type == "hypergraph":
-              if not item.outside_edge1_is_nonterminal:
-                  new_items = [item.shift_edge1(edge) for edge in
-                      edge_terminal_lookup1[item.outside_edge1] if
-                      item.can_shift1(edge)]
-              else: 
-                  assert rhs2type is "hypergraph"            
-                  assert not item.outside_edge2_is_nonterminal
-                  new_items = [item.shift_edge2(edge) for edge in
-                    edge_terminal_lookup2[item.outside_edge2] if
-                    item.can_shift_edge2(edge)]               
-
-            for nitem in new_items:
-              log.debug('  shift', nitem, nitem.shifted)
-              chart[nitem].add((item,))
-              if nitem not in pending and nitem not in visited:
-                queue.append(nitem)
-                pending.add(nitem)
+              for nitem in new_items:
+                  log.debug('  shift', nitem, nitem.shifted)
+                  chart[nitem].add((item,))
+                  if nitem not in pending and nitem not in visited:
+                      queue.append(nitem)
+                      pending.add(nitem)
 
       if success:
         log.chatter('  success!')
@@ -257,6 +239,7 @@ class Parser:
       # remember when we started
       start_time = time.clock()
       log.chatter('parse...')
+
 
       # specify what kind of items we're working with
       if string and graph:
@@ -332,8 +315,11 @@ class Parser:
           # all items looking for something with the current item's symbol.
           for ritem in reverse_lookup[item.rule.symbol]:
             if ritem not in pending:
+              log.info(ritem)
               queue.append(ritem)
               pending.add(ritem)
+
+          
 
         else:
           if item.outside_is_nonterminal:
@@ -413,17 +399,33 @@ class Parser:
       else: # graph
         return len(item.shifted) == graph_size
 
-#def make_synch_filter_cache():
-#  pass
-#
-#def make_string_filter_cache():
-#  pass
-#
-#def make_graph_filter_cache():
-#  pass
-
-
-
+  def successful_biparse(self, obj1, obj2, item, obj1size, obj2size):
+      """
+      Determines whether the given item represents a complete derivation of the
+      object(s) being parsed.
+      """
+      # make sure the right start symbol is used
+      if self.grammar.start_symbol != item.rule.symbol: 
+          return False
+      
+      # make sure the item spans the whole object
+      if item.item1class is CfgItem:
+            if item.item1.j - item.item1.i != obj1size:
+                return False
+      else: 
+            if len(item.item1.shifted) != obj1size:
+                return False
+      
+      if item.item2class is CfgItem:
+            if item.item2.j - item.item2.i != obj2size:
+                return False
+      else: 
+            if len(item.item2.shifted) != obj2size:
+                return False
+      return True
+      
+        
+        
 def output_bolinas(charts, grammar, prefix):
   """
   Prints given in native bolinas format.
