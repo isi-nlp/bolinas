@@ -184,7 +184,6 @@ class Parser:
           else:
                # shift ; this depends on the configuration (string/graph -> string/graph)
               if not item.outside1_is_nonterminal and not item.item1.closed: 
-                    log.debug('  side1 %s' % item.outside_object1)
                     if rhs1type == "string":
                         new_items = [item.shift_word1(item.outside_object1, index) for index in
                         word_terminal_lookup1[item.outside_object1] if
@@ -195,7 +194,6 @@ class Parser:
                           edge_terminal_lookup1[item.outside_object1] if
                           item.can_shift_edge1(edge)]
               else:
-                    log.debug('  side2 %s' % item.outside_object2)
                     assert not item.outside2_is_nonterminal # Otherwise shift would not be called
                     if rhs2type == "string":
                         new_items = [item.shift_word2(item.outside_object2, index) for index in
@@ -315,7 +313,6 @@ class Parser:
           # all items looking for something with the current item's symbol.
           for ritem in reverse_lookup[item.rule.symbol]:
             if ritem not in pending:
-              log.info(ritem)
               queue.append(ritem)
               pending.add(ritem)
 
