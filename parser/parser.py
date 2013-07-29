@@ -9,6 +9,8 @@ from common.hgraph.hgraph import Hgraph
 from common.cfg import Chart
 from vo_item import CfgItem, HergItem, SynchronousItem 
 from vo_rule import VoRule
+import pprint
+
 
 class Parser:
   ''' 
@@ -574,7 +576,43 @@ def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
 
   return strings
 
+
 def cky_chart(chart):
+  """
+  Convert the chart returned by the parser into a standard parse chart.
+  """
+
+  def search_productions(citem, chart):
+      if len(chart[citem]) == 0:
+           return [] 
+      if citem == "START":
+           return [{"START":child[0]} for child in chart[citem]]
+      
+      prodlist = list(chart[citem])
+
+      lefts = set(x[0] for x in prodlist)
+      lengths = set(len(x) for x in prodlist)
+      assert len(lengths) == 1
+      split_len = lengths.pop()
+      
+      # figure out all items that could have been used to complete this nonterminal 
+      if split_len != 1:
+        assert split_len == 2
+        symbol = prodlist[0][0].outside_symbol, prodlist[0][0].outside_nt_index
+        result = []
+        for child in prodlist:
+            other_nts = search_productions(child[0], chart)
+            if other_nts: 
+                for option in other_nts:
+                   d = dict(option)
+                   d[symbol] = child[1]
+                   result.append(d)
+            else:
+                   result.append(dict([(symbol, child[1])]))
+        return result
+      else: 
+        return search_productions(prodlist[0][0], chart)
+
   stack = ['START']
   visit_items = set()
   while stack:
@@ -591,56 +629,9 @@ def cky_chart(chart):
     # we only care about complete steps, so only add closed items to the chart
     if not (item == 'START' or item.closed):
       continue
-    # this list will store the complete steps used to create this item
-    real_productions = {}
-    # we will search down the list of completions
-    pitem_history = set()
-    pitem = item
-    while True:
-
-      # if this item has no children, there's nothing left to do with the
-      # production
-      if len(chart[pitem]) == 0:
-        break
-      elif pitem == 'START':
-        # add all START -> (real start symbol) productions on their own
-        real_productions['START'] = list(sum(chart[pitem],()))
-        break
-
-      elif pitem.rule.symbol == 'PARTIAL':
-        assert len(chart[pitem]) == 1
-        prod = list(chart[pitem])[0]
-        for p in prod:
-          real_productions.append([p])
-        break
-
-      # sanity check: is the chain of derivations for this item shaped the way
-      # we expect?
-      lefts = set(x[0] for x in chart[pitem])
-      lengths = set(len(x) for x in chart[pitem])
-      # TODO might merge from identical rules grabbing different graph
-      # components. Do we lose information by only taking the first
-      # (lefts.pop(), below)?
-      # TODO when this is fixed, add failure check back into topo_sort
-      assert len(lengths) == 1
-      split_len = lengths.pop()
-
-      # figure out all items that could have been used to complete this rule
-      if split_len != 1:
-        assert split_len == 2
-        prodlist = list(chart[pitem])
-        symbol = prodlist[0][0].outside_symbol, prodlist[0][0].outside_nt_index
-        production = [x[1] for x in chart[pitem]]
-        real_productions[symbol] = production
-
-      # move down the chain
-      pitem = lefts.pop()
-
-    # realize all possible splits represented by this chart item
-    #all_productions = list(itertools.product(*real_productions))
-    #if all_productions != [()]:
-    # cky_chart[item] = all_productions
-    if real_productions:
-        cky_chart[item] = real_productions
+    
+    prods = search_productions(item, chart)
+    if prods: 
+        cky_chart[item] = prods
 
   return cky_chart

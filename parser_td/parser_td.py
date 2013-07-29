@@ -10,6 +10,7 @@ from common.exceptions import InvocationException, InputFormatException
 from common.hgraph.hgraph import Hgraph
 from td_item import Item, BoundaryItem, FasterCheckBoundaryItem
 
+
 class ParserTD:
     """
     A hyperedge replacement grammar parser that matches a rule's right hand side
@@ -163,85 +164,81 @@ class ParserTD:
        return item.matches_whole_graph()
 
 def td_chart_to_cky_chart(chart):
-    stack = ['START']
-    visit_items = set()
-    while stack:
-      item  = stack.pop()
-      if item in visit_items:
-        continue
-      visit_items.add(item)
-      for production in chart[item]:
-        for citem in production:
-          stack.append(citem)
-  
-    cky_chart = Chart() 
-    for item in visit_items:
-      # we only care about nonterminal steps, so only add closed items to the chart
-      if not (item == 'START' or item.target == Item.ROOT):
-        continue
-      # this dictionary will store the nonterminals replacements used to create this item
-      real_productions = {} 
-
-      # we will search down the list of nonterminal applications in all nodes
-      # of the tree decomposition
-      pitem_history = set()
-      todo = [item]
-
-      while todo:
-        pitem = todo.pop()  
-        # if this item has no children, there's nothing left to do with the
-        # production
-        if len(chart[pitem]) == 0:
-            continue
-        elif pitem == 'START':
-          # add all START -> (real start symbol) productions on their own
-          real_productions['START'] = list(sum(chart[pitem],()))
-          break
-  
-        #elif pitem.rule.symbol == 'PARTIAL':
-        #  assert len(chart[pitem]) == 1
-        #  prod = list(chart[pitem])[0]
-        #  for p in prod:
-        #    real_productions.append([p])
-        #  break
- 
- 
-        # sanity check: is the chain of derivations for this item shaped the way
-        # we expect?
-        lefts = set(x[0] for x in chart[pitem])
-        lengths = set(len(x) for x in chart[pitem])
-        # TODO might merge from identical rules grabbing different graph
-        # components. Do we lose information by only taking the first
-        # (lefts.pop(), below)?
-        # TODO when this is fixed, add failure check back into topo_sort
-        #assert len(lefts) == 1
+    """
+    Convert the parsing chart returned by the tree decomposition based parser 
+    into a standard parse chart.
+    """
+    def search_productions(citem, chart):
+        """
+        Find all the complete steps that could have produces this chart item.
+        Returns a list of split options, each encoded as a dictionary mapping
+        nonterminals to items. 
+        """
+        if len(chart[citem]) == 0:
+             return [] 
+        if citem == "START":
+             return [{"START":child[0]} for child in chart[citem]]
+        
+        prodlist = list(chart[citem])
+        lefts = set(x[0] for x in prodlist)
+        lengths = set(len(x) for x in prodlist)
         assert len(lengths) == 1
         split_len = lengths.pop()
-  
-        #if split_len != 1:
-        prodlist = list(chart[pitem])
-            
+        
+        # figure out all items that could have been used to complete this nonterminal 
+        result = []    
         if prodlist[0][0].target == Item.NONTERMINAL:
             assert split_len == 2
             symbol = prodlist[0][0].outside_symbol, prodlist[0][0].outside_index
-            production = [x[1] for x in chart[pitem] if not x[1] == item]           
-            real_productions[symbol] = production
-            assert prodlist[0][1].target == Item.ROOT
-            # move down.
-            todo.append(prodlist[0][0])
+            for child in prodlist: 
+                assert child[1].target == Item.ROOT
+                other_nts = search_productions(child[0], chart) 
+                if other_nts:
+                    for option in other_nts:
+                        d = dict(option)
+                        d[symbol] = child[1]
+                        result.append(d)
+                else:
+                        result.append(dict([(symbol, child[1])]))
+            return result
     
         elif prodlist[0][0].target == Item.BINARY:
             assert split_len == 2
-            for x in prodlist: 
-                assert len(x) == 2
-                todo.append(x[0])
-                todo.append(x[1])
-        
-        elif prodlist[0][0].target == Item.TERMINAL:
-            for x in prodlist: 
-                assert len(x) == 1
-                todo.append(x[0])
+            for child in prodlist: 
+                assert len(child) == 2
+                other_iterator = itertools.product(search_productions(child[0], chart), search_productions(child[1], chart))
+                for p1, p2 in other_iterator:
+                    nts = dict(p1)
+                    nts.update(p2)
+                    result.append(nts)
+            return result            
 
-      if real_productions:
-          cky_chart[item] = real_productions 
+        elif prodlist[0][0].target == Item.TERMINAL:
+            for child in prodlist: 
+                assert len(child) == 1
+                other_nts = search_productions(child[0], chart)
+                if other_nts:
+                    result.extend(other_nts)
+            return result
+
+    stack = ['START']
+    visit_items = set()
+    while stack:
+        item  = stack.pop()
+        if item in visit_items:
+            continue
+        visit_items.add(item)
+        for production in chart[item]:
+            for citem in production:
+              stack.append(citem)
+  
+    cky_chart = Chart() 
+    for item in visit_items:
+        # we only care about nonterminal steps, so only add closed items to the chart
+        if not (item == 'START' or item.target == Item.ROOT):
+            continue
+        # this dictionary will store the nonterminals replacements used to create this item
+        prods = search_productions(item, chart) 
+        if prods:
+            cky_chart[item] = prods
     return cky_chart
