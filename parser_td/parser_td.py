@@ -33,6 +33,7 @@ class ParserTD:
         for graph in graph_iterator: 
             raw_chart = self.parse(graph)
             # The raw chart contains parser operations, need to decode the parse forest from this 
+            ppprint.pprint(raw_chart)
             res = td_chart_to_cky_chart(raw_chart)
             yield res
  

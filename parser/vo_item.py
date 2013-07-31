@@ -89,10 +89,17 @@ class HergItem(Item):
     represent this item as a string, which we build from the rule id and list of
     nodes.
     """
+    return 'R%d__%s' % (self.rule.rule_id, self.uniq_cover_str())
+
+
+  def uniq_cover_str(self):
     edges = set()
-    for head, role, tail in self.shifted:
-      edges.add('%s:%s' % (head, ':'.join(tail)))
-    return '%d__%s' % (self.rule.rule_id, ','.join(sorted(list(edges))))
+    for head, elabel, tail in self.shifted:
+        if tail:
+            edges.add('%s:%s' % (head[0], ':'.join([x[0] for x in tail])))
+        else: 
+            edges.add(head[0])
+    return ','.join(sorted(list(edges))) 
 
   def __repr__(self):
     return 'HergItem(%d, %d, %s, %s)' % (self.rule.rule_id, self.size, self.rule.symbol, len(self.shifted))
@@ -462,16 +469,22 @@ class SynchronousItem(Item):
 
     self.__cached_hash = None
 
-  #def uniq_str(self):
-  #  """
-  #  Produces a unique string representation of this item (see note on uniq_str
-  #  in HergItem above).
-  #  """
-  #  edges = set()
-  #  for head, role, tail in self.herg_item.shifted:
-  #    edges.add('%s:%s' % (head, ':'.join(tail)))
-  #  return '%d__%s__%d,%d' % (self.rule.rule_id, ','.join(sorted(list(edges))),
-  #      self.cfg_item.i, self.cfg_item.j)
+  def uniq_str(self):
+    """
+    Produces a unique string representation of this item (see note on uniq_str
+    in HergItem above).
+    """
+    edges = set()
+
+    if item1class is CfgItem: 
+        item1cover = "%d,%d" % (self.item1.i, self.item1.j)
+    elif item1class is HergItem:
+        item1cover = item1.uniq_cover_str(self)
+    if item2class is CfgItem: 
+        item2cover = "%d,%d" % (self.item2.i, self.item2.j)
+    elif item2class is HergItem:
+        item2cover = item2.uniq_cover_str(self)
+    return '%d__%s__%s' % (self.rule.rule_id, item1cover, item2cover) 
 
   def __hash__(self):
     if not self.__cached_hash:

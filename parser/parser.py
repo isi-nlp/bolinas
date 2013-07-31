@@ -11,7 +11,6 @@ from vo_item import CfgItem, HergItem, SynchronousItem
 from vo_rule import VoRule
 import pprint
 
-
 class Parser:
   ''' 
   A deductive style parser for hypergraphs and strings that matches parts
