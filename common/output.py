@@ -87,43 +87,6 @@ def apply_string_derivation(derivation):
          
     return walk_derivation(derivation, combiner, leaf)
 
-def format_tiburon_old(chart):
-    """
-    Return a tiburon format RTG that describes a parse forest. 
-    """
-    import pprint
-    pprint.pprint(chart) 
-    lines = ["_START"]
-    for item in chart:
-        count = 0
-        for possibility in chart[item]: 
-            for nt,child in possibility.items():                
-                if nt == "START":
-                    parent_rtg_state = "_START" 
-                else:
-                    symbol, index = nt                 
-                    parent_rtg_state = item.uniq_str()
-                if child in chart: 
-                    for cpossibility in chart[child]: 
-                        childstrl = []
-                        for cnt, citem in cpossibility.items():
-                            if citem in chart:
-                                childstrl.append(citem.uniq_str())
-                            else:
-                                childstrl.append("R%s" % citem.rule.rule_id)
-                        if nt == "START":
-                            childstr = ("R%s(%s)") % (child.rule.rule_id, " ".join(childstrl))
-                        else: 
-                            childstr = ("R%s_%s%s(%s)" % (child.rule.rule_id, symbol, index, " ".join(childstrl)))
-                        print childstr
-                        lines.append("%s -> %s\t#%f" % (parent_rtg_state, childstr, child.rule.weight))
-                    
-
-                else:  
-                    childstr = "R%s" % child.rule.rule_id
-                    lines.append("%s -> %s\t#%f" % (parent_rtg_state, childstr, child.rule.weight))
-    return "\n".join(lines)
-
 def format_tiburon(chart):
     """
     Return a tiburon format RTG that describes a parse forest. 

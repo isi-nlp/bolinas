@@ -33,7 +33,6 @@ class ParserTD:
         for graph in graph_iterator: 
             raw_chart = self.parse(graph)
             # The raw chart contains parser operations, need to decode the parse forest from this 
-            ppprint.pprint(raw_chart)
             res = td_chart_to_cky_chart(raw_chart)
             yield res
  
@@ -207,11 +206,17 @@ def td_chart_to_cky_chart(chart):
             assert split_len == 2
             for child in prodlist: 
                 assert len(child) == 2
-                other_iterator = itertools.product(search_productions(child[0], chart), search_productions(child[1], chart))
-                for p1, p2 in other_iterator:
-                    nts = dict(p1)
-                    nts.update(p2)
-                    result.append(nts)
+                r1 = search_productions(child[0], chart)
+                r2 = search_productions(child[1], chart)
+                if r1 and r2:   #possibilities: all combinations of assignments to NTs in the subtree
+                    other_iterator = itertools.product(r1,r2)
+                    for p1, p2 in other_iterator:
+                        nts = dict(p1)
+                        nts.update(p2)
+                        result.append(nts)
+                else:  # Only one of the subtrees has nonterminals. 
+                    result.extend(r1)
+                    result.extend(r2)
             return result            
 
         elif prodlist[0][0].target == Item.TERMINAL:

@@ -99,10 +99,18 @@ class Chart(dict):
 
     def inside_score(self, item, logprob = False):
         """
-        Here we compute the inside scores for each item and split.
+        Here we compute the inside scores for each nonterminal and split.
         """
+
+        new_chart = dict()
+
         if item == "START":
             rprob = 0.0 if logprob else 1.0
         else: 
             rprob = item.rule.weight
-
+       
+        if not item in self: 
+            if item == "START":
+                return []
+            else: 
+                return []        

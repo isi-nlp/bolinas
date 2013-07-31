@@ -513,17 +513,6 @@ class BoundaryItem(Item):
     if not self.is_disjoint(oitem.subgraph):
       return None
     
-    # If oitem is passive check that all its boundary nodes 
-    # are external nodes.
-    #if oitem.target == Item.ROOT:
-    #    real_root = oitem.mapping[oitem.rule.rhs1.roots[0]]
-    #    real_ext = set(oitem.mapping[n] for n in oitem.rule.rhs1.external_nodes)
-    #    
-    #    for node in oitem.subgraph.boundary_nodes:
-    #        if not (node == real_root or node in real_ext):
-    #            log.debug(node, real_root, real_ext)
-    #            log.debug("point 4")
-    #            return False
     return self.union(oitem.subgraph)
 
   def check_edge_overlap(self, edge):
@@ -570,7 +559,6 @@ class FasterCheckBoundaryItem(BoundaryItem):
     for edges in osubgraph.boundary_edges.values():
         oedges.update(edges)
     if len(myedges & oedges) != 0:
-        log.debug("point 1")
         return False 
     
     # If m belongs to both I and J it must be a boundary node
@@ -580,7 +568,6 @@ class FasterCheckBoundaryItem(BoundaryItem):
        osubgraph.is_member(marker, self.graph) and (
            (marker not in self.subgraph.boundary_nodes) or
            (marker not in osubgraph.boundary_nodes)):
-               log.debug("point 2")
                return False
            
     return True

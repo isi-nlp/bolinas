@@ -4,6 +4,7 @@ from common.cfg import NonterminalLabel
 from common.rule import Rule
 from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
+from collections import defaultdict
 import StringIO 
 
 def parse_string(s):
@@ -160,10 +161,10 @@ class Grammar(dict):
 
         return output 
 
-    def normalize_weights(self):
+    def normalize_weights_lhs(self):
       """
-      Reweights the given grammar _conditionally_, so that the weights of all
-      rules with the same right hand side sum to 1.
+      Reweights the given grammar, so that the weights of all
+      rules with the same LHS side sum to 1.
       """
 
       norms = ddict(float)
@@ -176,4 +177,18 @@ class Grammar(dict):
         ngrammar[rule_id] = nrule
       return ngrammar
 
+    def normalize_weights_rhs(self):
+      """
+      Reweights the given grammar, so that the weights of all
+      rules with the same LHS and first RHS sum to 1.
+      """
 
+      norms = ddict(float)
+      for rule in self.values():
+        norms[rule.symbol,rule.rhs1] += rule.weight
+
+      ngrammar = Grammar(nodelabels = self.nodelabels)
+      for rule_id, rule in self.items():
+        nrule = rule.reweight(rule.weight / norms[rule.symbol, rule.rhs1])
+        ngrammar[rule_id] = nrule
+      return ngrammar

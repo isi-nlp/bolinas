@@ -19,7 +19,6 @@ from parser_td.td_rule import TdRule
 from parser_td.td_item import Item
 from parser_td.parser_td import ParserTD
 
-
 def read_pairs(input):            
     """
     An iterator over pairs of elements in an iterator. 
@@ -31,7 +30,6 @@ def read_pairs(input):
         except StopIteration:
             raise IOError, "Uneven number of lines in input."
         yield (line1, line2)
-
 
 if __name__ == "__main__":
     # Parse all the command line arguments, figure out what to do and dispatch to the appropriate modules. 
@@ -133,15 +131,16 @@ if __name__ == "__main__":
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
  
         if grammar.rhs2_type is None and config.output_type == "derived":
-            log.err("Can only build derived objects (-ot derived) with synchronous grammars.") 
-            sys.exit(1)
+            config.output_type = "derivation"
+            #log.err("Can only build derived objects (-ot derived) with synchronous grammars.") 
+            #sys.exit(1)
          
         parser = parser_class(grammar)
 
 
         if config.bitext:
             if parser_class == ParserTD:
-                log.err("Bitext parsing with tree decomposition based parser is not yet implemented. Use '-p basic'.")
+                log.err("Bigraph parsing with tree decomposition based parser is not yet implemented. Use '-p basic'.")
                 sys.exit(1)
             parse_generator = parser.parse_bitexts(read_pairs(fileinput.input(config.input_file))) 
         else:    
@@ -168,20 +167,26 @@ if __name__ == "__main__":
 
                 # Produce k-best derivations
                 elif config.output_type == "derivation":                    
-                    for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
+                    kbest = chart.kbest('START', config.k, logprob = (config.weight_type == "logprob"))
+                    if len(kbest) < config.k: 
+                        log.info("Found only %i derivations." % len(kbest))
+                    for score, derivation in kbest:
                         output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), score))
                     output_file.write("\n")
 
                 # Produce k-best derived graphs/strings
                 elif config.output_type == "derived":
+                    kbest = chart.kbest('START', config.k, logprob = (config.weight_type == "logprob"))
+                    if kbest < config.k: 
+                        log.info("Found only %i derivations." % len(kbest))
                     if grammar.rhs2_type == "hypergraph":
-                        for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
+                        for score, derivation in kbest:
                             try:
                                 output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), score))
                             except DerivationException:
                                 log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
                     elif grammar.rhs2_type == "string":
-                        for score, derivation in chart.kbest('START', config.k, logprob = (config.weight_type == "logprob")):
+                        for score, derivation in kbest: 
                             output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))
         
                     output_file.write("\n")
