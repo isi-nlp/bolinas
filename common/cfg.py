@@ -1,5 +1,28 @@
 import itertools
 from common import log
+from collections import defaultdict
+import math
+
+def product(iterable):
+    lp = 1
+    for lq in iterable:
+        lp = lp * lq
+    return lp
+
+# Compute sum of logs, courtesy of David Chiang
+LOGZERO=-1e100
+def logadd(lp, lq):
+    if lp > lq:
+        return lp + math.log1p(math.exp(lq - lp))
+    else:
+        return lq + math.log1p(math.exp(lp - lq))
+
+def logsum(iterable):
+    lp = LOGZERO
+    for lq in iterable:
+        lp = logadd(lp, lq)
+    return lp
+
 
 class NonterminalLabel(object):
     """
@@ -97,20 +120,88 @@ class Chart(dict):
         return sorted(pool, reverse=True)[:k]
 
 
-    def inside_score(self, item, logprob = False):
-        """
-        Here we compute the inside scores for each nonterminal and split.
-        """
+    def inside_scores(self, logprob = False):
+        inside_probs = {}
 
-        new_chart = dict()
+        def compute_scores(chart, item):
+            """
+            Here we compute the inside scores for each rule and split, i.e. the 
+            sum of all possible ways to decompose this item.
+            This is the inside computation of the inside-outside algorithm 
+            for wRTGs described in Graehl&Knight 2004 "Training tree transducers". 
+            """
 
-        if item == "START":
-            rprob = 0.0 if logprob else 1.0
-        else: 
-            rprob = item.rule.weight
-       
-        if not item in self: 
-            if item == "START":
-                return []
+            if item == "START": 
+                weight = 0.0 if logprob else 1.0 
             else: 
-                return []        
+                weight = item.rule.weight
+            if item in self: 
+                beta_each_split = []
+                for split in self[item]:
+                    nts, children = zip(*split.items())
+                    beta_each_child = [compute_scores(chart, child) for child in children]
+                    if logprob: 
+                        beta_this_split = sum(beta_each_child)
+                    else: 
+                        beta_this_split = product(beta_each_child)
+                    beta_each_split.append(beta_this_split)    
+                if logprob:
+                    beta_this_item = weight + logsum(beta_each_split) 
+                else:
+                    beta_this_item = weight * sum(beta_each_split) 
+    
+            else: # Leaf case
+                beta_this_item = weight 
+            
+            inside_probs[item] = beta_this_item
+            return beta_this_item
+                
+        beta_start = compute_scores(self, "START")
+        return inside_probs
+
+
+    def outside_scores(self, inside_probs, logprob = False):
+        outside_probs = defaultdict(float) 
+        outside_probs["START"] = 0.0 if logprob else 1.0
+
+        def compute_scores(chart, item):
+            """
+            Here we compute the outside scores for each rule and split, i.e. the 
+            sum of all possible trees that contain this item but do not decompose it. 
+            This is the outside computation of the inside-outside algorithm 
+            for wRTGs described in Graehl&Knight 2004 "Training tree transducers". 
+            """
+            if item in chart:        
+                for split in chart[item]:
+                    nts, children = zip(*split.items())
+                    
+                    # An item may be part of multiple splits, so we need to add the outside score when we 
+                    #  encounter it a second time.
+                    for child in children:
+                        inside_for_siblings = [inside_probs[c] for c in children if c!=child]
+                        if logprob:
+                            alpha_for_child = outside_probs[item] + sum(inside_for_siblings) + child.rule.weight 
+                            outside_probs[child] = logadd(outside_probs[child],alpha_for_child)
+                        else: 
+                            alpha_for_child = outside_probs[item] * product(inside_for_siblings) * child.rule.weight
+                            outside_probs[child] = outside_probs[child] + alpha_for_child
+                        compute_scores(chart, child) 
+                
+        alpha_start = compute_scores(self, "START")
+        return outside_probs 
+      
+    def expected_rule_counts(self, inside_probs, outside_probs, logprob = False):
+        counts = defaultdict(float)
+
+        beta_sentence = inside_probs["START"]
+
+        for item in self: 
+            for split in self[item]:
+                nts, children = zip(*split.items())
+                for child in children:  
+                    if logprob:
+                        childgamma = outside_probs[item] + inside_probs[child] + child.rule.weight
+                    else:
+                        childgamma = outside_probs[item] * inside_probs[child] * child.rule.weight
+                    counts[child.rule.rule_id] = counts[child.rule.rule_id] + childgamma / beta_sentence
+        return counts          

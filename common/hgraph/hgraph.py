@@ -771,22 +771,22 @@ class Hgraph(defaultdict):
                     return "root"
             if type(node) is tuple or type(node) is list: 
                 return " ".join("%s*%i" % (n, self.external_nodes[n]) if n in self.external_nodes else n for n in node)
-            else: 
+            else:
                 if type(node) is int or type(node) is float or isinstance(node, (Literal, StrLiteral)):
                     return str(node)
                 else: 
-                    if firsthit and node in self.node_to_concepts and self.node_to_concepts[node]: 
-                        concept = self.node_to_concepts[node]
-                        if not self[node]:
-                            if node in self.external_nodes:
-                                return "%s.%s*%i " % (node, concept, self.external_nodes[node])
-                            else:
-                                return "%s.%s " % (node, concept)
-                        else: 
+                    if firsthit:
+                        if node in self.node_to_concepts and self.node_to_concepts[node]: 
+                            concept = self.node_to_concepts[node]
                             if node in self.external_nodes:    
                                 return "%s.%s*%i " % (node, concept, self.external_nodes[node])
                             else:
                                 return "%s.%s " % (node, concept)
+                        else:
+                            if node in self.external_nodes:    
+                                return "%s.*%i " % (node, self.external_nodes[node])
+                            else:
+                                return "%s." % node
                     else:
                         return "%s." % node
 

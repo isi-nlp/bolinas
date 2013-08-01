@@ -1,11 +1,16 @@
 from common.exceptions import InputFormatException, BinarizationException, GrammarError, ParserError
 from common.hgraph.hgraph import Hgraph
-from common.cfg import NonterminalLabel
+from common.cfg import NonterminalLabel, Chart
 from common.rule import Rule
+from common import log
+from parser.parser import Parser
 from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
 from collections import defaultdict
+import math
 import StringIO 
+
+LOGZERO=-1e100
 
 def parse_string(s):
     """
@@ -192,3 +197,58 @@ class Grammar(dict):
         nrule = rule.reweight(rule.weight / norms[rule.symbol, rule.rhs1])
         ngrammar[rule_id] = nrule
       return ngrammar
+
+
+    def em_step(self, corpus, normalization_groups, parser_class = Parser, logprob = False):
+        """ 
+        Perform a single step of EM on the 
+        """
+
+        ll = 0.0
+
+        counts = defaultdict(float)
+
+        parser = parser_class(self) 
+        parser_generator = parser.parse_graphs(corpus)
+        
+        i = 0
+        for chart in parser_generator:
+            i += 1   
+            if not chart: 
+                log.warn("No parse for sentence %d." % i)
+                continue 
+            inside_probs = chart.inside_scores(logprob = logprob)
+            outside_probs = chart.outside_scores(inside_probs, logprob = logprob)
+            if logprob:
+                ll += inside_probs["START"]
+            else: 
+                ll += math.log(inside_probs["START"])
+            counts_for_graph = chart.expected_rule_counts(inside_probs, outside_probs, logprob = logprob)
+            for r in counts_for_graph:
+                counts[r] = counts[r] + counts_for_graph[r]
+       
+        sum_for_groups = defaultdict(float)
+        for r in counts:
+            sum_for_groups[normalization_groups[r]] += counts[r]
+                
+        for r in self: 
+            if r in counts: 
+                self[r].weight = counts[r] / sum_for_groups[normalization_groups[r]]
+            else: 
+                self[r].weight = LOGZERO if logprob else 0.0         
+ 
+        return ll 
+
+
+    def em(self, corpus, iterations, parser_class = Parser, logprob = False):
+
+        normalization_groups = {}
+
+        for r in self: 
+            normalization_groups[r] = self[r].symbol
+        
+
+        for i in range(iterations):
+            ll = self.em_step(corpus, normalization_groups, parser_class, logprob)
+            log.info("Iteration %d, LL=%f" % (i, ll))
+              

@@ -87,11 +87,11 @@ def apply_string_derivation(derivation):
          
     return walk_derivation(derivation, combiner, leaf)
 
-def format_tiburon(chart):
+def format_tiburon(chart, logprob = False):
     """
     Return a tiburon format RTG that describes a parse forest. 
     """
-    lines = ["_START"]
+    lines = set()
     for item in chart:
         for possibility in chart[item]: 
 
@@ -99,23 +99,24 @@ def format_tiburon(chart):
             if item == "START":
                 parent_rtg_state = "_START"
                 for nt,child in possibility.items():
+                    lines.add("_START -> %s\t#%f" % (child.uniq_str(), 0.0 if logprob else 1.0))
                     if not child in chart: 
-                        lines.append("_START -> %s\t#%f" % (child.rule.rule_id, 1.0))
-                    else:
-                        lines.append("_START -> %s\t#%f" % (child.uniq_str(), 1.0))
+                        lines.add("%s -> %s\t#%f" % (child.uniq_str(), child.rule.rule_id, child.rule.weight))
             else: 
                 parent_rtg_state = item.uniq_str()
                 for nt,child in possibility.items():                
                     symbol, index = nt                 
                     if not child in chart: 
-                        childstrl.append("%s$%s(%d)" % (symbol, index, child.rule.rule_id))
+                        childstrl.append("%s$%s(%s)" % (symbol, index, child.uniq_str()))
+                        lines.add("%s -> %s\t#%f" % (child.uniq_str(), child.rule.rule_id, child.rule.weight))
                     else:
                         childstrl.append("%s$%s(%s)" % (symbol, index, child.uniq_str()))
                 
                 childstr = "%d(%s)" % (item.rule.rule_id, " ".join(childstrl))
-                lines.append("%s -> %s\t#%f" % (parent_rtg_state, childstr, item.rule.weight))
+                lines.add("%s -> %s\t#%f" % (parent_rtg_state, childstr, item.rule.weight))
                     
 
-    return "\n".join(lines)
+    linelist = ["_START"] + sorted(list(lines))
+    return "\n".join(linelist)
 
 
