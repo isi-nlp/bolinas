@@ -36,12 +36,13 @@ class Grammar(dict):
     operations to be performed on the entire grammar.
     """
 
-    def __init__(self, nodelabels = False):
+    def __init__(self, nodelabels = False, logprob = False):
         self.nodelabels = nodelabels  
         self.start_symbol = "truth" 
+        self.logprob = logprob
 
     @classmethod
-    def load_from_file(cls, in_file, rule_class = VoRule, reverse = False, nodelabels = False):
+    def load_from_file(cls, in_file, rule_class = VoRule, reverse = False, nodelabels = False, logprob = False):
         """
         Loads a SHRG grammar from the given file. 
         See documentation for format details.
@@ -51,7 +52,7 @@ class Grammar(dict):
         when initialized.
         """
 
-        output = Grammar(nodelabels = nodelabels)
+        output = Grammar(nodelabels = nodelabels, logprob = logprob)
 
         rule_count = 1
         line_count = 0
@@ -77,8 +78,8 @@ class Grammar(dict):
                 if ";" in content:
                     rulestring = buf.getvalue()
                     try:
-                        content, weights = rulestring.split(";",1)
-                        weight = 1.0 if not weights else float(weights)
+                        content, weights = rulestring.split(";",1)            
+                        weight = 0.0 if not weights else (float(weights) if logprob else math.log(float(weights)))
                     except:
                         raise GrammarError, \
             "Line %i, Rule %i: Error near end of line." % (line_count, rule_count)
@@ -149,9 +150,9 @@ class Grammar(dict):
                         r2 = None
                     try:    
                         if is_synchronous and reverse: 
-                            output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels) 
+                            output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels, logprob = logprob) 
                         else: 
-                            output[rule_count] = rule_class(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels) 
+                            output[rule_count] = rule_class(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels, logprob = logprob) 
                     except Exception, e:         
                         raise GrammarError, \
             "Line %i, Rule %i: Could not initialize rule. %s" % (line_count, rule_count, e.message)
@@ -171,7 +172,6 @@ class Grammar(dict):
       Reweights the given grammar, so that the weights of all
       rules with the same LHS side sum to 1.
       """
-
       norms = ddict(float)
       for rule in self.values():
         norms[rule.symbol] += rule.weight
@@ -187,7 +187,6 @@ class Grammar(dict):
       Reweights the given grammar, so that the weights of all
       rules with the same LHS and first RHS sum to 1.
       """
-
       norms = ddict(float)
       for rule in self.values():
         norms[rule.symbol,rule.rhs1] += rule.weight
@@ -198,17 +197,15 @@ class Grammar(dict):
         ngrammar[rule_id] = nrule
       return ngrammar
 
-
-    def em_step(self, corpus, normalization_groups, parser_class = Parser, logprob = False):
+    def em_step(self, corpus, normalization_groups, parser_class = Parser):
         """ 
         Perform a single step of EM on the 
         """
-
         ll = 0.0
 
         counts = defaultdict(float)
 
-        parser = parser_class(self) 
+        parser = parser_class(self,) 
         parser_generator = parser.parse_graphs(corpus)
         
         i = 0
@@ -217,38 +214,34 @@ class Grammar(dict):
             if not chart: 
                 log.warn("No parse for sentence %d." % i)
                 continue 
-            inside_probs = chart.inside_scores(logprob = logprob)
-            outside_probs = chart.outside_scores(inside_probs, logprob = logprob)
-            if logprob:
-                ll += inside_probs["START"]
-            else: 
-                ll += math.log(inside_probs["START"])
-            counts_for_graph = chart.expected_rule_counts(inside_probs, outside_probs, logprob = logprob)
+            inside_probs = chart.inside_scores()
+            outside_probs = chart.outside_scores(inside_probs)
+            ll += inside_probs["START"]
+            counts_for_graph = chart.expected_rule_counts(inside_probs, outside_probs)
             for r in counts_for_graph:
                 counts[r] = counts[r] + counts_for_graph[r]
        
         sum_for_groups = defaultdict(float)
         for r in counts:
-            sum_for_groups[normalization_groups[r]] += counts[r]
+            group = normalization_groups[r]
+            sum_for_groups[group] = sum_for_groups[group] + counts[r]
                 
         for r in self: 
-            if r in counts: 
-                self[r].weight = counts[r] / sum_for_groups[normalization_groups[r]]
+            if r in counts and counts[r]: 
+                self[r].weight = math.log(counts[r] / sum_for_groups[normalization_groups[r]])
             else: 
-                self[r].weight = LOGZERO if logprob else 0.0         
- 
+                self[r].weight = LOGZERO 
+
         return ll 
 
-
-    def em(self, corpus, iterations, parser_class = Parser, logprob = False):
+    def em(self, corpus, iterations, parser_class = Parser):
 
         normalization_groups = {}
 
         for r in self: 
             normalization_groups[r] = self[r].symbol
         
-
         for i in range(iterations):
-            ll = self.em_step(corpus, normalization_groups, parser_class, logprob)
+            ll = self.em_step(corpus, normalization_groups, parser_class)
             log.info("Iteration %d, LL=%f" % (i, ll))
               

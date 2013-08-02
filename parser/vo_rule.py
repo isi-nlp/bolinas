@@ -16,13 +16,14 @@ class VoRule(Rule):
   ''' 
 
   def __init__(self, rule_id, symbol, weight, rhs1, rhs2, rhs1_visit_order =
-      None, rhs2_visit_order = None, original_index = None, nodelabels = False):
+      None, rhs2_visit_order = None, original_index = None, nodelabels = False, logprob = False):
     self.rule_id = rule_id
     self.symbol = symbol
     self.weight = weight
     self.rhs1 = rhs1
     self.rhs2 = rhs2
     self.nodelabels = nodelabels
+    self.logprob = logprob
     #if isinstance(rhs2, Tree):
     #  self.string = rhs2.leaves()
     #else:

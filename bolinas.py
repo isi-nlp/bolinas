@@ -4,6 +4,7 @@
 
 import sys
 import fileinput
+import math
 from argparse import ArgumentParser
 
 # Bolinas imports
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
     weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights to sum to 1.0 for all rules with the same LHS.") 
     weights.add_argument("-t","--train", default=0, type=int, const=5, nargs='?', help="Use TRAIN iterations of EM to train weights for the grammar using the input (graph, string, or pairs of objects in alternating lines). Initialize with the weights in the grammar file or with uniform weights if none are provided. Writes a grammar file with trained weights to the output.")
-    argparser.add_argument("-m", "--weight_type", default="prob", help="Use real probabilities ('prob', default) or log probabilities ('logprob').")
+    argparser.add_argument("-m", "--weight_type", default="prob", help="Input/output in real probabilities ('prob', default) or log probabilities ('logprob').")
     argparser.add_argument("-p","--parser", default="basic", help="Specify which graph parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'basic': a basic generalization of CKY that matches rules according to an arbitrary visit order on edges (less efficient).")
     argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes on the target side of a synchronous grammar.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="In the tree decomposition parser, use the full representation for graph fragments instead of the compact boundary node representation. This can provide some speedup for grammars with small rules.")
@@ -68,6 +69,10 @@ if __name__ == "__main__":
     
     if not args.weight_type in ['prob', 'logprob']:
         log.err("Weight type (-m) must be either 'prob'or 'logprob'.")
+        sys.exit(1)
+
+    logprob = (args.weight_type == 'logprob')
+
 
     if args.output_type == "forest":
         if not args.output_file:       
@@ -122,7 +127,7 @@ if __name__ == "__main__":
             rule_class = VoRule
 
         # Read the grammar
-        grammar = Grammar.load_from_file(grammar_file, rule_class, config.backward, nodelabels = (not config.edge_labels)) 
+        grammar = Grammar.load_from_file(grammar_file, rule_class, config.backward, nodelabels = (not config.edge_labels), logprob = logprob) 
         if len(grammar) == 0:
             log.err("Unable to load grammar from file.")
             sys.exit(1)
@@ -132,10 +137,6 @@ if __name__ == "__main__":
  
         if grammar.rhs2_type is None and config.output_type == "derived":
             config.output_type = "derivation"
-            #log.err("Can only build derived objects (-ot derived) with synchronous grammars.") 
-            #sys.exit(1)
-
-
 
         # EM training 
         if config.train:
@@ -144,13 +145,12 @@ if __name__ == "__main__":
                 log.err("Please specify corpus file for EM training.")
                 sys.exit(1)
             corpus = [Hgraph.from_string(x) for x in fileinput.input(config.input_file)]
-            grammar.em(corpus, iterations, parser_class, logprob = (config.weight_type == "logprob"))
+            grammar.em(corpus, iterations, parser_class)
             for rid in sorted(grammar.keys()): 
                 output_file.write(str(grammar[rid]))
                 output_file.write("\n")
             sys.exit(0)
 
-         
 
         # Otherwise set up the correct parser and parser options 
         parser = parser_class(grammar)
@@ -169,9 +169,6 @@ if __name__ == "__main__":
                     parse_generator = parser.parse_strings(x.strip().split() for x in fileinput.input(config.input_file))
             else: 
                 parse_generator = parser.parse_graphs(Hgraph.from_string(x) for x in fileinput.input(config.input_file))
-
-
-                
         
         # Process input (if any) and produce desired output 
         if config.input_file:
@@ -187,26 +184,29 @@ if __name__ == "__main__":
 
                 # Produce k-best derivations
                 elif config.output_type == "derivation":                    
-                    kbest = chart.kbest('START', config.k, logprob = (config.weight_type == "logprob"))
+                    kbest = chart.kbest('START', config.k)
                     if kbest and len(kbest) < config.k: 
                         log.info("Found only %i derivations." % len(kbest))
                     for score, derivation in kbest:
-                        output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), score))
+                        n_score = score if logprob else math.exp(score)
+                        output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), n_score))
                     output_file.write("\n")
 
                 # Produce k-best derived graphs/strings
                 elif config.output_type == "derived":
-                    kbest = chart.kbest('START', config.k, logprob = (config.weight_type == "logprob"))
+                    kbest = chart.kbest('START', config.k)
                     if kbest and kbest < config.k: 
                         log.info("Found only %i derivations." % len(kbest))
                     if grammar.rhs2_type == "hypergraph":
                         for score, derivation in kbest:
+                            n_score = score if logprob else math.exp(score)
                             try:
-                                output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), score))
+                                output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), n_score))
                             except DerivationException:
                                 log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
                     elif grammar.rhs2_type == "string":
                         for score, derivation in kbest: 
-                            output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), score))
+                            n_score = score if logprob else math.exp(score)
+                            output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
         
                     output_file.write("\n")

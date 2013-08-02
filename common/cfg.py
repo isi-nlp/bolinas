@@ -75,13 +75,13 @@ class Chart(dict):
     A CKY style parse chart that can return k-best derivations and can return inside and outside probabilities.
     """
 
-    def kbest(self, item, k, logprob = False):
+    def kbest(self, item, k):
         """
         Return the k-best derivations from this chart. 
         """
 
         if item == "START":
-            rprob = 0.0 if logprob else 1.0
+            rprob = 0.0 
         else: 
             rprob = item.rule.weight
 
@@ -98,18 +98,13 @@ class Chart(dict):
         # Compute k-best for each possible split and add to pool.
         for split in self[item]:
             nts, children = zip(*split.items())
-            kbest_each_child = [self.kbest(child, k, logprob) for child in children]
+            kbest_each_child = [self.kbest(child, k) for child in children]
            
             generator = itertools.product(*kbest_each_child)
             for i in range(k):
                 try:
                     cprobs, trees = zip(*next(generator))
-                    if logprob:
-                        prob = sum(cprobs) + rprob
-                    else: 
-                        prob = rprob
-                        for p in cprobs: 
-                            prob = prob * p
+                    prob = sum(cprobs) + rprob
                     new_tree = (item, dict(zip(nts, trees)))
                     if new_tree:
                         pool.append((prob, new_tree))
@@ -120,7 +115,7 @@ class Chart(dict):
         return sorted(pool, reverse=True)[:k]
 
 
-    def inside_scores(self, logprob = False):
+    def inside_scores(self):
         inside_probs = {}
 
         def compute_scores(chart, item):
@@ -132,7 +127,7 @@ class Chart(dict):
             """
 
             if item == "START": 
-                weight = 0.0 if logprob else 1.0 
+                weight = 0.0 
             else: 
                 weight = item.rule.weight
             if item in self: 
@@ -140,15 +135,9 @@ class Chart(dict):
                 for split in self[item]:
                     nts, children = zip(*split.items())
                     beta_each_child = [compute_scores(chart, child) for child in children]
-                    if logprob: 
-                        beta_this_split = sum(beta_each_child)
-                    else: 
-                        beta_this_split = product(beta_each_child)
+                    beta_this_split = sum(beta_each_child)
                     beta_each_split.append(beta_this_split)    
-                if logprob:
-                    beta_this_item = weight + logsum(beta_each_split) 
-                else:
-                    beta_this_item = weight * sum(beta_each_split) 
+                beta_this_item = weight + logsum(beta_each_split) 
     
             else: # Leaf case
                 beta_this_item = weight 
@@ -160,9 +149,9 @@ class Chart(dict):
         return inside_probs
 
 
-    def outside_scores(self, inside_probs, logprob = False):
-        outside_probs = defaultdict(float) 
-        outside_probs["START"] = 0.0 if logprob else 1.0
+    def outside_scores(self, inside_probs):
+        outside_probs = {} 
+        outside_probs["START"] = 0.0 
 
         def compute_scores(chart, item):
             """
@@ -179,18 +168,17 @@ class Chart(dict):
                     #  encounter it a second time.
                     for child in children:
                         inside_for_siblings = [inside_probs[c] for c in children if c!=child]
-                        if logprob:
-                            alpha_for_child = outside_probs[item] + sum(inside_for_siblings) + child.rule.weight 
+                        alpha_for_child = outside_probs[item] + sum(inside_for_siblings) + child.rule.weight 
+                        if child in outside_probs: 
                             outside_probs[child] = logadd(outside_probs[child],alpha_for_child)
-                        else: 
-                            alpha_for_child = outside_probs[item] * product(inside_for_siblings) * child.rule.weight
-                            outside_probs[child] = outside_probs[child] + alpha_for_child
+                        else:
+                            outside_probs[child] = alpha_for_child
                         compute_scores(chart, child) 
                 
         alpha_start = compute_scores(self, "START")
         return outside_probs 
       
-    def expected_rule_counts(self, inside_probs, outside_probs, logprob = False):
+    def expected_rule_counts(self, inside_probs, outside_probs):
         counts = defaultdict(float)
 
         beta_sentence = inside_probs["START"]
@@ -199,9 +187,6 @@ class Chart(dict):
             for split in self[item]:
                 nts, children = zip(*split.items())
                 for child in children:  
-                    if logprob:
-                        childgamma = outside_probs[item] + inside_probs[child] + child.rule.weight
-                    else:
-                        childgamma = outside_probs[item] * inside_probs[child] * child.rule.weight
-                    counts[child.rule.rule_id] = counts[child.rule.rule_id] + childgamma / beta_sentence
+                    childgamma = outside_probs[item] + inside_probs[child] + child.rule.weight
+                    counts[child.rule.rule_id] = logadd(counts[child.rule.rule_id] ,(childgamma - beta_sentence))
         return counts          

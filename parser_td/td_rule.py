@@ -8,7 +8,7 @@ class TdRule(Rule):
     (like the tree decomposition) which are independent of the input graph.
     """
   
-    def __init__(self, rule_id, symbol, weight, rhs1, rhs2, nodelabels = False):
+    def __init__(self, rule_id, symbol, weight, rhs1, rhs2, nodelabels = False, logprob = False):
         """
         Initializes this rule with the given id, symbol, etc.
         Next, computes an (approximate!) "nice" tree decomposition of the rule
@@ -23,7 +23,9 @@ class TdRule(Rule):
         self.rhs2 = rhs2 #   to reassemble output structures
 
         self.nodelabels = nodelabels
-     
+
+        self.logprob = logprob    
+ 
         assert len(rhs1.roots) == 1
         
         self.root_node = rhs1.roots[0]

@@ -1,4 +1,5 @@
 from common.hgraph.hgraph import Hgraph
+import math
 
 class Rule(object):
 
@@ -6,6 +7,8 @@ class Rule(object):
     #   that can be in this base class.
 
     def __str__(self):
+        weight = self.weight if self.logprob else math.exp(self.weight)
+        
         if isinstance(self.rhs1, Hgraph):
             rhs1string = self.rhs1.to_string()
         else: 
@@ -15,7 +18,7 @@ class Rule(object):
                 rhs2string = self.rhs2.to_string()
             else: 
                 rhs2string = " ".join(self.rhs2)
-            return "%s -> %s | %s ; %f" % (self.symbol, rhs1string, rhs2string, self.weight)
+            return "%s -> %s | %s ; %e" % (self.symbol, rhs1string, rhs2string, weight)
         else: 
-            return "%s -> %s ; %f" % (self.symbol, rhs1string, self.weight)
+            return "%s -> %s ; %e" % (self.symbol, rhs1string, weight)
        

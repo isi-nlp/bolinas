@@ -424,130 +424,130 @@ class Parser:
       
         
         
-def output_bolinas(charts, grammar, prefix):
-  """
-  Prints given in native bolinas format.
-  """
-  raise InvocationException("Output format 'bolinas' is unsupported")
+#def output_bolinas(charts, grammar, prefix):
+#  """
+#  Prints given in native bolinas format.
+#  """
+#  raise InvocationException("Output format 'bolinas' is unsupported")
 
-def output_carmel(charts, grammar, prefix):
-  """
-  Prints given charts in carmel format, suitable for use with forest-em.
-  Will produce two files: prefix.carmel.norm (the RHS normalizer groups) and
-  prefix.carmel.charts (the charts).
-  """
-
-  # we need an explicit id for the start rule
-  # forest-em irritatingly expects rules to be 1-indexed rather than 0-indexed,
-  # so we have to increase all rule ids by 1
-  start_rule_id = max(grammar.keys()) + 2
-
-  # create the set of all normalization groups, and write them
-  normgroups = ddict(set)
-  normgroups['START'].add(start_rule_id)
-  for rule_id in grammar:
-    rule = grammar[rule_id]
-    normgroups[rule.symbol].add(rule.rule_id + 1)
-  with open('%s.carmel.norm' % prefix, 'w') as ofile:
-    print >>ofile, '(',
-    for group in normgroups.values():
-      print >>ofile, '(%s)' % (' '.join([str(rule) for rule in group])),
-    print >>ofile, ')'
-
-  # unlike the other formats, all carmel charts go in one file
-  with open('%s.carmel.charts' % prefix, 'w') as ofile:
-    for chart in charts:
-      # chart items we've already seen, and the labels assigned to them
-      seen = dict()
-      # python scoping weirdness requires us to store this variable with an
-      # extra layer of reference so that it can be reassigned by the inner
-      # method
-      next_id = [1]
-
-      def format_inner(item):
-        if item in seen:
-          return '#d' % seen[item]
-        my_id = next_id[0]
-        next_id[0] += 1
-        if item == 'START':
-          sym = start_rule_id
-        else:
-          # see note above on rule ids
-          sym = item.rule.rule_id + 1
-        if item in chart:
-          parts = []
-          for production in chart[item]:
-            prod_parts = []
-            for pitem in production:
-              prod_parts.append(format_inner(pitem))
-            parts.append('(%s %s)' % (sym, ' '.join(prod_parts)))
-          if len(parts) > 1:
-            return '#%d(OR %s)' % (my_id, ' '.join(parts))
-          else:
-            return '#%d%s' % (my_id, parts[0])
-        else:
-          return '#%d(%s)' % (my_id, sym)
-
-      print >>ofile, format_inner('START')
-
-
-def output_tiburon(charts, grammar, prefix):
-  """
-  Prints given charts in tiburon format, for finding n-best AMRs.
-  """
-
-  def start_stringifier(rhs_item):
-    return 'START -> %s # 1.0' % rhs_item.uniq_str()
-
-  def nt_stringifier(item, rhs):
-    nrhs = ' '.join([i for i in item.rule.string if i[0] == '#'])
-    # strip indices
-    nrhs = re.sub(r'\[\d+\]', '', nrhs)
-    for ritem in rhs:
-      # replace only one occurrence, in case we have a repeated NT symbol
-      nrhs = re.sub('#' + ritem.rule.symbol, ritem.uniq_str(), nrhs, count=1)
-    nrhs = '%s(%d(%s))' % (item.rule.symbol, item.rule.rule_id, nrhs)
-    return '%s -> %s # %f' % (item.uniq_str(), nrhs, item.rule.weight)
-
-  def t_stringifier(item):
-    return '%s -> %s(%d) # %f' % (item.uniq_str(), item.rule.symbol,
-        item.rule.rule_id, item.rule.weight)
+#def output_carmel(charts, grammar, prefix):
+#  """
+#  Prints given charts in carmel format, suitable for use with forest-em.
+#  Will produce two files: prefix.carmel.norm (the RHS normalizer groups) and
+#  prefix.carmel.charts (the charts).
+#  """
+#
+#  # we need an explicit id for the start rule
+#  # forest-em irritatingly expects rules to be 1-indexed rather than 0-indexed,
+#  # so we have to increase all rule ids by 1
+#  start_rule_id = max(grammar.keys()) + 2
+#
+#  # create the set of all normalization groups, and write them
+#  normgroups = ddict(set)
+#  normgroups['START'].add(start_rule_id)
+#  for rule_id in grammar:
+#    rule = grammar[rule_id]
+#    normgroups[rule.symbol].add(rule.rule_id + 1)
+#  with open('%s.carmel.norm' % prefix, 'w') as ofile:
+#    print >>ofile, '(',
+#    for group in normgroups.values():
+#      print >>ofile, '(%s)' % (' '.join([str(rule) for rule in group])),
+#    print >>ofile, ')'
+#
+#  # unlike the other formats, all carmel charts go in one file
+#  with open('%s.carmel.charts' % prefix, 'w') as ofile:
+#    for chart in charts:
+#      # chart items we've already seen, and the labels assigned to them
+#      seen = dict()
+#      # python scoping weirdness requires us to store this variable with an
+#      # extra layer of reference so that it can be reassigned by the inner
+#      # method
+#      next_id = [1]
+#
+#      def format_inner(item):
+#        if item in seen:
+#          return '#d' % seen[item]
+#        my_id = next_id[0]
+#        next_id[0] += 1
+#        if item == 'START':
+#          sym = start_rule_id
+#        else:
+#          # see note above on rule ids
+#          sym = item.rule.rule_id + 1
+#        if item in chart:
+#          parts = []
+#          for production in chart[item]:
+#            prod_parts = []
+#            for pitem in production:
+#              prod_parts.append(format_inner(pitem))
+#            parts.append('(%s %s)' % (sym, ' '.join(prod_parts)))
+#          if len(parts) > 1:
+#            return '#%d(OR %s)' % (my_id, ' '.join(parts))
+#          else:
+#            return '#%d%s' % (my_id, parts[0])
+#        else:
+#          return '#%d(%s)' % (my_id, sym)
+#
+#      print >>ofile, format_inner('START')
 
 
-  for i, chart in zip(range(len(charts)), charts):
-    if chart:   
-        with open('%s%d.tiburon' % (prefix, i), 'w') as ofile:
-          rules = ['START'] + strings_for_items(chart, start_stringifier,
-              nt_stringifier, t_stringifier)
-          print >>ofile, '\n'.join(rules)
+#def output_tiburon(charts, grammar, prefix):
+#  """
+#  Prints given charts in tiburon format, for finding n-best AMRs.
+#  """
+#
+#  def start_stringifier(rhs_item):
+#    return 'START -> %s # 1.0' % rhs_item.uniq_str()
+#
+#  def nt_stringifier(item, rhs):
+#    nrhs = ' '.join([i for i in item.rule.string if i[0] == '#'])
+#    # strip indices
+#    nrhs = re.sub(r'\[\d+\]', '', nrhs)
+#    for ritem in rhs:
+#      # replace only one occurrence, in case we have a repeated NT symbol
+#      nrhs = re.sub('#' + ritem.rule.symbol, ritem.uniq_str(), nrhs, count=1)
+#    nrhs = '%s(%d(%s))' % (item.rule.symbol, item.rule.rule_id, nrhs)
+#    return '%s -> %s # %f' % (item.uniq_str(), nrhs, item.rule.weight)
+#
+#  def t_stringifier(item):
+#    return '%s -> %s(%d) # %f' % (item.uniq_str(), item.rule.symbol,
+#        item.rule.rule_id, item.rule.weight)
+#
+#
+#  for i, chart in zip(range(len(charts)), charts):
+#    if chart:   
+#        with open('%s%d.tiburon' % (prefix, i), 'w') as ofile:
+#          rules = ['START'] + strings_for_items(chart, start_stringifier,
+#              nt_stringifier, t_stringifier)
+#          print >>ofile, '\n'.join(rules)
 
-def output_cdec(charts, grammar, prefix):
-  """
-  Prints given charts in cdec format, for finding n-best strings.
-  """
-
-  def start_stringifier(rhs_item):
-    return '[START] ||| [%s] ||| Rule=0.0' % rhs_item.uniq_str()
-
-  def nt_stringifier(item, rhs):
-    nrhs = ' '.join(item.rule.string)
-    # strip indices
-    nrhs = re.sub(r'\[\d+\]', '', nrhs)
-    for ritem in rhs:
-      # replace only one occurrence, in case we have a repeated NT symbol
-      nrhs = re.sub('#' + ritem.rule.symbol, '[%s]' % ritem.uniq_str(), nrhs)
-    return '[%s] ||| %s ||| Rule=%f' % (item.uniq_str(), nrhs,
-        math.log(item.rule.weight))
-
-  def t_stringifier(item):
-    return '[%s] ||| %s ||| Rule=%f' % (item.uniq_str(),
-        ' '.join(item.rule.string), math.log(item.rule.weight))
-
-  for i, chart in zip(range(len(charts)), charts):
-    with open('%s%d.cdec' % (prefix, i), 'w') as ofile:
-      rules = ['[S] ||| [START]'] + strings_for_items(chart, start_stringifier,
-          nt_stringifier, t_stringifier)
-      print >>ofile, '\n'.join(rules)
+#def output_cdec(charts, grammar, prefix):
+#  """
+#  Prints given charts in cdec format, for finding n-best strings.
+#  """
+#
+#  def start_stringifier(rhs_item):
+#    return '[START] ||| [%s] ||| Rule=0.0' % rhs_item.uniq_str()
+#
+#  def nt_stringifier(item, rhs):
+#    nrhs = ' '.join(item.rule.string)
+#    # strip indices
+#    nrhs = re.sub(r'\[\d+\]', '', nrhs)
+#    for ritem in rhs:
+#      # replace only one occurrence, in case we have a repeated NT symbol
+#      nrhs = re.sub('#' + ritem.rule.symbol, '[%s]' % ritem.uniq_str(), nrhs)
+#    return '[%s] ||| %s ||| Rule=%f' % (item.uniq_str(), nrhs,
+#        math.log(item.rule.weight))
+#
+#  def t_stringifier(item):
+#    return '[%s] ||| %s ||| Rule=%f' % (item.uniq_str(),
+#        ' '.join(item.rule.string), math.log(item.rule.weight))
+#
+#  for i, chart in zip(range(len(charts)), charts):
+#    with open('%s%d.cdec' % (prefix, i), 'w') as ofile:
+#      rules = ['[S] ||| [START]'] + strings_for_items(chart, start_stringifier,
+#          nt_stringifier, t_stringifier)
+#      print >>ofile, '\n'.join(rules)
 
 def strings_for_items(chart, start_stringifier, nt_stringifier, t_stringifier):
   strings = []
