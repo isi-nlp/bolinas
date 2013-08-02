@@ -4,6 +4,7 @@ from common.cfg import NonterminalLabel, Chart
 from common.rule import Rule
 from common import log
 from parser.parser import Parser
+from parser_td.parser_td import ParserTD
 from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
 from collections import defaultdict
@@ -197,7 +198,7 @@ class Grammar(dict):
         ngrammar[rule_id] = nrule
       return ngrammar
 
-    def em_step(self, corpus, normalization_groups, parser_class = Parser):
+    def em_step(self, corpus, parser_class, normalization_groups, bitext = False):
         """ 
         Perform a single step of EM on the 
         """
@@ -206,10 +207,23 @@ class Grammar(dict):
         counts = defaultdict(float)
 
         parser = parser_class(self,) 
-        parser_generator = parser.parse_graphs(corpus)
+        if bitext: 
+            if parser_class == ParserTD:
+                log.err("Bigraph parsing with tree decomposition based parser is not yet implemented. Use '-p basic'.")
+                sys.exit(1)
+            parse_generator = parser.parse_bitexts(corpus)
+        else: 
+            if self.rhs1_type == "string":
+                if parser_class == ParserTD:
+                    log.err("Parser class needs to be 'basic' to parse strings.")
+                    sys.exit(1)
+                else: 
+                    parse_generator = parser.parse_strings(corpus)
+            else: 
+                parse_generator = parser.parse_graphs(corpus)
         
         i = 0
-        for chart in parser_generator:
+        for chart in parse_generator:
             i += 1   
             if not chart: 
                 log.warn("No parse for sentence %d." % i)
@@ -234,14 +248,24 @@ class Grammar(dict):
 
         return ll 
 
-    def em(self, corpus, iterations, parser_class = Parser):
-
+    def em(self, corpus, iterations, parser_class = Parser, mode = "forward"):
+        """
+        Run EM training on the provided corpus for a given number of iterations.
+        Mode can be "forward" (parse first RHS, normalize weights by 
+        LHS + second RHS if any), or synchronous" (parse both sides at the same
+        time, weights normalized by LHS only)
+        """
         normalization_groups = {}
+      
+        if mode == "synchronous" or isinstance(corpus[0],tuple) :
+            for r in self:             
+                normalization_groups[r] = self[r].symbol
+            bitext = True
+        elif mode == "forward":
+            for r in self:             
+                normalization_groups[r] = (self[r].symbol, self[r].rhs2) 
+            bitext = False 
 
-        for r in self: 
-            normalization_groups[r] = self[r].symbol
-        
         for i in range(iterations):
-            ll = self.em_step(corpus, normalization_groups, parser_class)
+            ll = self.em_step(corpus, parser_class, normalization_groups, bitext = bitext)
             log.info("Iteration %d, LL=%f" % (i, ll))
-              

@@ -144,8 +144,12 @@ if __name__ == "__main__":
             if not config.input_file: 
                 log.err("Please specify corpus file for EM training.")
                 sys.exit(1)
-            corpus = [Hgraph.from_string(x) for x in fileinput.input(config.input_file)]
-            grammar.em(corpus, iterations, parser_class)
+            if config.bitext:
+                corpus = list(read_pairs(fileinput.input(config.input_file)))
+                grammar.em(corpus, iterations, parser_class, "synchronous")
+            else: 
+                corpus = [Hgraph.from_string(x) for x in fileinput.input(config.input_file)]
+                grammar.em(corpus, iterations, parser_class, "forward")
             for rid in sorted(grammar.keys()): 
                 output_file.write(str(grammar[rid]))
                 output_file.write("\n")
