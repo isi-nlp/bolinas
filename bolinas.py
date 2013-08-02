@@ -146,7 +146,8 @@ if __name__ == "__main__":
             corpus = [Hgraph.from_string(x) for x in fileinput.input(config.input_file)]
             grammar.em(corpus, iterations, parser_class, logprob = (config.weight_type == "logprob"))
             for rid in sorted(grammar.keys()): 
-                print str(grammar[rid])
+                output_file.write(str(grammar[rid]))
+                output_file.write("\n")
             sys.exit(0)
 
          
