@@ -12,6 +12,11 @@ import math
 import StringIO 
 
 LOGZERO=-1e100
+def logadd(lp, lq):
+    if lp > lq:
+        return lp + math.log1p(math.exp(lq - lp))
+    else:
+        return lq + math.log1p(math.exp(lp - lq))
 
 def parse_string(s):
     """
@@ -168,35 +173,58 @@ class Grammar(dict):
 
         return output 
 
-    def normalize_weights_lhs(self):
-      """
-      Reweights the given grammar, so that the weights of all
-      rules with the same LHS side sum to 1.
-      """
-      norms = ddict(float)
-      for rule in self.values():
-        norms[rule.symbol] += rule.weight
 
-      ngrammar = Grammar(nodelabels = self.nodelabels)
-      for rule_id, rule in self.items():
-        nrule = rule.reweight(rule.weight / norms[rule.symbol])
-        ngrammar[rule_id] = nrule
-      return ngrammar
+    def normalize_by_groups(self, groups, logprob = False):
+        norms = {}
+        for r in self: 
+            group = groups[r]
+            if group in norms:
+                if logprob: 
+                    norms[group] = logadd(norms[group], self[r].weight) 
+                else: 
+                    norms[groups] += self[r].weight
+            else:
+                norms[group] = self[r].weight
+        for r in self: 
+             if logprob:
+                self[r].weight = self[r].weight - norms[groups[r]]
+             else: 
+                self[r].weight = self[r].weight / norms[groups[r]]
+            
 
-    def normalize_weights_rhs(self):
-      """
-      Reweights the given grammar, so that the weights of all
-      rules with the same LHS and first RHS sum to 1.
-      """
-      norms = ddict(float)
-      for rule in self.values():
-        norms[rule.symbol,rule.rhs1] += rule.weight
+    def normalize_by_equiv(self, equiv, logprob = False):
+        """
+        Normalize the grammar so that all rules for which the function equiv returns an equivalent
+        value sum up to 1. 
+        """
+        normalization_groups = {}
+        for r in self:
+            group = equiv(self[r])       
+            normalization_groups[r] = group
+        self.normalize_by_groups(normalization_groups, logprob)           
+    
+    def normalize_lhs(self, logprob = False):
+        """
+        Normalize the weights of the grammar so that all rules with the same LHS sum up to 1.
+        """
+        equiv = lambda rule: rule.symbol 
+        self.normalize_by_equiv(equiv, logprob)
+          
+    def normalize_rhs1(self):
+        """
+        Normalize the weights of the grammar so that all rules with the same LHS and the same
+        first RHS sum up to 1.
+        """
+        equiv = lambda rule: (rule.symbol, rule.rhs1)        
+        self.normalize_by_equiv(equiv, logprob)
 
-      ngrammar = Grammar(nodelabels = self.nodelabels)
-      for rule_id, rule in self.items():
-        nrule = rule.reweight(rule.weight / norms[rule.symbol, rule.rhs1])
-        ngrammar[rule_id] = nrule
-      return ngrammar
+    def normalize_rhs2(self):
+        """
+        Normalize the weights of the grammar so that all rules with the same LHS and the same
+        second RHS sum up to 1.
+        """
+        equiv = lambda rule: (rule.symbol, rule.rhs2)        
+        self.normalize_by_equiv(equiv, logprob)
 
     def em_step(self, corpus, parser_class, normalization_groups, bitext = False):
         """ 
@@ -206,7 +234,7 @@ class Grammar(dict):
 
         counts = defaultdict(float)
 
-        parser = parser_class(self,) 
+        parser = parser_class(self)
         if bitext: 
             if parser_class == ParserTD:
                 log.err("Bigraph parsing with tree decomposition based parser is not yet implemented. Use '-p basic'.")
@@ -234,17 +262,14 @@ class Grammar(dict):
             counts_for_graph = chart.expected_rule_counts(inside_probs, outside_probs)
             for r in counts_for_graph:
                 counts[r] = counts[r] + counts_for_graph[r]
-       
-        sum_for_groups = defaultdict(float)
-        for r in counts:
-            group = normalization_groups[r]
-            sum_for_groups[group] = sum_for_groups[group] + counts[r]
-                
-        for r in self: 
-            if r in counts and counts[r]: 
-                self[r].weight = math.log(counts[r] / sum_for_groups[normalization_groups[r]])
+      
+        for r in counts: 
+            if r in counts: 
+                self[r].weight = counts[r]
             else: 
-                self[r].weight = LOGZERO 
+                self[r].weight = LOGZERO
+       
+        self.normalize_by_groups(normalization_groups, logprob = True) 
 
         return ll 
 
