@@ -50,8 +50,8 @@ if __name__ == "__main__":
     mode.add_argument("-g",type=int, help ="Generate G random derivations from the grammar stochastically. Cannot be used with -k.")
     mode.add_argument("-k",type=int, default=1, help ="Generate K best derivations for the objects in the input file. Cannot be used with -g (default with K=1).")
     weights = argparser.add_mutually_exclusive_group()
-    weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
-    weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights to sum to 1.0 for all rules with the same LHS.") 
+    #weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
+    weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights. If -b is specified, rules with the same LHS sum up to 1.0. If -f is specified rules with the same LHS and second RHS sum up to 1.0. If -r is specified rules with the same LHS and first RHS sum up to 1.0.") 
     weights.add_argument("-t","--train", default=0, type=int, const=5, nargs='?', help="Use TRAIN iterations of EM to train weights for the grammar using the input (graph, string, or pairs of objects in alternating lines). Initialize with the weights in the grammar file or with uniform weights if none are provided. Writes a grammar file with trained weights to the output.")
     argparser.add_argument("-m", "--weight_type", default="prob", help="Input/output in real probabilities ('prob', default) or log probabilities ('logprob').")
     argparser.add_argument("-p","--parser", default="basic", help="Specify which graph parser to use. 'td': the tree decomposition parser of Chiang et al, ACL 2013 (default). 'basic': a basic generalization of CKY that matches rules according to an arbitrary visit order on edges (less efficient).")
@@ -155,6 +155,17 @@ if __name__ == "__main__":
                 output_file.write("\n")
             sys.exit(0)
 
+        if config.normalize:
+            if config.bitext:
+                grammar.normalize_lhs()
+            elif config.forward:
+                grammar.normalize_rhs2()
+            elif config.backward:
+                grammar.normalize_rhs1()
+            for rid in sorted(grammar.keys()): 
+                output_file.write(str(grammar[rid]))
+                output_file.write("\n")
+            sys.exit(0)
 
         # Otherwise set up the correct parser and parser options 
         parser = parser_class(grammar)

@@ -250,27 +250,23 @@ class Grammar(dict):
             result.add(r)
             todo.extend(self.nonterminal_to_rules[self[r].symbol] - result)        
         return result 
-             
  
-    def normalize_by_groups(self, groups, logprob = False):
+    def normalize_by_groups(self, groups):
+        """
+        Normalize the grammar given a dictionary mapping rules to equivalence class ids.
+        """
         norms = {}
         for r in self: 
             group = groups[r]
             if group in norms:
-                if logprob: 
-                    norms[group] = logadd(norms[group], self[r].weight) 
-                else: 
-                    norms[groups] += self[r].weight
+                norms[group] = logadd(norms[group], self[r].weight) 
             else:
                 norms[group] = self[r].weight
         for r in self: 
-             if logprob:
-                self[r].weight = self[r].weight - norms[groups[r]]
-             else: 
-                self[r].weight = self[r].weight / norms[groups[r]]
+            self[r].weight = self[r].weight - norms[groups[r]]
             
 
-    def normalize_by_equiv(self, equiv, logprob = False):
+    def normalize_by_equiv(self, equiv):
         """
         Normalize the grammar so that all rules for which the function equiv returns an equivalent
         value sum up to 1. 
@@ -279,14 +275,14 @@ class Grammar(dict):
         for r in self:
             group = equiv(self[r])       
             normalization_groups[r] = group
-        self.normalize_by_groups(normalization_groups, logprob)           
+        self.normalize_by_groups(normalization_groups)           
     
-    def normalize_lhs(self, logprob = False):
+    def normalize_lhs(self):
         """
         Normalize the weights of the grammar so that all rules with the same LHS sum up to 1.
         """
         equiv = lambda rule: rule.symbol 
-        self.normalize_by_equiv(equiv, logprob)
+        self.normalize_by_equiv(equiv)
           
     def normalize_rhs1(self):
         """
@@ -308,7 +304,7 @@ class Grammar(dict):
             equiv = lambda rule: (rule.symbol, tuple(rule.rhs2))        
         else:
             equiv = lambda rule: (rule.symbol, rule.rhs2)        
-        self.normalize_by_equiv(equiv, logprob)
+        self.normalize_by_equiv(equiv)
 
     def em_step(self, corpus, parser_class, normalization_groups, bitext = False):
         """ 
@@ -353,7 +349,7 @@ class Grammar(dict):
             else: 
                 self[r].weight = LOGZERO
        
-        self.normalize_by_groups(normalization_groups, logprob = True) 
+        self.normalize_by_groups(normalization_groups) 
 
         return ll 
 

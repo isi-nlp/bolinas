@@ -498,7 +498,25 @@ class Hgraph(defaultdict):
         Retrieve all nonterminal labels from the DAG.
         """
         return [t for t in self.triples() if isinstance(t[1], NonterminalLabel)]
-   
+
+    def get_terminals_and_nonterminals(self, nodelabels = False):
+        """
+        Return a tuple in which the first element is a set of all terminal labels
+        and the second element is a set of all nonterminal labels.
+        """
+        # This is used to compute reachability of grammar rules
+        terminals = set()
+        nonterminals = set()
+        for p,r,children in self.triples():
+            if isinstance(r, NonterminalLabel):
+                nonterminals.add(r.label)
+            else:
+                if nodelabels: 
+                    terminals.add((self.node_to_concepts[p],r,tuple([self.node_to_concepts[c] for c in children])))
+                else: 
+                    terminals.add(r)
+        return terminals, nonterminals
+
     def get_external_nodes(self):
         """
         Retrieve the list of external nodes of this dag fragment.
