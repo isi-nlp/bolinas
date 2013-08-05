@@ -12,6 +12,10 @@ import math
 import StringIO 
 
 LOGZERO=-1e100
+GRAPH_FORMAT = "hypergraph" 
+STRING_FORMAT = "string"
+TREE_FORMAT = "tree"
+
 def logadd(lp, lq):
     if lp > lq:
         return lp + math.log1p(math.exp(lq - lp))
@@ -35,6 +39,16 @@ def parse_string(s):
             new_token = t
         res.append(new_token)
     return res    
+    
+def _terminals_and_nts_from_string(string):
+        terminals = set()
+        nonterminals = set()
+        for tok in string: 
+            if isinstance(tok, NonterminalLabel):
+                nonterminals.add(tok.label)
+            else:
+                terminals.add(tok)
+        return terminals, nonterminals
 
 class Grammar(dict):
     """
@@ -46,6 +60,10 @@ class Grammar(dict):
         self.nodelabels = nodelabels  
         self.start_symbol = "truth" 
         self.logprob = logprob
+
+        self.nonterminal_to_rules = defaultdict(set) 
+        self.rhs1_terminal_to_rules = defaultdict(set)
+        self.rhs2_terminal_to_rules = defaultdict(set)
 
     @classmethod
     def load_from_file(cls, in_file, rule_class = VoRule, reverse = False, nodelabels = False, logprob = False):
@@ -66,9 +84,6 @@ class Grammar(dict):
 
         rhs1_type = None
         rhs2_type = None
-        GRAPH_FORMAT = "hypergraph" 
-        STRING_FORMAT = "string"
-        TREE_FORMAT = "tree"
 
         buf = StringIO.StringIO() 
 
@@ -126,7 +141,7 @@ class Grammar(dict):
             "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
                         else:
                            r1 = parse_string(rhs1) 
-                           nts = [t for t in r1 if type(t) is NonterminalLabel]
+                           nts = [t for t in r1 if isinstance(t, NonterminalLabel)]
                            r1_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
                            rhs1_type = STRING_FORMAT
   
@@ -144,7 +159,7 @@ class Grammar(dict):
                 "Line %i, Rule %i: Could not parse graph description: %s" % (line_count, rule_count, e.message)
                             else:
                                r2 = parse_string(rhs2) 
-                               nts = [t for t in r2 if type(t) is NonterminalLabel]
+                               nts = [t for t in r2 if isinstance(t, NonterminalLabel)]
                                r2_nts = set([(ntlabel.label, ntlabel.index) for ntlabel in nts])
                                rhs2_type = STRING_FORMAT
 
@@ -156,7 +171,7 @@ class Grammar(dict):
                         r2 = None
                     try:    
                         if is_synchronous and reverse: 
-                            output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels, logprob = logprob) 
+                            output[rule_count] = rule_class(rule_count, lhs, weight, r2, r1, nodelabels = nodelabels, logprob = logprob)                                     
                         else: 
                             output[rule_count] = rule_class(rule_count, lhs, weight, r1, r2, nodelabels = nodelabels, logprob = logprob) 
                     except Exception, e:         
@@ -171,9 +186,72 @@ class Grammar(dict):
         else: 
             output.rhs1_type, output.rhs2_type = rhs1_type, rhs2_type
 
+        output._compute_reachability_table_lookup()
         return output 
 
+            
+    def _compute_reachability_table_lookup(self):
+        """
+        Fill a table mapping rhs symbols to rules so that we can compute reachability.
+        """
+        for r in self:
+            if self.rhs1_type is GRAPH_FORMAT:
+                terminals, nonterminals = self[r].rhs1.get_terminals_and_nonterminals(self.nodelabels)
+                for nt in nonterminals:
+                    self.nonterminal_to_rules[nt].add(r)
+            elif self.rhs1_type is STRING_FORMAT:
+               terminals, nonterminals = _terminals_and_nts_from_string(self[r].rhs1) 
+               for t in nonterminals: 
+                        self.nonterminal_to_rules[t].add(r)
 
+    def terminal_filter(self, input1, input2):
+
+        input1_terminals = set()
+        input2_terminals = set()
+
+        if self.rhs1_type is GRAPH_FORMAT:
+            input1_terminals, input1_nts = input1.get_terminals_and_nonterminals(self.nodelabels)
+        elif self.rhs1_type is STRING_FORMAT:
+            input1_terminals, input1_nonterminals = _terminals_and_nts_from_string(input1)
+         
+        if input2:      
+            if self.rhs2_type is GRAPH_FORMAT:
+                input2_terminals, input2_nts = input2.get_terminals_and_nonterminals(self.nodelabels)
+            elif self.rhs2_type is STRING_FORMAT: 
+                input2_terminals, input2_nts = _terminals_and_nts_from_string(input2)        
+
+        accepted = list() 
+        for r in self:
+            terminals1, terminals2 = set(), set()
+            if self.rhs1_type is GRAPH_FORMAT:
+                terminals1, nonterminals = self[r].rhs1.get_terminals_and_nonterminals(self.nodelabels)
+            elif self.rhs1_type is STRING_FORMAT:
+                terminals1, nonterminals = _terminals_and_nts_from_string(self[r].rhs1)
+            if input2:
+                if self.rhs2_type is GRAPH_FORMAT:
+                    terminals2, nonterminals = self[r].rhs2.get_terminals_and_nonterminals(self.nodelabels)
+                elif self.rhs2_type is STRING_FORMAT:
+                    terminals2, nonterminals = _terminals_and_nts_from_string(self[r].rhs2)
+           
+            if terminals1.issubset(input1_terminals):
+                if input2 is None or terminals2.issubset(input2_terminals):
+                    accepted.append(r)
+            if not terminals1 and not terminals2:
+                accepted.append(r) 
+
+        return accepted    
+
+   
+    def reachable_rules(self, input1, input2):
+        todo = list(self.terminal_filter(input1, input2))
+        result = set()
+        while todo:
+            r = todo.pop()
+            result.add(r)
+            todo.extend(self.nonterminal_to_rules[self[r].symbol] - result)        
+        return result 
+             
+ 
     def normalize_by_groups(self, groups, logprob = False):
         norms = {}
         for r in self: 
@@ -215,7 +293,10 @@ class Grammar(dict):
         Normalize the weights of the grammar so that all rules with the same LHS and the same
         first RHS sum up to 1.
         """
-        equiv = lambda rule: (rule.symbol, rule.rhs1)        
+        if isinstance(self[self.keys()[0]].rhs1, list):
+            equiv = lambda rule: (rule.symbol, tuple(rule.rhs1))        
+        else:
+            equiv = lambda rule: (rule.symbol, rule.rhs1)        
         self.normalize_by_equiv(equiv, logprob)
 
     def normalize_rhs2(self):
@@ -223,7 +304,10 @@ class Grammar(dict):
         Normalize the weights of the grammar so that all rules with the same LHS and the same
         second RHS sum up to 1.
         """
-        equiv = lambda rule: (rule.symbol, rule.rhs2)        
+        if isinstance(self[self.keys()[0]].rhs2, list):
+            equiv = lambda rule: (rule.symbol, tuple(rule.rhs2))        
+        else:
+            equiv = lambda rule: (rule.symbol, rule.rhs2)        
         self.normalize_by_equiv(equiv, logprob)
 
     def em_step(self, corpus, parser_class, normalization_groups, bitext = False):
@@ -287,8 +371,13 @@ class Grammar(dict):
                 normalization_groups[r] = self[r].symbol
             bitext = True
         elif mode == "forward":
-            for r in self:             
-                normalization_groups[r] = (self[r].symbol, self[r].rhs2) 
+            if type(self[self.keys()[0]].rhs2) is list:
+                for r in self:             
+                    normalization_groups[r] = (self[r].symbol, tuple(self[r].rhs2))
+            else:
+                for r in self:
+                    normalization_groups[r] = (self[r].symbol, self[r].rhs2) 
+        
             bitext = False 
 
         for i in range(iterations):

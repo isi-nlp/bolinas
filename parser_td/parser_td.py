@@ -58,8 +58,8 @@ class ParserTD:
       graph.compute_fw_table()
 
       chart = ddict(set)
-      # TODO prune
-      pgrammar = self.grammar.values() 
+      # TODO command line option to switch rule filtering on/off
+      pgrammar = [self.grammar[r] for r in self.grammar.reachable_rules(graph, None)] 
       queue = deque()
       pending = set()
       attempted = set()

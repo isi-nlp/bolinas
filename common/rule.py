@@ -17,7 +17,7 @@ class Rule(object):
             if isinstance(self.rhs2, Hgraph):
                 rhs2string = self.rhs2.to_string()
             else: 
-                rhs2string = " ".join(self.rhs2)
+                rhs2string = " ".join([str(x) for x in self.rhs2])
             return "%s -> %s | %s ; %e" % (self.symbol, rhs1string, rhs2string, weight)
         else: 
             return "%s -> %s ; %e" % (self.symbol, rhs1string, weight)

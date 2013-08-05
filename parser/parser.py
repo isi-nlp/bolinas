@@ -28,8 +28,6 @@ class Parser:
       Parse all the graphs in graph_iterator.
       This is a generator.
       """
-      #filter_cache = make_graph_filter_cache()
-
       for graph in graph_iterator: 
           raw_chart = self.parse(None, graph)
           # The raw chart contains parser operations, need to decode the parse forest from this 
@@ -42,7 +40,6 @@ class Parser:
     """
     for string in string_iterator:
         raw_chart = self.parse(string, None)
-        # The raw chart contains parser operations, need to decode the parse forest from this 
         yield cky_chart(raw_chart)
 
   def parse_bitexts(self, pair_iterator):
@@ -88,8 +85,9 @@ class Parser:
       # we use various tables to provide constant-time lookup of fragments available
       # for shifting, completion, etc.
       chart = ddict(set)
-      # TODO prune
-      pgrammar = grammar.values()
+        
+      #TODO: command line filter to switch rule filter on/off
+      pgrammar = [grammar[r] for r in grammar.reachable_rules(obj1, obj2)] #grammar.values()
       queue = deque() # the items left to be visited
       pending = set() # a copy of queue with constant-time lookup
       attempted = set() # a cache of previously-attempted item combinations
@@ -239,7 +237,6 @@ class Parser:
       start_time = time.clock()
       log.chatter('parse...')
 
-
       # specify what kind of items we're working with
       if string and graph:
         axiom_class = CfgHergItem
@@ -262,8 +259,13 @@ class Parser:
       # we use various tables to provide constant-time lookup of fragments available
       # for shifting, completion, etc.
       chart = ddict(set)
-      # TODO prune
-      pgrammar = grammar.values()
+      
+      # TODO: Command line option to switch grammar filter on/off
+      if string:
+          pgrammar = [grammar[r] for r in grammar.reachable_rules(string, None)] #grammar.values()
+      if graph:
+          pgrammar = [grammar[r] for r in grammar.reachable_rules(graph, None)] #grammar.values()
+      
       queue = deque() # the items left to be visited
       pending = set() # a copy of queue with constant-time lookup
       attempted = set() # a cache of previously-attempted item combinations
