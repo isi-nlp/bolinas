@@ -61,6 +61,7 @@ class Grammar(dict):
         self.nonterminal_to_rules = defaultdict(set) 
         self.rhs1_terminal_to_rules = defaultdict(set)
         self.rhs2_terminal_to_rules = defaultdict(set)
+        self.startsymbol = None
 
     @classmethod
     def load_from_file(cls, in_file, rule_class = VoRule, reverse = False, nodelabels = False, logprob = False):
@@ -375,6 +376,7 @@ class Grammar(dict):
                     normalization_groups[r] = (self[r].symbol, self[r].rhs2) 
         
             bitext = False 
+        self.normalize_by_groups(normalization_groups)
 
         for i in range(iterations):
             ll = self.em_step(corpus, parser_class, normalization_groups, bitext = bitext)

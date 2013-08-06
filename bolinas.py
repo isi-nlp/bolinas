@@ -58,6 +58,7 @@ if __name__ == "__main__":
     argparser.add_argument("-e","--edge_labels", action="store_true", default=False, help="Consider only edge labels when matching HRG rules. By default node labels need to match. Warning: The default is potentially unsafe when node-labels are used for non-leaf nodes on the target side of a synchronous grammar.")
     argparser.add_argument("-bn","--boundary_nodes", action="store_true", help="In the tree decomposition parser, use the full representation for graph fragments instead of the compact boundary node representation. This can provide some speedup for grammars with small rules.")
     #argparser.add_argument("-s","--remove_spurious", default=False, action="store_true", help="Remove spurious ambiguity. Only keep the best derivation for identical derived objects.")
+    argparser.add_argument("-s","--start_symbol", default=None, type=str, help="Use this start symbol instead of the left hand side of the first rule in the grammar.")
     argparser.add_argument("-v","--verbose", type=int, default=2, help="Stderr output verbosity: 0 (all off), 1 (warnings), 2 (info, default), 3 (details), 3 (debug)")
     
     args = argparser.parse_args()
@@ -128,6 +129,8 @@ if __name__ == "__main__":
 
         # Read the grammar
         grammar = Grammar.load_from_file(grammar_file, rule_class, config.backward, nodelabels = (not config.edge_labels), logprob = logprob) 
+        if config.start_symbol:
+            grammar.start_symbol = config.start_symbol
         if len(grammar) == 0:
             log.err("Unable to load grammar from file.")
             sys.exit(1)
