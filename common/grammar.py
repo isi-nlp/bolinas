@@ -3,6 +3,9 @@ from common.hgraph.hgraph import Hgraph
 from common.cfg import NonterminalLabel, Chart
 from common.rule import Rule
 from common import log
+from common.sample import sample
+from common.logarithm import logadd
+from common.logarithm import LOGZERO
 from parser.parser import Parser
 from parser_td.parser_td import ParserTD
 from parser.vo_rule import VoRule
@@ -11,16 +14,9 @@ from collections import defaultdict
 import math
 import StringIO 
 
-LOGZERO=-1e100
 GRAPH_FORMAT = "hypergraph" 
 STRING_FORMAT = "string"
 TREE_FORMAT = "tree"
-
-def logadd(lp, lq):
-    if lp > lq:
-        return lp + math.log1p(math.exp(lq - lp))
-    else:
-        return lq + math.log1p(math.exp(lp - lq))
 
 def parse_string(s):
     """
@@ -61,6 +57,7 @@ class Grammar(dict):
         self.start_symbol = "truth" 
         self.logprob = logprob
 
+        self.lhs_to_rules = defaultdict(set)
         self.nonterminal_to_rules = defaultdict(set) 
         self.rhs1_terminal_to_rules = defaultdict(set)
         self.rhs2_terminal_to_rules = defaultdict(set)
@@ -195,14 +192,17 @@ class Grammar(dict):
         Fill a table mapping rhs symbols to rules so that we can compute reachability.
         """
         for r in self:
+            rule = self[r]
             if self.rhs1_type is GRAPH_FORMAT:
-                terminals, nonterminals = self[r].rhs1.get_terminals_and_nonterminals(self.nodelabels)
+                self.lhs_to_rules[rule.symbol, len(rule.rhs1.external_nodes)].add(r)
+                terminals, nonterminals = rule.rhs1.get_terminals_and_nonterminals(self.nodelabels)
                 for nt in nonterminals:
                     self.nonterminal_to_rules[nt].add(r)
             elif self.rhs1_type is STRING_FORMAT:
-               terminals, nonterminals = _terminals_and_nts_from_string(self[r].rhs1) 
+               terminals, nonterminals = _terminals_and_nts_from_string(rule.rhs1) 
+               self.lhs_to_rules[rule.symbol].add(r)
                for t in nonterminals: 
-                        self.nonterminal_to_rules[t].add(r)
+                   self.nonterminal_to_rules[t].add(r)
 
     def terminal_filter(self, input1, input2):
 
@@ -347,7 +347,7 @@ class Grammar(dict):
             if r in counts: 
                 self[r].weight = counts[r]
             else: 
-                self[r].weight = LOGZERO
+                self[r].weight = LOGZERO 
        
         self.normalize_by_groups(normalization_groups) 
 
@@ -379,3 +379,48 @@ class Grammar(dict):
         for i in range(iterations):
             ll = self.em_step(corpus, parser_class, normalization_groups, bitext = bitext)
             log.info("Iteration %d, LL=%f" % (i, ll))
+
+
+    def stochastically_generate(self):
+        """
+        Stochastically sample a derivation from this grammar.
+        """
+
+        def rec_choose_rules(nt):           
+            dist = [(self[r].weight, r) for r in self.lhs_to_rules[nt]]
+            r = sample(dist)
+            rule = self[r]
+            if self.rhs1_type == GRAPH_FORMAT:
+                nt_edges = [((x[1].label, len(x[2])), x[1].index) for x in rule.rhs1.nonterminal_edges()]
+            elif self.rhs1_type == STRING_FORMAT:
+                nt_edges = [(x.label, x.index) for x in rule.rhs1 if isinstance(x, NonterminalLabel)]
+            children = {} 
+            prob = rule.weight 
+            dummy = DummyItem(rule)
+            for edge in nt_edges:
+                label, index = edge
+                cweight, subtree = rec_choose_rules(label)
+                prob += cweight
+                if self.rhs1_type == GRAPH_FORMAT:  
+                    nlabel, degree = label
+                else:
+                    nlabel = label
+                children[(nlabel, index)] = subtree
+            if children:
+                new_tree = (dummy,children)
+            else:
+                new_tree = dummy
+            return prob, new_tree
+            
+        firstrule = self[sorted(self.keys())[0]]
+        
+        if self.rhs1_type == GRAPH_FORMAT:
+            start_symbol = firstrule.symbol, len(firstrule.rhs1.external_nodes)
+        else:     
+            start_symbol = firstrule.symbol
+        prob, derivation = rec_choose_rules(start_symbol)
+        return prob, derivation
+
+class DummyItem(object):
+    def __init__(self, rule):
+        self.rule = rule

@@ -47,7 +47,7 @@ if __name__ == "__main__":
     direction.add_argument("-b","--bitext", action="store_true", default=False, help="Parse pairs of objects from an input file with alternating lines.")
     argparser.add_argument("-ot","--output_type", type=str, default="derived", help="Set the type of the output to be produced for each object in the input file. \n'forest' produces parse forests.\n'derivation' produces k-best derivations.\n'derived' produces k-best derived objects (default).")
     mode = argparser.add_mutually_exclusive_group()
-    mode.add_argument("-g",type=int, help ="Generate G random derivations from the grammar stochastically. Cannot be used with -k.")
+    mode.add_argument("-g", type=int, default=0, const=5, nargs='?', help ="Generate G random derivations from the grammar stochastically. Cannot be used with -k.")
     mode.add_argument("-k",type=int, default=1, help ="Generate K best derivations for the objects in the input file. Cannot be used with -g (default with K=1).")
     weights = argparser.add_mutually_exclusive_group()
     #weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
@@ -155,6 +155,7 @@ if __name__ == "__main__":
                 output_file.write("\n")
             sys.exit(0)
 
+        # Normalization
         if config.normalize:
             if config.bitext:
                 grammar.normalize_lhs()
@@ -166,6 +167,22 @@ if __name__ == "__main__":
                 output_file.write(str(grammar[rid]))
                 output_file.write("\n")
             sys.exit(0)
+
+        # Stochastically generate derivations
+        if config.g:
+            for i in range(config.g):
+                score, derivation = grammar.stochastically_generate()
+                if not logprob:
+                    n_score = math.exp(score)
+                else: 
+                    n_score = score
+                if config.output_type == "derived":
+                    if grammar.rhs2_type == "string":
+                        output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
+                    else: 
+                        output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(), n_score))
+                elif config.output_type == "derivation": 
+                        output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), n_score))
 
         # Otherwise set up the correct parser and parser options 
         parser = parser_class(grammar)

@@ -12,3 +12,4 @@ class Config(dict):
 
 config = Config()
 config.maxk = 1000
+
