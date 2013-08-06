@@ -1,10 +1,12 @@
-from lib.exceptions import InvocationException
-from lib.amr.dag import Dag, NonterminalLabel
+from common.exceptions import InvocationException
+from common.hgraph.hgraph import Hgraph
+from common.cfg import NonterminalLabel
 from lib.tree import Tree
 import re
 from collections import defaultdict as ddict
 import itertools
-from parser.rule import Rule
+from parser.vo_rule import Rule
+import sys
 
 DEFAULT_COMPOSITION_DEPTH = 3
 
@@ -18,9 +20,10 @@ class ExtractorSynSem:
     """
     Returns SynSem help message.
     """
-    return 'Usage: bolinas extract-synsem <nl_file> <mr_file> ' + \
+    return 'Usage: python extract-synsem <nl_file> <mr_file> ' + \
         '<alignment_file> <destination> [composition_depth (default %d)]' % \
         DEFAULT_COMPOSITION_DEPTH
+
 
   def main(self, *args):
     """
@@ -28,6 +31,7 @@ class ExtractorSynSem:
     depth specified.
     """
     if len(args) < 4:
+      print self.help()
       raise InvocationException()
     nl_path, mr_path, align_path, destination_prefix = args[:4]
     if len(args) == 4:
@@ -35,6 +39,7 @@ class ExtractorSynSem:
     elif len(args) == 5:
       composition_depth = int(args[4])
     else:
+      print self.help()
       raise InvocationException()
 
     self.extract_rules_corpus(nl_path, mr_path, align_path, destination_prefix,
@@ -456,3 +461,8 @@ def collect_counts(rules):
     next_id += 1
 
   return grammar
+  
+
+if __name__ == "__main__":
+    extractor = ExtractorSynSem()
+    extractor.main(sys.argv)
