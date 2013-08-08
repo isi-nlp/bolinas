@@ -1,4 +1,4 @@
-from common.exceptions import InputFormatException, BinarizationException, GrammarError, ParserError
+from common.exceptions import InputFormatException, BinarizationException, GrammarError, ParserError, DerivationException
 from common.hgraph.hgraph import Hgraph
 from common.cfg import NonterminalLabel, Chart
 from common.rule import Rule
@@ -389,6 +389,8 @@ class Grammar(dict):
         """
 
         def rec_choose_rules(nt):           
+            if not nt in self.lhs_to_rules:
+                raise DerivationException, "Could not find a rule for nonterminal %s with hyperedge tail type %d in grammar." % nt
             dist = [(self[r].weight, r) for r in self.lhs_to_rules[nt]]
             r = sample(dist)
             rule = self[r]
