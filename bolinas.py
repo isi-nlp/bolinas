@@ -64,7 +64,7 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     
     # Verify command line parameters 
-    if not args.output_type in ['forest', 'derivation', 'derived']:
+    if not args.output_type in ['forest', 'derivation', 'derived', 'yield']:
         log.err("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
         sys.exit(1)
     
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         log.info("Loaded %s%s grammar with %i rules."\
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
  
-        if grammar.rhs2_type is None and config.output_type == "derived":
+        if grammar.rhs2_type is None and config.output_type == "derived" and not config.g:
             config.output_type = "derivation"
 
         # EM training 
@@ -173,6 +173,7 @@ if __name__ == "__main__":
 
         # Stochastically generate derivations
         if config.g:
+            grammar.normalize_lhs()
             for i in range(config.g):
                 score, derivation = grammar.stochastically_generate()
                 if not logprob:
@@ -186,6 +187,11 @@ if __name__ == "__main__":
                         output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(), n_score))
                 elif config.output_type == "derivation": 
                         output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), n_score))
+                elif config.output_type == "yield":
+                    if grammar.rhs2_type == "string":
+                        output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
+                    else:
+                        output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).graph_yield(), n_score))
 
         # Otherwise set up the correct parser and parser options 
         parser = parser_class(grammar)

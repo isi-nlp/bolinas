@@ -462,11 +462,11 @@ class Hgraph(defaultdict):
 
         return [(node, rel, child) for rel, child in self[node].items()]        
 
-    def root_edges(self):
-        """
-        Return a list of out_going edges from the root nodes.
-        """
-        return flatten([self.out_edges(r) for r in self.roots])
+    #def root_edges(self):
+    #    """
+    #    Return a list of out_going edges from the root nodes.
+    #    """
+    #    return flatten([self.out_edges(r) for r in self.roots])
 
     def get_all_in_edges(self, nodelabels = False):
         """
@@ -822,6 +822,49 @@ class Hgraph(defaultdict):
              return str(self)
          else:
              return re.sub("(\n|\s+)"," ",str(self))
+    
+    def graph_yield(self):
+        """
+        Return the yield of this graph (a list of all edge labels). 
+        Hyperedge tentacles are ordered. If hyperedges are used to represent
+        trees this returns the intuitive yield of this tree. 
+        If a node has multiple children their order is abitrary.
+        """
+        tabu = set()
+        tabu_edge = set()
+
+        def rec_step(node, depth):
+            if type(node) is tuple: # Hyperedge case
+                pass
+            else:                
+                node = (node,)
+            allnodes = []
+            for n in node: 
+                firsthit = not n in tabu
+                tabu.add(n)
+                leaf = False if self[n] else True
+                #firsthit = not node in tabu
+                extracted = self.node_to_concepts[n] 
+                child_map = ListMap()
+                for rel, child in self[n].items():
+                    if not (n, rel, child) in tabu_edge:
+                        if child in tabu:
+                            child_map.append(rel, extractor(child, False, leaf))
+                            #pass
+                        else:
+                            tabu_edge.add((n, rel, child))
+                            child_map.append(rel, rec_step(child, depth + 1))
+                if extracted:
+                    allnodes.append(extracted)
+                if child_map: 
+                    for r in child_map:
+                        if r:
+                            allnodes.append(r)
+                        allnodes.extend(child_map[r])
+            return allnodes
+
+        return sum([rec_step(node, 0) for node in self.roots],[])
+        
 
     def get_dot(self, instances = True):
         """
