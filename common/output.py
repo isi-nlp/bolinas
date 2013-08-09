@@ -5,6 +5,7 @@ Methods to format Bolinas output.
 from common.hgraph.hgraph import Hgraph
 from common.cfg import NonterminalLabel
 from common import log 
+import math
  
 def walk_derivation(derivation, combiner, leaf):
     """
@@ -52,7 +53,10 @@ def apply_graph_derivation(derivation):
     step = [0] # Wrap in list so that we preserve closure on write.
 
     def leaf(item):
-        graph =  item.rule.rhs2.clone_canonical(prefix = str(step[0]))
+        if item.rule.rhs2:
+            graph =  item.rule.rhs2.clone_canonical(prefix = str(step[0]))
+        else:
+            graph =  item.rule.rhs1.clone_canonical(prefix = str(step[0]))
         step[0] = step[0] + 1
         return graph
 
@@ -108,12 +112,15 @@ def format_tiburon(chart, logprob = False):
                     symbol, index = nt                 
                     if not child in chart: 
                         childstrl.append("%s$%s(%s)" % (symbol, index, child.uniq_str()))
-                        lines.add("%s -> %s\t#%f" % (child.uniq_str(), child.rule.rule_id, child.rule.weight))
+                        weight = child.rule.weight if logprob else math.exp(child.rule.weight)
+                        lines.add("%s -> %s\t#%f" % (child.uniq_str(), child.rule.rule_id, weight))
                     else:
                         childstrl.append("%s$%s(%s)" % (symbol, index, child.uniq_str()))
                 
                 childstr = "%d(%s)" % (item.rule.rule_id, " ".join(childstrl))
-                lines.add("%s -> %s\t#%f" % (parent_rtg_state, childstr, item.rule.weight))
+                
+                weight = item.rule.weight if logprob else math.exp(item.rule.weight)
+                lines.add("%s -> %s\t#%f" % (parent_rtg_state, childstr, weight))
                     
 
     linelist = ["_START"] + sorted(list(lines))
