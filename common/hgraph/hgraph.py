@@ -784,6 +784,9 @@ class Hgraph(defaultdict):
         return triples 
 
     def __str__(self):
+
+        reentrant_nodes = self.get_reentrant_nodes()
+
         def extractor(node, firsthit, leaf):
             if node is None:
                     return "root"
@@ -797,19 +800,19 @@ class Hgraph(defaultdict):
                         if node in self.node_to_concepts and self.node_to_concepts[node]: 
                             concept = self.node_to_concepts[node]
                             if node in self.external_nodes:    
-                                return "%s.%s*%i " % (node, concept, self.external_nodes[node])
+                                return "%s%s*%i " % ("%s." % node if node in reentrant_nodes else "", concept, self.external_nodes[node])
                             else:
-                                return "%s.%s " % (node, concept)
+                                return "%s%s " % ("%s." % node if node in reentrant_nodes else "", concept)
                         else:
                             if node in self.external_nodes:    
-                                return "%s.*%i " % (node, self.external_nodes[node])
+                                return "%s.*%i " % (node if node in reentrant_nodes else "", self.external_nodes[node])
                             else:
-                                return "%s." % node
+                                return "%s." % (node if node in reentrant_nodes else "")
                     else:
-                        return "%s." % node
+                        return "%s." % (node if node in reentrant_nodes else "") 
 
         def combiner(nodestr, childmap, depth):
-            childstr = " ".join(["\n%s :%s %s" % (depth * "\t", rel, child) for rel, child in sorted(childmap.items())])            
+            childstr = " ".join(["\n%s %s %s" % (depth * "\t", ":%s" % rel if rel else "", child) for rel, child in sorted(childmap.items())])            
             return "(%s %s)" % (nodestr, childstr)
 
         def hedgecombiner(nodes):
