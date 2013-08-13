@@ -2,7 +2,9 @@ import itertools
 from common import log
 from common.logarithm import logadd, logsum, LOGZERO
 from collections import defaultdict
+from Queue import PriorityQueue
 import math
+import heapq
 
 class NonterminalLabel(object):
     """
@@ -73,26 +75,28 @@ class Chart(dict):
             else:
                 return [(rprob, item)]
 
-        pool = []
+        pool = [] 
         # Find the k-best options for this rule.
         # Compute k-best for each possible split and add to pool.
         for split in self[item]:
             nts, children = zip(*split.items())
             kbest_each_child = [self.kbest(child, k) for child in children]
            
-            generator = itertools.product(*kbest_each_child)
-            for i in range(k):
-                try:
-                    cprobs, trees = zip(*next(generator))
-                    prob = sum(cprobs) + rprob
-                    new_tree = (item, dict(zip(nts, trees)))
-                    if new_tree:
-                        pool.append((prob, new_tree))
-                except StopIteration,e:
-                    break
-        
+            all_combinations  = list(itertools.product(*kbest_each_child))
+       
+            combinations_for_sorting = [] 
+            for combination in all_combinations:
+                 weights, trees = zip(*combination)
+                 heapq.heappush(combinations_for_sorting,(sum(weights)+rprob,trees))
+
+            #combinations_for_sorting.sort(reverse=True)
+
+            for prob, trees in heapq.nlargest(k, combinations_for_sorting):
+                new_tree = (item, dict(zip(nts, trees)))
+                heapq.heappush(pool, (prob, new_tree))
+
         # Return k-best from pool
-        return sorted(pool, reverse=True)[:k]
+        return heapq.nlargest(k, pool) #sorted(pool, reverse=True)[:k]
 
     ### Methods for Inside/Outside
     
