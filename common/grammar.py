@@ -12,6 +12,7 @@ from parser.vo_rule import VoRule
 from parser_td.td_rule import TdRule
 from collections import defaultdict
 import math
+import heapq
 import StringIO 
 import itertools
 
@@ -432,15 +433,16 @@ class Grammar(dict):
         Produce k best derivations from this grammar.
         """
 
-        # TODO: Cleanup 
+        # TODO: Cleanup. 
         def rec_choose_rules(nt):           
             if not nt in self.lhs_to_rules:
                 raise DerivationException, "Could not find a rule for nonterminal %s with hyperedge tail type %d in grammar." % nt
-            weights_rules = sorted([(self[r].weight, r) for r in self.lhs_to_rules[nt]], reverse=True)
+            weights_rules = sorted([(self[r].weight, r) for r in self.lhs_to_rules[nt]], reverse=True)[:k]
             weights, rules = zip(*weights_rules)
 
             total_nbest = [] 
-            for rule_id in rules[:k]: 
+            for rule_id in rules: 
+
                 rule = self[rule_id]
                 if self.rhs1_type == GRAPH_FORMAT:
                     nt_edges = [((x[1].label, len(x[2])), x[1].index) for x in rule.rhs1.nonterminal_edges()]
@@ -461,23 +463,20 @@ class Grammar(dict):
                     childlabels.append((nlabel,index))
                     #children[(nlabel, index)] = nbest
                     children.append(nbest)
+
                 if children: 
-                    all_combinations = list(itertools.product(*children))
-                   
-                    combinations_for_sorting = [] 
-                    for combination in all_combinations:
+                    best_for_rule = [] 
+                    for combination in itertools.product(*children):
                         weights, trees = zip(*combination)
-                        combinations_for_sorting.append((sum(weights)+prob,trees))
-                    combinations_for_sorting.sort(reverse=True)
+                        new_tree = (dummy, dict(zip(childlabels, trees)))
+                        heapq.heappush(best_for_rule,(sum(weights)+prob,new_tree))
 
-                    kbest_for_rule = []
-                    for weight, trees in sorted(combinations_for_sorting, reverse=True)[:k]:
-                        kbest_for_rule.append((weight, (dummy, dict(zip(childlabels,trees)))))
-                    total_nbest.extend(kbest_for_rule)
+                    for possibility in heapq.nlargest(k,best_for_rule):
+                        heapq.heappush(total_nbest, possibility)
                 else: 
-                    total_nbest.append((prob, dummy))
+                    heapq.heappush(total_nbest, (prob, dummy))
 
-            result = sorted(total_nbest, reverse=True)[:k]
+            result = heapq.nlargest(k, total_nbest)
             return result 
                    
         firstrule = self[sorted(self.keys())[0]]
@@ -488,7 +487,6 @@ class Grammar(dict):
         
         return rec_choose_rules(start_symbol)
         
-
 
 class DummyItem(object):
     def __init__(self, rule):
