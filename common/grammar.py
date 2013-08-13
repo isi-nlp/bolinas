@@ -284,7 +284,10 @@ class Grammar(dict):
         """
         Normalize the weights of the grammar so that all rules with the same LHS sum up to 1.
         """
-        equiv = lambda rule: rule.symbol 
+        if self.rhs1_type == GRAPH_FORMAT:
+            equiv = lambda rule: (rule.symbol, len(rule.rhs1.external_nodes))
+        else: 
+            equiv = lambda rule: rule.symbol
         self.normalize_by_equiv(equiv)
           
     def normalize_rhs1(self):
@@ -396,13 +399,13 @@ class Grammar(dict):
             dist = [(self[r].weight, r) for r in self.lhs_to_rules[nt]]
             r = sample(dist)
             rule = self[r]
+            dummy = DummyItem(rule)
             if self.rhs1_type == GRAPH_FORMAT:
                 nt_edges = [((x[1].label, len(x[2])), x[1].index) for x in rule.rhs1.nonterminal_edges()]
             elif self.rhs1_type == STRING_FORMAT:
                 nt_edges = [(x.label, x.index) for x in rule.rhs1 if isinstance(x, NonterminalLabel)]
             children = {} 
             prob = rule.weight 
-            dummy = DummyItem(rule)
             for edge in nt_edges:
                 label, index = edge
                 cweight, subtree = rec_choose_rules(label)
@@ -489,5 +492,10 @@ class Grammar(dict):
         
 
 class DummyItem(object):
+    """
+    An simple chart item to keep track of rules used to generate a derivation
+    from the grammar. As there is no input graph/string we do not need to 
+    keep track of the covered span/subgraph.
+    """
     def __init__(self, rule):
         self.rule = rule

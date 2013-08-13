@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
         # Normalization
         if config.normalize:
-            if config.bitext:
+            if config.bitext or grammar.rhs2_type is None:
                 grammar.normalize_lhs()
             elif config.forward:
                 grammar.normalize_rhs2()
@@ -176,6 +176,7 @@ if __name__ == "__main__":
             derivations = grammar.kbest(config.k)
         # Stochastically generate derivations
         if config.g:
+            grammar.normalize_lhs()
             derivations = (grammar.stochastically_generate() for i in range(config.g))
         if derivations:
             for score, derivation in derivations:
