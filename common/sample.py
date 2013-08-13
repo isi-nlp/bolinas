@@ -5,7 +5,7 @@ from common.logarithm import LOGZERO, logadd
 
 def bin_search(l,v):
     values, categories = zip(*l)
-    index = bisect.bisect(values,v)
+    index = bisect.bisect(values,v)    
     return categories[index]
 
 def pdf_to_cdf(categorial):

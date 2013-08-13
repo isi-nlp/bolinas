@@ -13,6 +13,7 @@ from parser_td.td_rule import TdRule
 from collections import defaultdict
 import math
 import StringIO 
+import itertools
 
 GRAPH_FORMAT = "hypergraph" 
 STRING_FORMAT = "string"
@@ -424,6 +425,70 @@ class Grammar(dict):
             start_symbol = firstrule.symbol
         prob, derivation = rec_choose_rules(start_symbol)
         return prob, derivation
+
+
+    def kbest(self,k):
+        """
+        Produce k best derivations from this grammar.
+        """
+
+        # TODO: Cleanup 
+        def rec_choose_rules(nt):           
+            if not nt in self.lhs_to_rules:
+                raise DerivationException, "Could not find a rule for nonterminal %s with hyperedge tail type %d in grammar." % nt
+            weights_rules = sorted([(self[r].weight, r) for r in self.lhs_to_rules[nt]], reverse=True)
+            weights, rules = zip(*weights_rules)
+
+            total_nbest = [] 
+            for rule_id in rules[:k]: 
+                rule = self[rule_id]
+                if self.rhs1_type == GRAPH_FORMAT:
+                    nt_edges = [((x[1].label, len(x[2])), x[1].index) for x in rule.rhs1.nonterminal_edges()]
+                elif self.rhs1_type == STRING_FORMAT:
+                    nt_edges = [(x.label, x.index) for x in rule.rhs1 if isinstance(x, NonterminalLabel)]
+                children = []               
+                childlabels = []
+                prob = rule.weight
+                dummy = DummyItem(rule)
+
+                for edge in nt_edges:
+                    label, index = edge
+                    nbest = rec_choose_rules(label)                                   
+                    if self.rhs1_type == GRAPH_FORMAT:  
+                        nlabel, degree = label
+                    else:
+                        nlabel = label                    
+                    childlabels.append((nlabel,index))
+                    #children[(nlabel, index)] = nbest
+                    children.append(nbest)
+                if children: 
+                    all_combinations = list(itertools.product(*children))
+                   
+                    combinations_for_sorting = [] 
+                    for combination in all_combinations:
+                        weights, trees = zip(*combination)
+                        combinations_for_sorting.append((sum(weights)+prob,trees))
+                    combinations_for_sorting.sort(reverse=True)
+
+                    kbest_for_rule = []
+                    for weight, trees in sorted(combinations_for_sorting, reverse=True)[:k]:
+                        kbest_for_rule.append((weight, (dummy, dict(zip(childlabels,trees)))))
+                    total_nbest.extend(kbest_for_rule)
+                else: 
+                    total_nbest.append((prob, dummy))
+
+            result = sorted(total_nbest, reverse=True)[:k]
+            return result 
+                   
+        firstrule = self[sorted(self.keys())[0]]
+        if self.rhs1_type == GRAPH_FORMAT:
+            start_symbol = firstrule.symbol, len(firstrule.rhs1.external_nodes)
+        else:     
+            start_symbol = firstrule.symbol
+        
+        return rec_choose_rules(start_symbol)
+        
+
 
 class DummyItem(object):
     def __init__(self, rule):

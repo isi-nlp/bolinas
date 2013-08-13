@@ -48,7 +48,7 @@ if __name__ == "__main__":
     argparser.add_argument("-ot","--output_type", type=str, default="derived", help="Set the type of the output to be produced for each object in the input file. \n'forest' produces parse forests.\n'derivation' produces k-best derivations.\n'derived' produces k-best derived objects (default).")
     mode = argparser.add_mutually_exclusive_group()
     mode.add_argument("-g", type=int, default=0, const=5, nargs='?', help ="Generate G random derivations from the grammar stochastically. Cannot be used with -k.")
-    mode.add_argument("-k",type=int, default=1, help ="Generate K best derivations for the objects in the input file. Cannot be used with -g (default with K=1).")
+    mode.add_argument("-k",type=int, default=False, help ="Generate K best derivations for the objects in the input file. Cannot be used with -g (default with K=1).")
     weights = argparser.add_mutually_exclusive_group()
     #weights.add_argument("-d","--randomize", default=False, action="store_true", help="Randomize weights to be distributed between 0.2 and 0.8. Useful for EM training.")
     weights.add_argument("-n","--normalize", default=False, action="store_true", help="Normalize weights. If -b is specified, rules with the same LHS sum up to 1.0. If -f is specified rules with the same LHS and second RHS sum up to 1.0. If -r is specified rules with the same LHS and first RHS sum up to 1.0.") 
@@ -138,8 +138,6 @@ if __name__ == "__main__":
         log.info("Loaded %s%s grammar with %i rules."\
             % (grammar.rhs1_type, "-to-%s" % grammar.rhs2_type if grammar.rhs2_type else '', len(grammar)))
  
-        if grammar.rhs2_type is None and config.output_type == "derived" and not config.g:
-            config.output_type = "derivation"
 
         # EM training 
         if config.train:
@@ -171,11 +169,16 @@ if __name__ == "__main__":
                 output_file.write("\n")
             sys.exit(0)
 
+        # kbest derivations from grammar
+        derivations = []
+        if config.k and not config.input_file:
+            grammar.normalize_lhs()
+            derivations = grammar.kbest(config.k)
         # Stochastically generate derivations
         if config.g:
-            grammar.normalize_lhs()
-            for i in range(config.g):
-                score, derivation = grammar.stochastically_generate()
+            derivations = (grammar.stochastically_generate() for i in range(config.g))
+        if derivations:
+            for score, derivation in derivations:
                 if not logprob:
                     n_score = math.exp(score)
                 else: 
@@ -192,9 +195,17 @@ if __name__ == "__main__":
                         output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
                     else:
                         output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).graph_yield(), n_score))
+            sys.exit(0)               
 
         # Otherwise set up the correct parser and parser options 
         parser = parser_class(grammar)
+
+        if grammar.rhs2_type is None and config.output_type == "derived" and not config.g:
+            log.info('Printing derivation trees for HRG.')
+            config.output_type = "derivation"
+
+        if not config.k: 
+            config.k = 1
 
         if config.bitext:
             if parser_class == ParserTD:

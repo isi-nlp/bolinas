@@ -4,12 +4,6 @@ from common.logarithm import logadd, logsum, LOGZERO
 from collections import defaultdict
 import math
 
-def product(iterable):
-    lp = 1
-    for lq in iterable:
-        lp = lp * lq
-    return lp
-
 class NonterminalLabel(object):
     """
     There can be multiple nonterminal edges with the same symbol. Wrap the 
@@ -100,7 +94,8 @@ class Chart(dict):
         # Return k-best from pool
         return sorted(pool, reverse=True)[:k]
 
-
+    ### Methods for Inside/Outside
+    
     def inside_scores(self):
         inside_probs = {}
 
