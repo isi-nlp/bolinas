@@ -158,12 +158,10 @@ if __name__ == "__main__":
 
         # Normalization
         if config.normalize:
-            if config.bitext or grammar.rhs2_type is None:
+            if config.bitext or grammar.rhs2_type is None or config.g or (config.k and not config.input_files):
                 grammar.normalize_lhs()
-            elif config.forward:
+            else:
                 grammar.normalize_rhs2()
-            elif config.backward:
-                grammar.normalize_rhs1()
             for rid in sorted(grammar.keys()): 
                 output_file.write(str(grammar[rid]))
                 output_file.write("\n")
@@ -174,6 +172,7 @@ if __name__ == "__main__":
         if config.k and not config.input_file:
             grammar.normalize_lhs()
             derivations = grammar.kbest(config.k)
+
         # Stochastically generate derivations
         if config.g:
             grammar.normalize_lhs()

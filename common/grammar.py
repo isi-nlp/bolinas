@@ -435,9 +435,13 @@ class Grammar(dict):
         """
         Produce k best derivations from this grammar.
         """
+        max_iter = k * len(self)  
 
         # TODO: Cleanup. 
-        def rec_choose_rules(nt):           
+        def rec_choose_rules(nt, n):           
+            if n >= max_iter:
+                #log.info("Exceeded maximum recursion depth of %d during k-best." % max_iter)
+                return [(LOGZERO, None)]
             if not nt in self.lhs_to_rules:
                 raise DerivationException, "Could not find a rule for nonterminal %s with hyperedge tail type %d in grammar." % nt
             weights_rules = sorted([(self[r].weight, r) for r in self.lhs_to_rules[nt]], reverse=True)[:k]
@@ -458,7 +462,7 @@ class Grammar(dict):
 
                 for edge in nt_edges:
                     label, index = edge
-                    nbest = rec_choose_rules(label)                                   
+                    nbest = rec_choose_rules(label, n+1)                                   
                     if self.rhs1_type == GRAPH_FORMAT:  
                         nlabel, degree = label
                     else:
@@ -488,7 +492,7 @@ class Grammar(dict):
         else:     
             start_symbol = firstrule.symbol
         
-        return rec_choose_rules(start_symbol)
+        return rec_choose_rules(start_symbol,1)
         
 
 class DummyItem(object):
