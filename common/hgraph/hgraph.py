@@ -834,12 +834,9 @@ class Hgraph(defaultdict):
         If a node has multiple children their order is abitrary.
         """
         tabu = set()
-        tabu_edge = set()
 
         def rec_step(node, depth):
-            if type(node) is tuple: # Hyperedge case
-                pass
-            else:                
+            if type(node) is not tuple:
                 node = (node,)
             allnodes = []
             for n in node: 
@@ -848,22 +845,17 @@ class Hgraph(defaultdict):
                 leaf = False if self[n] else True
                 #firsthit = not node in tabu
                 extracted = self.node_to_concepts[n] 
-                child_map = ListMap()
-                for rel, child in self[n].items():
-                    if not (n, rel, child) in tabu_edge:
-                        if child in tabu:
-                            child_map.append(rel, extractor(child, False, leaf))
-                            #pass
-                        else:
-                            tabu_edge.add((n, rel, child))
-                            child_map.append(rel, rec_step(child, depth + 1))
-                if extracted:
+                #child_map = ListMap()
+                if extracted: 
                     allnodes.append(extracted)
-                if child_map: 
-                    for r in child_map:
-                        if r:
-                            allnodes.append(r)
-                        allnodes.extend(child_map[r])
+                for rel, child in self[n].items():           
+                    if child in tabu:
+                        allnodes.append(rel)
+                    else:
+                        if rel:
+                            allnodes.append(rel)
+                        if child: 
+                            allnodes.extend(rec_step(child, depth +1))
             return allnodes
 
         return sum([rec_step(node, 0) for node in self.roots],[])
