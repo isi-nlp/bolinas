@@ -430,70 +430,104 @@ class Grammar(dict):
         prob, derivation = rec_choose_rules(start_symbol)
         return prob, derivation
 
-
     def kbest(self,k):
         """
         Produce k best derivations from this grammar.
         """
-        max_iter = k * len(self)  
+        # TODO: Document
 
-        # TODO: Cleanup. 
-        def rec_choose_rules(nt, n):           
-            if n >= max_iter:
-                #log.info("Exceeded maximum recursion depth of %d during k-best." % max_iter)
-                return [(LOGZERO, None)]
-            if not nt in self.lhs_to_rules:
-                raise DerivationException, "Could not find a rule for nonterminal %s with hyperedge tail type %d in grammar." % nt
-            weights_rules = sorted([(self[r].weight, r) for r in self.lhs_to_rules[nt]], reverse=True)[:k]
-            weights, rules = zip(*weights_rules)
+        class KbestItem(object):
+            
+            def __init__(self, rule = None):
+                if rule:
+                    item = DummyItem(rule)
+                    self.derivation = {"START":[("START",item)]}
+                    self.weight = rule.weight
+                    self.frontier = [item]
 
-            total_nbest = [] 
-            for rule_id in rules: 
+            def __lt__(self,other):
+                return self.weight < other.weight 
+            def __eq__(self,other):
+                return self.weight == other.weight 
+            def __gt__(self, other):
+                return self.weight > other.weight      
 
-                rule = self[rule_id]
-                if self.rhs1_type == GRAPH_FORMAT:
+            def spawn(self, grammar):
+                """
+                Take the next rule of the frontier, generate all possible derivations and return them. 
+                """
+                parent = self.frontier[0]
+                rule = parent.rule
+
+                if isinstance(rule.rhs1, Hgraph):
                     nt_edges = [((x[1].label, len(x[2])), x[1].index) for x in rule.rhs1.nonterminal_edges()]
-                elif self.rhs1_type == STRING_FORMAT:
+                else:
                     nt_edges = [(x.label, x.index) for x in rule.rhs1 if isinstance(x, NonterminalLabel)]
+
                 children = []               
                 childlabels = []
-                prob = rule.weight
-                dummy = DummyItem(rule)
-
+                
                 for edge in nt_edges:
                     label, index = edge
-                    nbest = rec_choose_rules(label, n+1)                                   
-                    if self.rhs1_type == GRAPH_FORMAT:  
+                    if isinstance(rule.rhs1, Hgraph):  
                         nlabel, degree = label
                     else:
                         nlabel = label                    
                     childlabels.append((nlabel,index))
-                    #children[(nlabel, index)] = nbest
-                    children.append(nbest)
+                    children.append([(grammar[r].weight, DummyItem(grammar[r])) for r in grammar.lhs_to_rules[label]])
 
                 if children: 
-                    best_for_rule = [] 
+                    result = []
                     for combination in itertools.product(*children):
-                        weights, trees = zip(*combination)
-                        new_tree = (dummy, dict(zip(childlabels, trees)))
-                        heapq.heappush(best_for_rule,(sum(weights)+prob,new_tree))
+                        weights, items = zip(*combination)
+                        new_kbest_item = KbestItem()
+                        new_kbest_item.derivation = dict(self.derivation)
+                        new_kbest_item.weight = self.weight + sum(weights)
+                        new_kbest_item.frontier =  self.frontier[1:]
+                        new_kbest_item.frontier.extend(items)
+                        new_kbest_item.derivation[parent] = zip(childlabels, items)
+                        result.append(new_kbest_item)
+                    return result 
+                else:            
+                    self.frontier = self.frontier[1:]
+                    self.derivation[parent] = []
+                    return [self]
+                    
 
-                    for possibility in heapq.nlargest(k,best_for_rule):
-                        heapq.heappush(total_nbest, possibility)
-                else: 
-                    heapq.heappush(total_nbest, (prob, dummy))
-
-            result = heapq.nlargest(k, total_nbest)
-            return result 
-                   
+        def convert_derivation(deriv, item):
+            children = deriv[item]
+            result = {}
+            for edge, child in children:
+                result[edge] = convert_derivation(deriv, child)       
+            if result:
+                return (item, result) 
+            else: 
+                return item
+                                                
+        kbest = []            
+        heap = []
+        
         firstrule = self[sorted(self.keys())[0]]
         if self.rhs1_type == GRAPH_FORMAT:
             start_symbol = firstrule.symbol, len(firstrule.rhs1.external_nodes)
         else:     
             start_symbol = firstrule.symbol
-        
-        return rec_choose_rules(start_symbol,1)
-        
+
+        for r in self.lhs_to_rules[start_symbol]:
+            heapq.heappush(heap, KbestItem(self[r]))
+
+        while True: 
+            next_derivation = heapq.heappop(heap)
+
+            if not next_derivation.frontier: # This is the next best complete derivation
+
+                kbest.append((next_derivation.weight, convert_derivation(next_derivation.derivation, "START")[1]["START"]))
+                continue
+            if len(kbest) == k: # Are we done yet?
+                return kbest
+            
+            for new in next_derivation.spawn(self):
+                heapq.heappush(heap, new)
 
 class DummyItem(object):
     """
