@@ -79,7 +79,7 @@ if __name__ == "__main__":
         if not args.output_file:       
             log.err("Need to provide '-o FILE_PREFIX' with output type 'forest'.")
             sys.exit(1)
-        if args.k!=1:
+        if args.k:
             log.warn("Ignoring -k command line option because output type is 'forest'.")    
     
     if not args.parser in ['td', 'basic']:
@@ -194,7 +194,7 @@ if __name__ == "__main__":
                     if grammar.rhs2_type == "string":
                         output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
                     else:
-                        output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).graph_yield(), n_score))
+                        output_file.write("%s\t#%f\n" % (" ".join(output.apply_graph_derivation(derivation).graph_yield()), n_score))
             sys.exit(0)               
 
         # Otherwise set up the correct parser and parser options 
