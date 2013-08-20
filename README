@@ -16,7 +16,7 @@ extra      - additional tools to convert input graphs and grammars
 extractor_cansem - CanSem rule extraction algorithm [1] 
 extractor_synsem - SynSem rule extraction algorithm [1] 
 lib         - libraries
-LICENSE.txt - USC license 
+LICENSE.txt - MIT license 
 parser      - default HRG/String parser with explicit visit order on each SHRG rule
 parser_td   - tree decomposition HRG parser [2] 
 
