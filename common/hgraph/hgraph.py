@@ -38,7 +38,7 @@ def conv(s):
     if not s: 
         return "NONE"
     if isinstance(s, StrLiteral):
-        return s[1:-1] 
+        return s
     elif s.startswith('"') and s.endswith('"'):
         return  s[1:-1]
     else: 
@@ -206,7 +206,11 @@ class Hgraph(defaultdict):
                     if not (part1.lower().startswith("root")):
                         new_amr._replace_triple(par, rel, child, par, part1, child)
                     for c in child: 
-                         new_amr.node_to_concepts[c] = part2
+                        new_amr.node_to_concepts[c] = part2
+                        if (par,rel,child) in amr.edge_alignments:                            
+                            if not c in new_amr.node_alignments: 
+                                new_amr.node_alignments[c] = []
+                            new_amr.node_alignments[c].extend(amr.edge_alignments[(par,rel,child)])
                 if rel.lower().startswith("root"): 
                     new_amr.roots.remove(par)
                     new_amr._remove_triple(par, rel, child)
@@ -215,19 +219,21 @@ class Hgraph(defaultdict):
                         new_amr.roots.append(c)
                 elif par in amr.roots and par not in new_amr.node_to_concepts:
                     new_amr.node_to_concepts[par] = None    
+        new_amr.edge_alignments = {} 
         return new_amr
 
-    def to_concept_edge_labels(self):
+    def to_concept_edge_labels(self, warn=False):
         """"
         Return an new DAG with equivalent structure as this AMR (plus additional root-edge), in
         which concepts are pushed into incoming edges.
         """
 
-        new_amr = self.clone()
+        new_amr = self.clone(warn=warn)
         for par, rel, child in self.triples(instances = False):
             #new_rel = "%s:%s" % (rel, ":".join(self.node_to_concepts[c] for c in child if c in self.node_to_concepts))
-            new_rel = '%s:%s' % (rel, ':'.join(conv(self.node_to_concepts[c]) if c in self.node_to_concepts else conv(c) for c in child))
-            new_amr._replace_triple(par,rel,child, par, new_rel, child)
+            children = [conv(self.node_to_concepts[c]) if c in self.node_to_concepts and self.node_to_concepts[c] else conv(c) for c in child]
+            new_rel = '%s:%s' % (rel, ':'.join(children))
+            new_amr._replace_triple(par,rel,child, par, new_rel, child, warn=warn)
 
             # Copy edge alignemnts
             if (par, rel, child) in self.edge_alignments:
@@ -240,7 +246,6 @@ class Hgraph(defaultdict):
                     new_amr.edge_alignments[(par, new_rel, child)].extend(self.node_alignments[c])
             for e in new_amr.edge_alignments: 
                 new_amr.edge_alignments[e] = list(set(new_amr.edge_alignments[e]))
-               
 
         for r in self.roots:
             if r in self.node_to_concepts:
@@ -248,7 +253,7 @@ class Hgraph(defaultdict):
             else: 
                 new_rel = "ROOT"
             newtriple =  ('root0', new_rel, (r,))
-            new_amr._add_triple(*newtriple)
+            new_amr._add_triple(*newtriple, warn=warn)
             new_amr.roots.remove(r)
             if not "root0" in new_amr.roots:
                 new_amr.roots.append('root0' )
@@ -296,7 +301,7 @@ class Hgraph(defaultdict):
 #        amr.node_alignments = self.node_alignments
 #        return amr    
 
-    def stringify(self):
+    def stringify(self, warn=False):
         """
         Convert all special symbols in the AMR to strings.
         """
@@ -314,7 +319,7 @@ class Hgraph(defaultdict):
         for p,r,c in self.triples(instances = False):
             c_new = tuple([conv(child) for child in c]) if type(c) is tuple else conv(c)
             p_new = conv(p)
-            new_amr._add_triple(p_new, r, c_new)
+            new_amr._add_triple(p_new, r, c_new, warn=warn)
 
         new_amr.roots = [conv(r) for r in self.roots]
         new_amr.external_nodes = dict((conv(r),val) for r,val in self.external_nodes.items())
@@ -819,7 +824,49 @@ class Hgraph(defaultdict):
              return " ".join(nodes)
 
         return " ".join(self.dfs(extractor, combiner, hedgecombiner))
-    
+   
+
+    def to_amr_string(self):
+
+        def extractor(node, firsthit, leaf):
+            if node is None:
+                    return "root"
+            if type(node) is tuple or type(node) is list:
+                return ",".join("@%s" % (n) if n in self.external_nodes else n for n in node)
+            else:
+                if type(node) is int or type(node) is float or isinstance(node, (Literal, StrLiteral)):
+                    alignmentstr = "~e.%s" % ",".join(str(x) for x in self.node_alignments[node]) if node in self.node_alignments else ""
+                    return "%s%s" % (str(node), alignmentstr)
+                else:
+                    if firsthit and node in self.node_to_concepts:
+                        concept = self.node_to_concepts[node]
+                        alignmentstr = "~e.%s" % ",".join(str(x) for x in self.node_alignments[node]) if node in self.node_alignments else ""
+                        if not self[node]:
+                            if node in self.external_nodes:
+                                return "(@%s / %s%s) " % (node, concept, alignmentstr)
+                            else:
+                                return "(%s / %s%s) " % (node, concept, alignmentstr)
+                        else:
+                            if node in self.external_nodes:
+                                return "@%s / %s%s " % (node, concept, alignmentstr)
+                            else:
+                                return "%s / %s%s " % (node, concept, alignmentstr)
+                    else:
+                        if node in self.external_nodes:
+                            return "@%s" % node
+                        else:
+                            return "%s" % node
+
+
+        def combiner(nodestr, childmap, depth):
+            childstr = " ".join(["\n%s :%s %s" % (depth * "\t", rel, child) for rel, child in sorted(childmap.items())])
+            return "(%s %s)" % (nodestr, childstr)
+
+        def hedgecombiner(nodes):
+             return " ,".join(nodes)
+
+        return "\n".join(self.dfs(extractor, combiner, hedgecombiner))
+ 
     def to_string(self, newline = False):
          if newline:
              return str(self)
@@ -929,7 +976,7 @@ class Hgraph(defaultdict):
         return dict([(node.replace("@",""), "x%s%s" % (prefix, str(node_id)) ) for node_id, node in enumerate(nodes)])
 
 
-    def clone_canonical(self, external_dict = {}, prefix = ""):
+    def clone_canonical(self, external_dict = {}, prefix = "", warn=False):
         """
         Return a version of the DAG where all nodes have been replaced with canonical IDs.
         """
@@ -954,9 +1001,9 @@ class Hgraph(defaultdict):
         new.rev_external_nodes = dict((self.external_nodes[x], node_map[x]) for x in self.external_nodes)
         for par, rel, child in self.triples(instances = False):
             if type(child) is tuple:                 
-                new._add_triple(node_map[par], rel, tuple([node_map[c] for c in child]))
+                new._add_triple(node_map[par], rel, tuple([node_map[c] for c in child]), warn=warn)
             else: 
-                new._add_triple(node_map[par], rel, node_map[child])    
+                new._add_triple(node_map[par], rel, node_map[child], warn=warn)    
         
         new.node_to_concepts = {}
         for node in self.node_to_concepts:
@@ -966,7 +1013,7 @@ class Hgraph(defaultdict):
                 new.node_to_concepts[node] = self.node_to_concepts[node]
         return new
 
-    def apply_node_map(self, node_map):
+    def apply_node_map(self, node_map, warn=False):
         new = Hgraph()
         new.roots = [node_map[x] if x in node_map else x for x in self.roots ]
         new.external_nodes = dict([(node_map[x], self.external_nodes[x]) if x in node_map else x for x in self.external_nodes])
@@ -981,9 +1028,9 @@ class Hgraph(defaultdict):
 
         for par, rel, child in Dag.triples(self):
             if type(child) is tuple: 
-                new._add_triple(node_map[par] if par in node_map else par, rel, tuple([(node_map[c] if c in node_map else c) for c in child]))
+                new._add_triple(node_map[par] if par in node_map else par, rel, tuple([(node_map[c] if c in node_map else c) for c in child]), warn=warn)
             else: 
-                new._add_triple(node_map[par] if par in node_map else par, rel, node_map[child] if child in node_map else child)    
+                new._add_triple(node_map[par] if par in node_map else par, rel, node_map[child] if child in node_map else child, warn=warn)    
 
         new.__cached_triples = None
         for n in self.node_to_concepts:
@@ -1008,7 +1055,7 @@ class Hgraph(defaultdict):
         res_dag.external_nodes = dict([(n, self.external_nodes[n]) for n in self.external_nodes if n in res_dag])
         return res_dag
 
-    def replace_fragment(self, dag, new_dag, partial_boundary_map = {}):
+    def replace_fragment(self, dag, new_dag, partial_boundary_map = {}, warn=False):
         """
         Replace a collection of hyperedges in the DAG with another collection of edges. 
         """
@@ -1043,7 +1090,7 @@ class Hgraph(defaultdict):
                 new_child = tuple([boundary_map[c] if c in boundary_map else c for c in child])
             else:            
                 new_child = boundary_map[child] if child in boundary_map else child
-            res_dag._add_triple(new_par, rel, new_child)
+            res_dag._add_triple(new_par, rel, new_child, warn=warn)
         res_dag.node_to_concepts.update(new_dag.node_to_concepts)
         return res_dag
 
@@ -1059,7 +1106,7 @@ class Hgraph(defaultdict):
                              False in [dag.has_edge(*e) for e in self.out_edges(l)])]
 
 
-    def collapse_fragment(self, dag, label = None, unary = False):
+    def collapse_fragment(self, dag, label = None, unary = False, warn=False):
         """
         Remove all edges in a collection and connect their boundary node with a single hyperedge.
 
@@ -1087,7 +1134,7 @@ class Hgraph(defaultdict):
         res_dag = self.remove_fragment(dag)
 
         for r in dagroots: 
-            res_dag._add_triple(r, label, external)
+            res_dag._add_triple(r, label, external, warn=warn)
        
         res_dag.roots = self.roots
         return res_dag
