@@ -100,9 +100,9 @@ class GraphDescriptionParser(object):
             (LexTypes.SLASH,'/'),
             (LexTypes.EDGELABEL,":[^\s\)]+"),
             (LexTypes.STRLITERAL,'"[^"]+"'),
-            (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*"),
             (LexTypes.LITERAL,"'[^\s(),]+"),
-            (LexTypes.IDENTIFIER,"[^\s(),]+")
+            (LexTypes.IDENTIFIER,"[^\s(),]+"),
+            (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*"),
         ] 
         self.lexer = Lexer(lex_rules)
 

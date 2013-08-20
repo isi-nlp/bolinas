@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 from hgraph import Hgraph
+import amr_graph_description_parser
 
-import tree
+#import tree
 import re
 import sys
 import string
@@ -49,12 +50,9 @@ def format_alignments(l, amr):
             token = m.group(1)
             token_id = int(m.group(2)) - 1
         else:
-            print a
             sys.exit(1)
 
     amr_triple = (var, role, (filler,))    
-    #if var!="ROOT" and not amr.has_triple(*amr_triple):
-    #        sys.stderr.write("WARNING: found alignment for %s, which is not a an AMR edge.\n" % str(amr_triple))
     r.append((amr_triple, token_id))
 
   return r
@@ -109,6 +107,7 @@ def ulf_corpus(f):
     """
     Read the next parsed sentence from an input file using Ulf's format.
     """
+
     while True:
         l = f.readline()
         if not l:
@@ -125,24 +124,66 @@ def ulf_corpus(f):
         p = SentenceWithHgraph(sent_id, sent_no, amr, tagged, None, None)   
         yield p
 
+def metadata_amr_corpus(f):
+    """
+    Read the next parsed sentence from an input file using the AMR meta data format.
+    """
+    metadata = []
+    sentence = "" 
+    sent_id = ""
+    buff = []
+    idmatcher = re.compile("# ::id ([^ ]+) ")
+    sentmatcher = re.compile("# ::snt (.*)")
+    
+    count = 1
+
+    parser = amr_graph_description_parser.GraphDescriptionParser()
+
+    while True:        
+        l = f.readline()
+        if not l:
+            raise StopIteration
+          
+        l = l.strip()     
+        if not l:
+            if buff: 
+                amr = parser.parse_string(" ".join(buff))
+                yield SentenceWithHgraph(sent_id, count, amr, sentence, metadata = metadata)
+                count += 1
+
+            buff = []
+            metadata = []
+            sentence = ""
+            sent_id = ""
+        
+        elif l.startswith("#"):
+            metadata.append(l)
+            match = idmatcher.match(l)
+            if match: 
+                sent_id = match.group(1)
+            match = sentmatcher.match(l)
+            if match: 
+                sentence = match.group(1)
+        else: 
+            buff.append(l)
+        
+
 class SentenceWithHgraph(): 
     """
     A data structure to hold Hgraph <-> sentence pairs with 
     PTB parses and token to Hgraph edge elignments.
     """
-    def __init__(self, sent_id, sent_no, amr, tagged, ptb, edge_alignments):
+    def __init__(self, sent_id, sent_no, amr, tagged, ptb = None, edge_alignments = None, metadata = None):
         self.sent_no = sent_no
         self.sent_id = sent_id
         self.amr = amr
         self.tagged = tagged
         self.ptb = ptb 
         self.alignments = edge_alignments
+        self.metadata = metadata
 
 
 
 if __name__ == "__main__":
-    with open(sys.argv[1],'r') as in_f:
-        for amr in plain_corpus(in_f):
-            print amr.to_string(newline = False)
-
-            
+    in_f =  open(sys.argv[1],'r')
+    a = metadata_amr_corpus(in_f)
