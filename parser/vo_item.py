@@ -116,6 +116,7 @@ class HergItem(Item):
     Determines whether new_edge matches the outside of this item, and can be
     shifted.
     """
+    #print "SHIFT", self, "<---", new_edge
     # can't shift into a closed item
     if self.closed:
       return False
@@ -130,6 +131,7 @@ class HergItem(Item):
     # make sure new_edge preserves a consistent mapping between the nodes of the
     # graph and the nodes of the rule
     if self.nodelabels:
+        #print o1
         o1, o1_label = self.outside_triple[0]
         n1, n1_label = new_edge[0]
         if o1_label != n1_label:
@@ -157,9 +159,9 @@ class HergItem(Item):
         if len(o2) != len(n2):
             return False
             
-        for i in range(len(o2)): 
-            if o2[i] in self.mapping and self.mapping[o2[i]] != n2[i]:
-                return False
+    for i in range(len(o2)): 
+        if o2[i] in self.mapping and self.mapping[o2[i]] != n2[i]:
+            return False
 
     return True
 
@@ -232,7 +234,7 @@ class HergItem(Item):
             return False
 
     if o1 in self.mapping and self.mapping[o1] != \
-        new_item.mapping[list(new_item.rule.rhs1.roots)[0]]:
+        new_item.mapping[new_item.rule.rhs1.roots[0]]:
       #log.debug('fail bc mismapping')
       return False
 
@@ -253,7 +255,6 @@ class HergItem(Item):
             onode =  self.rev_mapping[node]
             if not (onode == o1 or onode in o2):
                 return False
-
     return True
 
   def complete(self, new_item):

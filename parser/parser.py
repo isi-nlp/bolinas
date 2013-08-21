@@ -319,8 +319,6 @@ class Parser:
               queue.append(ritem)
               pending.add(ritem)
 
-          
-
         else:
           if item.outside_is_nonterminal:
             # complete
