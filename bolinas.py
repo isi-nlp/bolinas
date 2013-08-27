@@ -243,7 +243,7 @@ if __name__ == "__main__":
                         log.info("Found only %i derivations." % len(kbest))
                     for score, derivation in kbest:
                         n_score = score if logprob else math.exp(score)
-                        l1s.append("%s\t#%f\n" % (output.format_derivation(derivation), n_score))
+                        l1s.append("%s\t#%g\n" % (output.format_derivation(derivation), n_score))
                 
                 # Produce k-best derived graphs/strings
                 if config.output_type == "derived" or config.output_type == "both":
@@ -256,14 +256,14 @@ if __name__ == "__main__":
                             n_score = score if logprob else math.exp(score)
                             try:
                                 output_file.write
-                                l2s.append("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), n_score))
+                                l2s.append("%s\t#%g\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), n_score))
                             except DerivationException,e:
                                 log.err("Could not construct derivation: '%s'. Skipping." % e.message)
                                 l2s.append("")
                     elif grammar.rhs2_type == "string":
                         for score, derivation in kbest: 
                             n_score = score if logprob else math.exp(score)
-                            l2s.append("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
+                            l2s.append("%s\t#%g\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
 
                 if config.output_type == "derivation":           
                     for l in l1s: 
