@@ -5,6 +5,7 @@ Methods to format Bolinas output.
 from common.hgraph.hgraph import Hgraph
 from common.cfg import NonterminalLabel
 from common import log 
+from common.exceptions import DerivationException
 import math
  
 def walk_derivation(derivation, combiner, leaf):
@@ -23,7 +24,7 @@ def walk_derivation(derivation, combiner, leaf):
        
         if item == "START":
             return childobjs["START"]
-        
+       
         return combiner(item, childobjs)
 
 def format_derivation(derivation):
@@ -65,7 +66,10 @@ def apply_graph_derivation(derivation):
         for nt, cgraph in childobjs.items():
                 p,r,c = graph.find_nt_edge(*nt)
                 fragment = Hgraph.from_triples([(p,r,c)],graph.node_to_concepts)
-                graph = graph.replace_fragment(fragment, cgraph)
+                try:
+                    graph = graph.replace_fragment(fragment, cgraph)
+                except AssertionError, e:
+                    raise DerivationException, "Incompatible hyperedge type for nonterminal %s." % str(nt[0])
         step[0] = step[0] + 1
         return graph 
 

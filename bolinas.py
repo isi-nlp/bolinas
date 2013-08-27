@@ -65,7 +65,7 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     
     # Verify command line parameters 
-    if not args.output_type in ['forest', 'derivation', 'derived', 'yield']:
+    if not args.output_type in ['forest', 'derivation', 'derived', 'yield', 'both']:
         log.err("Output type (-ot) must be either 'forest', 'derivation', or 'derived'.")
         sys.exit(1)
     
@@ -236,17 +236,18 @@ if __name__ == "__main__":
                     count = count + 1
 
                 # Produce k-best derivations
-                elif config.output_type == "derivation":                    
+                if config.output_type == "derivation" or config.output_type == "both":
+                    l1s = []
                     kbest = chart.kbest('START', config.k)
                     if kbest and len(kbest) < config.k: 
                         log.info("Found only %i derivations." % len(kbest))
                     for score, derivation in kbest:
                         n_score = score if logprob else math.exp(score)
-                        output_file.write("%s\t#%f\n" % (output.format_derivation(derivation), n_score))
-                    output_file.write("\n")
-
+                        l1s.append("%s\t#%f\n" % (output.format_derivation(derivation), n_score))
+                
                 # Produce k-best derived graphs/strings
-                elif config.output_type == "derived":
+                if config.output_type == "derived" or config.output_type == "both":
+                    l2s = []
                     kbest = chart.kbest('START', config.k)
                     if kbest and kbest < config.k: 
                         log.info("Found only %i derivations." % len(kbest))
@@ -254,12 +255,27 @@ if __name__ == "__main__":
                         for score, derivation in kbest:
                             n_score = score if logprob else math.exp(score)
                             try:
-                                output_file.write("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), n_score))
-                            except DerivationException:
-                                log.err("Derivation produces contradicatory node labels in derived graph. Skipping.")
+                                output_file.write
+                                l2s.append("%s\t#%f\n" % (output.apply_graph_derivation(derivation).to_string(newline = False), n_score))
+                            except DerivationException,e:
+                                log.err("Could not construct derivation: '%s'. Skipping." % e.message)
+                                l2s.append("")
                     elif grammar.rhs2_type == "string":
                         for score, derivation in kbest: 
                             n_score = score if logprob else math.exp(score)
-                            output_file.write("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
-        
+                            l2s.append("%s\t#%f\n" % (" ".join(output.apply_string_derivation(derivation)), n_score))
+
+                if config.output_type == "derivation":           
+                    for l in l1s: 
+                        output_file.write(l)
+                    output_file.write("\n")
+                elif config.output_type == "derived":
+                    for l in l2s:
+                        output_file.write(l)
+                    output_file.write("\n")
+                elif config.output_type == "both": 
+                    for l1, l2 in zip(l1s, l2s):
+                         output_file.write(l1)
+                         output_file.write(l2)
+                
                     output_file.write("\n")

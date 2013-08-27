@@ -175,3 +175,4 @@ class Chart(dict):
                     childgamma = outside_probs[item] + inside_probs[child] + child.rule.weight
                     counts[child.rule.rule_id] = logadd(counts[child.rule.rule_id] ,(childgamma - beta_sentence))
         return counts          
+
