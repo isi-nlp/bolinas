@@ -12,6 +12,7 @@ import re
 import sys
 import copy
 import os
+import cStringIO
 from operator import itemgetter
 from common.cfg import NonterminalLabel
 from common.exceptions import DerivationException
@@ -929,27 +930,32 @@ class Hgraph(defaultdict):
         """
         require_graphics()
         graph = pgv.AGraph(strict=False,directed=True)
-        graph.node_attr.update(height=0.1, width=0.1, shape='circle')
+        graph.node_attr.update(height=0.1, width=0.1, shape='circle', fontsize='9')
         graph.edge_attr.update(fontsize='9')
         counter = 0
         for edge in self.triples(instances):
             node, rel, child  = edge
+            if isinstance(rel, NonterminalLabel):
+                edgecolor = "red"
+                rel = "%s[%s]" % (rel.label, rel.index)
+            else: 
+                edgecolor = "black"
             if node in self.node_to_concepts:
-                graph.add_node(node, label=self.node_to_concepts[node])
+                graph.add_node(node, label=self.node_to_concepts[node], style="filled", fillcolor = ("black" if node in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
             if len(child) > 1:
                 centernode = "hedge%i" % counter
                 counter += 1
                 graph.add_node(centernode, shape="point", label="", width="0", height="0")
-                graph.add_edge(node, centernode, dir="none", label="%s"%rel)
+                graph.add_edge(node, centernode, dir="none", label="%s"%rel, color=edgecolor)
                 for tail in  child: 
                     if tail in self.node_to_concepts:
-                        graph.add_node(tail, label=self.node_to_concepts[tail])
-                    graph.add_edge(centernode, tail)
+                        graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+                    graph.add_edge(centernode, tail, color=edgecolor)
             else: 
                 nodestr, tail = node, child[0]
                 if tail in self.node_to_concepts:
-                    graph.add_node(tail, label=self.node_to_concepts[tail])
-                graph.add_edge(nodestr, tail, label="%s"%rel)
+                    graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if tail in self.external_nodes else "black"))
+                graph.add_edge(nodestr, tail, label="%s"%rel, color=edgecolor)
         return graph
   
     def render(self, instances = True):
@@ -970,10 +976,10 @@ class Hgraph(defaultdict):
    
     def _repr_png_(self): #, instances = True, *args, **kwargs):
         require_ipython()
-        filename = '/tmp/bolinas_graph.png'
-        self.render_to_file(filename)
-        with open(filename, 'rb') as f: 
-            return f.read() 
+        graph = self._get_gv_graph()
+        output = cStringIO.StringIO()
+        self.render_to_file(output, format = "png")
+        return output.getvalue()
  
     def clone(self, warn=sys.stderr):
         """
