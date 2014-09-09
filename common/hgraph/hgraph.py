@@ -808,7 +808,7 @@ class Hgraph(defaultdict):
             if type(node) is tuple or type(node) is list: 
                 return " ".join("%s*%i" % (n, self.external_nodes[n]) if n in self.external_nodes else n for n in node)
             else:
-                if type(node) is int or type(node) is float or isinstance(node, (Literal, StrLiteral)):
+                if type(node) is int or type(node) is float or isinstance(node, (Literal, StrLiteral, Quantity)):
                     return str(node)
                 else: 
                     if firsthit:
@@ -930,7 +930,7 @@ class Hgraph(defaultdict):
         """
         require_graphics()
         graph = pgv.AGraph(strict=False,directed=True)
-        graph.node_attr.update(height=0.1, width=0.1, shape='circle', fontsize='9')
+        graph.node_attr.update(height=0.1, width=0.1, shape='none', fontsize='9')
         graph.edge_attr.update(fontsize='9')
         counter = 0
         for edge in self.triples(instances):
@@ -940,21 +940,31 @@ class Hgraph(defaultdict):
                 rel = "%s[%s]" % (rel.label, rel.index)
             else: 
                 edgecolor = "black"
-            if node in self.node_to_concepts:
+            if node in self.node_to_concepts and self.node_to_concepts[node]:
                 graph.add_node(node, label=self.node_to_concepts[node], style="filled", fillcolor = ("black" if node in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+            if isinstance(node,StrLiteral):
+                node = str(node)
+                graph.add_node(node, label='"%s"' % node)
             if len(child) > 1:
                 centernode = "hedge%i" % counter
                 counter += 1
                 graph.add_node(centernode, shape="point", label="", width="0", height="0")
                 graph.add_edge(node, centernode, dir="none", label="%s"%rel, color=edgecolor)
                 for tail in  child: 
-                    if tail in self.node_to_concepts:
+                    if tail in self.node_to_concepts and self.node_to_concepts[tail]:
                         graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+                    if isinstance(node, StrLiteral): 
+                        tail = str(tail)
+                        graph.add_node(tail, label='"%s"' % tail)
+            
                     graph.add_edge(centernode, tail, color=edgecolor)
             else: 
                 nodestr, tail = node, child[0]
-                if tail in self.node_to_concepts:
+                if tail in self.node_to_concepts and self.node_to_concepts[tail]:
                     graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if tail in self.external_nodes else "black"))
+                if isinstance(tail, StrLiteral): 
+                    tail = str(tail)
+                    graph.add_node(tail, label='"%s"' % tail)
                 graph.add_edge(nodestr, tail, label="%s"%rel, color=edgecolor)
         return graph
   
@@ -974,12 +984,26 @@ class Hgraph(defaultdict):
         graph = self._get_gv_graph(instances)
         graph.draw(file_or_name, prog="dot", *args, **kwargs)
    
-    def _repr_png_(self): #, instances = True, *args, **kwargs):
+    def _repr_svg_(self): 
+        """
+        IPython rich display method
+        """
         require_ipython()
         graph = self._get_gv_graph()
         output = cStringIO.StringIO()
-        self.render_to_file(output, format = "png")
+        self.render_to_file(output, format = "svg")
         return output.getvalue()
+    
+    def _repr_png_(self): 
+        """
+        IPython rich display method
+        """
+        require_ipython()
+        graph = self._get_gv_graph()
+        output = cStringIO.StringIO()
+        self.render_to_file(output, format = "svg")
+        return output.getvalue()
+ 
  
     def clone(self, warn=sys.stderr):
         """
