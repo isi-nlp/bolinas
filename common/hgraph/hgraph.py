@@ -1140,6 +1140,9 @@ class Hgraph(defaultdict):
     def replace_fragment(self, dag, new_dag, partial_boundary_map = {}, warn=False):
         """
         Replace a collection of hyperedges in the DAG with another collection of edges. 
+        Warning: if new_dag contains node ids that overlap this graph's node ids edges might attach
+        to the wrong place. Before calling replace_fragment we need to make sure that node ids are 
+        distinct (for instance, by calling clone_canonical).
         """
         # TODO: We need to make sure that the new_dag has distinct node labels, possibly by just calling
         #     clone_canonical.
