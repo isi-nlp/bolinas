@@ -24,7 +24,7 @@ class HergItem(Item):
   Chart item for a HRG parse.
   """
 
-  def __init__(self, rule, size=None, shifted=None, mapping=None, nodelabels=False):
+  def __init__(self, rule, size=None, shifted=None, mapping=None, nodeset=None, nodelabels=False):
     # by default start empty, with no part of the graph consumed
     if size == None:
       size = 0
@@ -32,11 +32,14 @@ class HergItem(Item):
       shifted = frozenset()
     if mapping == None:
       mapping = dict()
+    if nodeset == None: 
+      nodeset = frozenset() 
 
     self.rule = rule
     self.size = size
     self.shifted = shifted
     self.mapping = mapping
+    self.nodeset = nodeset
 
     self.rev_mapping = dict((val, key) for key, val in mapping.items())
 
@@ -143,6 +146,11 @@ class HergItem(Item):
     if o1 in self.mapping and self.mapping[o1] != n1:
       return False
 
+    # if this node is not a node of this rule RHS, but of a subgraph it needs to have a mapping. 
+    # otherwise, we can't attach. 
+    if n1 in self.nodeset and n1 not in self.rev_mapping: 
+        return False 
+
     if self.nodelabels:
         if self.outside_triple[2]:
             o2, o2_labels = zip(*self.outside_triple[2])
@@ -162,6 +170,10 @@ class HergItem(Item):
     for i in range(len(o2)): 
         if o2[i] in self.mapping and self.mapping[o2[i]] != n2[i]:
             return False
+        # Again, need to make sure this node is part of the rule RHS, not of a 
+        # proper subgraph.
+        if n2[i] in self.nodeset and n2[i] not in self.rev_mapping: 
+            return False
 
     return True
 
@@ -178,6 +190,8 @@ class HergItem(Item):
     n1 = new_edge[0][0] if self.nodelabels else new_edge[0]
     n2 = tuple(x[0] for x in new_edge[2]) if self.nodelabels else new_edge[2] 
 
+    new_nodeset = self.nodeset | set(n2) | set([n1])
+
     assert len(o2) == len(n2) 
     new_size = self.size + 1
     new_shifted = frozenset(self.shifted | set([new_edge]))
@@ -185,8 +199,8 @@ class HergItem(Item):
     new_mapping[o1] = n1
     for i in range(len(o2)):
         new_mapping[o2[i]] = n2[i]
-
-    return HergItem(self.rule, new_size, new_shifted, new_mapping, self.nodelabels)
+    
+    return HergItem(self.rule, new_size, new_shifted, new_mapping, new_nodeset, self.nodelabels)
 
   def can_complete(self, new_item):
     """
@@ -232,9 +246,9 @@ class HergItem(Item):
     #Check root label
     if self.nodelabels and o1label != new_item.rule.rhs1.node_to_concepts[nroot]: 
             return False
-
-    if o1 in self.mapping and self.mapping[o1] != \
-        new_item.mapping[new_item.rule.rhs1.roots[0]]:
+        
+    if o1 in self.mapping and self.mapping[o1] != new_item.mapping[nroot]:
+      #  new_item.mapping[new_item.rule.rhs1.roots[0]]:
       #log.debug('fail bc mismapping')
       return False
 
@@ -255,6 +269,7 @@ class HergItem(Item):
             onode =  self.rev_mapping[node]
             if not (onode == o1 or onode in o2):
                 return False
+
     return True
 
   def complete(self, new_item):
@@ -274,8 +289,9 @@ class HergItem(Item):
       otail = o2[i]
       ntail = new_item.rule.rhs1.rev_external_nodes[i]
       new_mapping[otail] = new_item.mapping[ntail]
+    new_nodeset = self.nodeset | new_item.nodeset
 
-    new = HergItem(self.rule, new_size, new_shifted, new_mapping, self.nodelabels)
+    new = HergItem(self.rule, new_size, new_shifted, new_mapping, new_nodeset, self.nodelabels)
     return new
 
 

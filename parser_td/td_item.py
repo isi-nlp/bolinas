@@ -560,7 +560,8 @@ class FasterCheckBoundaryItem(BoundaryItem):
         oedges.update(edges)
     if len(myedges & oedges) != 0:
         return False 
-    
+
+ 
     # If m belongs to both I and J it must be a boundary node
     # of both. 
     marker = self.graph.roots[0]

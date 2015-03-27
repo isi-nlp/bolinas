@@ -2,7 +2,7 @@ from collections import defaultdict
 import unittest
 import re
 import sys
-from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal, NonterminalLabel
+from hgraph import Hgraph, SpecialValue, StrLiteral, Quantity, Literal, NonterminalLabel, Polarity
 
 """
 A deterministic, linear time parser for Penman-style graph/meaning 
@@ -74,6 +74,7 @@ class LexTypes:
     IDENTIFIER = "IDENTIFIER" 
     LITERAL =  "LITERAL"
     QUANTITY = "QUANTITY"
+    POLARITY = "POLARITY"
 
 # Parser
 class GraphDescriptionParser(object):
@@ -99,10 +100,11 @@ class GraphDescriptionParser(object):
             (LexTypes.COMMA,','), 
             (LexTypes.SLASH,'/'),
             (LexTypes.EDGELABEL,":[^\s\)]+"),
-            (LexTypes.STRLITERAL,'"[^"]+"'),
-            (LexTypes.LITERAL,"'[^\s(),]+"),
-            (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*"),
-            (LexTypes.IDENTIFIER,"[^\s(),]+")
+            (LexTypes.STRLITERAL,'"[^"]+"(?:~[0-9]+)?'),
+            (LexTypes.LITERAL,"'[^\s(),]+(?:~[0-9]+)?"),
+            (LexTypes.POLARITY,"-"),
+            (LexTypes.QUANTITY,"[0-9][0-9Ee^+\-\.,:]*(?:~[0-9]+)?"),
+            (LexTypes.IDENTIFIER,"[^\s(),]*")
         ] 
         self.lexer = Lexer(lex_rules)
 
@@ -118,8 +120,10 @@ class GraphDescriptionParser(object):
         EDGE = 3
 
         amr = Hgraph()
-        stack = []
+        stack = [] 
         state = 0
+
+        new_node_counter = 0
 
         #0, top leve
         #1, expecting source nodename
@@ -139,7 +143,11 @@ class GraphDescriptionParser(object):
 
             elif state == 1:
                 if type == LexTypes.IDENTIFIER:
-                    stack.append((PNODE, token, None)) # Push source node
+                    alignments = token.split("~")
+                    nodelabel = alignments[0]
+                    stack.append((PNODE, nodelabel, None)) # Push source node
+                    for alignment in alignments[1:]: 
+                        amr.node_alignments[nodelabel] = (int(alignment),)
                     state = 2
                 else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
 
@@ -197,17 +205,52 @@ class GraphDescriptionParser(object):
             elif state == 5:
                 if type == LexTypes.LPAR:
                     state = 1
+                elif type == LexTypes.POLARITY:
+                    alignments = token.split("~")
+                    polarity = alignments[0] 
+                    node_id = "_%i" % new_node_counter
+                    new_node_counter += 1
+                    for alignment in alignments[1:]:
+                        amr.node_alignments[node_id] = (int(alignment),)
+                    #stack.append((CNODE, Quantity(quantity), None))
+                    stack.append((CNODE, node_id, Polarity(polarity)))
+                    state = 6
                 elif type == LexTypes.QUANTITY:
-                    stack.append((CNODE, Quantity(token), None))
+                    alignments = token.split("~")
+                    quantity= alignments[0]    
+                    node_id = "_%i" % new_node_counter
+                    new_node_counter += 1
+                    for alignment in alignments[1:]:
+                        amr.node_alignments[node_id] = (int(alignment),)
+                    #stack.append((CNODE, Quantity(quantity), None))
+                    stack.append((CNODE, node_id, Quantity(quantity)))
                     state = 6
                 elif type == LexTypes.STRLITERAL:
-                    stack.append((CNODE, StrLiteral(token[1:-1]), None))
+                    alignments = token.split("~")
+                    strliteral = alignments[0]    
+                    node_id = "_%i" % new_node_counter
+                    new_node_counter += 1
+                    for alignment in alignments[1:]:
+                        amr.node_alignments[node_id] = (int(alignment),)
+                    #stack.append((CNODE, StrLiteral(strliteral[1:-1]), None))
+                    stack.append((CNODE, node_id, StrLiteral(strliteral[1:-1])))
                     state = 6
                 elif type == LexTypes.LITERAL:
-                    stack.append((CNODE, Literal(token[1:]), None)) 
+                    alignments = token.split("~")
+                    literal = alignments[0]    
+                    node_id = "_%i" % new_node_counter
+                    new_node_counter += 1
+                    for alignment in alignments[1:]:
+                        amr.node_alignments[node_id] = (int(alignment),)
+                    #stack.append((CNODE, Literal(literal[1:]), None)) 
+                    stack.append((CNODE, node_id , Literal(literal[1:]))) 
                     state = 6
                 elif type == LexTypes.IDENTIFIER: 
-                    stack.append((CNODE, token, None)) # Push new source node with concept label
+                    alignments = token.split("~")
+                    nodelabel = alignments[0]
+                    stack.append((CNODE, nodelabel, None)) # Push new child node with concept label
+                    for alignment in alignments[1:]:
+                        amr.node_alignments[nodelabel] = (int(alignment),)
                     state = 6
                 elif type == LexTypes.EDGELABEL:  # Unary edge
                     stack.append((CNODE, None, None))
@@ -312,15 +355,19 @@ class GraphDescriptionParser(object):
                     stack.append((EDGE, token[1:]))
                     state = 5
 
-                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
+                else: raise ParserError, "Unexpected token %s at position %i of type %s." % (token, pos, type)
 
             elif state == 7: 
                 if type == LexTypes.IDENTIFIER:
-                    stack.append((CNODE, token, None)) # Push new source node with concept label
+                    alignments = token.split("~")
+                    nodelabel = alignments[0]
+                    stack.append((CNODE, nodelabel, None)) # Push new target node with concept label
+                    for alignment in alignments[1:]:
+                        amr.node_alignments[nodelabel] = (int(alignment),)
                     state = 6
                 elif type== LexTypes.LPAR:
                     state = 1
-                else: raise ParserError, "Unexpected token %s at position %i." % (token, pos)
+                else: raise ParserError, "Unexpected token %s at position %i of type %s." % (token, pos, type)
 
         return amr
 

@@ -123,6 +123,6 @@ def tree_decomposition_edge(graph_edge, visited, amr, nodelabels = False):
 
 
 if __name__ == "__main__":
-    from lib.hgraph.hgraph import Hgraph
+    from common.hgraph.hgraph import Hgraph
     graph = Hgraph.from_string("(n :P$1 :arg0 (a.n :E$2) :arg1 (n :S$3 a.))")
     td = tree_decomposition(graph)

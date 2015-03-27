@@ -184,6 +184,5 @@ class SentenceWithHgraph():
 
 
 
-if __name__ == "__main__":
-    in_f =  open(sys.argv[1],'r')
-    a = metadata_amr_corpus(in_f)
+#in_f =  open(sys.argv[1],'r')
+#corpus = metadata_amr_corpus(in_f)

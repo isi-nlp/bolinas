@@ -273,6 +273,31 @@ class Hgraph(defaultdict):
 
         return new_amr
 
+    def to_instance_edges(self, warn=False):
+        """
+        Return a new DAG in which all concepts are represented as additional unary hyperedges.
+        """
+        new_amr = self.clone(warn = warn)
+        new_amr.node_to_concepts = {}
+        for (node,concept) in self.node_to_concepts.items():
+
+            if isinstance(concept, StrLiteral):
+                new_edge = (node, "String:%s" % concept, tuple())
+            elif isinstance(concept, Quantity):
+                new_edge = (node, "Quantity:%s" % concept, tuple())
+            elif isinstance(concept, Polarity):
+                new_edge = (node, "Polarity:%s" % concept, tuple())
+            else: 
+                new_edge = (node, "Instance:%s" % concept, tuple())
+
+            new_amr._add_triple(*new_edge)
+            if node in self.node_alignments:
+                new_amr.edge_alignments[new_edge] = self.node_alignments[node]
+             
+            new_amr.edge_alignments = self.edge_alignments
+            
+        return new_amr        
+
 #    def make_rooted_amr(self, root, swap_callback=None and (lambda oldtrip,newtrip: True), warn=sys.stderr):
 #        """
 #        Flip edges in the AMR so that all nodes are reachable from the unique root.
@@ -1116,17 +1141,22 @@ class Hgraph(defaultdict):
         """
         Replace a collection of hyperedges in the DAG with another collection of edges. 
         """
+        # TODO: We need to make sure that the new_dag has distinct node labels, possibly by just calling
+        #     clone_canonical.
+
         # First get a mapping of boundary nodes in the new fragment to 
         # boundary nodes in the fragment to be replaced
         leaves = dag.find_leaves()
         external = new_dag.get_external_nodes()
         assert len(external) == len(leaves)
         boundary_map = dict([(x, leaves[external[x]]) for x in external])
+        print boundary_map
         dagroots = dag.find_roots() if not dag.roots else dag.roots
         assert len(dagroots) == len(new_dag.roots)
         for i in range(len(dagroots)):
             boundary_map[new_dag.roots[i]] = dagroots[i]
         boundary_map.update(partial_boundary_map)
+        print boundary_map
 
         # Make sure node labels agree
         for x in boundary_map: 
@@ -1273,6 +1303,9 @@ class SpecialValue(str):
         pass
 
 class Quantity(str):
+        pass
+
+class Polarity(str):
         pass
 
 class Literal(str):
