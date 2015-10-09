@@ -948,8 +948,9 @@ class Hgraph(defaultdict):
         Return a graphviz dot representation.
         """
         return self._get_gv_graph(instances).to_string()
-    
-    def _get_gv_graph(self, instances = True):
+   
+
+    def _get_gv_graph(self, instances = True, node_ids = True):
         """
         Return a pygraphviz AGraph.
         """
@@ -958,6 +959,7 @@ class Hgraph(defaultdict):
         graph.node_attr.update(height=0.1, width=0.1, shape='none', fontsize='9')
         graph.edge_attr.update(fontsize='9')
         counter = 0
+        counter2 = 0
         for edge in self.triples(instances):
             node, rel, child  = edge
             if isinstance(rel, NonterminalLabel):
@@ -966,7 +968,9 @@ class Hgraph(defaultdict):
             else: 
                 edgecolor = "black"
             if node in self.node_to_concepts and self.node_to_concepts[node]:
-                graph.add_node(node, label=self.node_to_concepts[node], style="filled", fillcolor = ("black" if node in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+                graph.add_node(node, shape="circle", label=self.node_to_concepts[node], style="filled", color = ("black" if node in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+            else: 
+                graph.add_node(node, label=node if node_ids else "", shape="circle", style="filled", fillcolor = ("black" if node in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
             if isinstance(node,StrLiteral):
                 node = str(node)
                 graph.add_node(node, label='"%s"' % node)
@@ -977,21 +981,32 @@ class Hgraph(defaultdict):
                 graph.add_edge(node, centernode, dir="none", label="%s"%rel, color=edgecolor)
                 for tail in  child: 
                     if tail in self.node_to_concepts and self.node_to_concepts[tail]:
-                        graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+                        graph.add_node(tail, shape="circle", label=self.node_to_concepts[tail], style="filled",fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if node in self.external_nodes else "black"))
+                    else: 
+                        graph.add_node(tail, label = tail if node_ids else "", shape="circle", style="filled",fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if tail in self.external_nodes else "black"))
                     if isinstance(node, StrLiteral): 
                         tail = str(tail)
                         graph.add_node(tail, label='"%s"' % tail)
             
                     graph.add_edge(centernode, tail, color=edgecolor)
             else: 
-                nodestr, tail = node, child[0]
+                if child: 
+                    nodestr, tail = node, child[0]
+                else: 
+                    graph.add_node("#@"+str(counter2),label="")
+                    nodestr, tail = node,  "#@"+str(counter2)
+                    counter2 +=1
+    
                 if tail in self.node_to_concepts and self.node_to_concepts[tail]:
-                    graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if tail in self.external_nodes else "black"))
+                    graph.add_node(tail, label=self.node_to_concepts[tail], style="filled", shape="circle", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if tail in self.external_nodes else "black"))
+                else: 
+                    graph.add_node(tail,label = tail if node_ids else "",  style="filled", shape="circle", fillcolor = ("black" if tail in self.external_nodes else "white"), fontcolor = ("white" if tail in self.external_nodes else "black"))
                 if isinstance(tail, StrLiteral): 
                     tail = str(tail)
                     graph.add_node(tail, label='"%s"' % tail)
                 graph.add_edge(nodestr, tail, label="%s"%rel, color=edgecolor)
         return graph
+  
   
     def render(self, instances = True):
         """
@@ -1153,13 +1168,11 @@ class Hgraph(defaultdict):
         external = new_dag.get_external_nodes()
         assert len(external) == len(leaves)
         boundary_map = dict([(x, leaves[external[x]]) for x in external])
-        print boundary_map
         dagroots = dag.find_roots() if not dag.roots else dag.roots
         assert len(dagroots) == len(new_dag.roots)
         for i in range(len(dagroots)):
             boundary_map[new_dag.roots[i]] = dagroots[i]
         boundary_map.update(partial_boundary_map)
-        print boundary_map
 
         # Make sure node labels agree
         for x in boundary_map: 
